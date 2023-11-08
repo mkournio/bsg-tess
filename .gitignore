@@ -1,3 +1,5 @@
+#Ignored from git
+
 input/
 
 output/
@@ -6,3 +8,4 @@ other/
 
 *.pyc
 
+test.py
