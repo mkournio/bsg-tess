@@ -635,4 +635,50 @@ print Observations.get_product_list(obs)
 
 
 
+##################################
+
+	'''
+	WWZ_simple_linear = np.load(TESS_WWZ_PATH+'HD34085_32.npy')
+
+	fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4), gridspec_kw={'width_ratios': [3, 1]})
+
+
+	heatmap = ax1.pcolormesh(WWZ_simple_linear[0], WWZ_simple_linear[1], WWZ_simple_linear[2], cmap='hot') #la funcion pcolormesh es para hacer el escalograma
+
+	df = pd.DataFrame(WWZ_simple_linear[2])
+	df2 = pd.DataFrame(WWZ_simple_linear[1])
+	df11 = df.mean()
+	df22 = df2.mean()
+	time1 = df22.to_numpy() 
+	Averag = df11.to_numpy() 
+	ax2.plot(Averag/max(Averag), time1, 'r',lw=1.5)
+	ax2.set_xlabel("Potencia")
+	ax2.yaxis.tick_right()
+	ax2.yaxis.set_label_position("right")
+	ax2.set_ylabel("Freq")
+
+	#lsx, lsy = np.loadtxt(TESS_LS_PATH + 'HD34085_5_LSS', delimiter=',', skiprows = 1, usecols=(0, 1), unpack=True)	
+
+	with open(TESS_LS_PATH + 'HD34085_32_FREQ') as f:
+					for line in f:
+
+						freq = float(line.split()[1])
+
+						if '(F)' in line:
+							ax2.axhline(freq,**AX_FMARK['(F)'])
+						elif '(H)' in line:
+							ax2.axhline(freq,**AX_FMARK['(H)'])
+						elif '(C)' in line:
+							ax2.axhline(freq,**AX_FMARK['(C)'] )
+		
+	#ax2.plot(lsy/max(lsy),lsx,'k',lw=0.5)
+
+	ax1.set_ylim(0.1, 1); ax2.set_ylim(0.1, 1); ax2.set_xlim(0,1); ax2.set_xticks([0.25,0.5,0.75])
+
+	plt.subplots_adjust(wspace=0.01)
+	plt.show()	
+	'''
+
+
+
 

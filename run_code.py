@@ -564,31 +564,30 @@ class PreWhitening(object):
 
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
 
-	import argparse
-	from astropy.table import Table
-	from astroquery.xmatch import XMatch
-	from astropy.io import ascii
-	from LPT_routines import to_deg
+import argparse
+from astropy.table import Table
+from astroquery.xmatch import XMatch
+from astropy.io import ascii
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-f", "--filename",default= None, help="File containing the star table")
-	parser.add_argument("-l1","--from_line", type=int, default = 1, help="First reading line")
-	parser.add_argument("-l2","--to_line", type=int, default = None, help="End reading line")	
-	args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--filename",default= None, help="File containing the star table")
+parser.add_argument("-l1","--from_line", type=int, default = 1, help="First reading line")
+parser.add_argument("-l2","--to_line", type=int, default = None, help="End reading line")	
+args = parser.parse_args()
 	
 	#### READ TABLE
-	inputf = ascii.read(args.filename, header_start=0, delimiter=",",data_start=args.from_line, data_end=args.to_line)
-	inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
+inputf = ascii.read(args.filename, header_start=0, delimiter=",",data_start=args.from_line, data_end=args.to_line)
+inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
 
-	coord = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 
+coord = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 
 		       'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK']})
 
 
-	data = XMatch.query(cat1=coord, cat2='vizier:IV/39/tic82',  max_distance=2*u.arcsec, colRA1='RA', colDec1='DEC')
-	fdata =  match_tabs(coord,data)
-	fdata.pprint(max_lines=-1)
+data = XMatch.query(cat1=coord, cat2='vizier:IV/39/tic82',  max_distance=2*u.arcsec, colRA1='RA', colDec1='DEC')
+fdata =  match_tabs(coord,data)
+fdata.pprint(max_lines=-1)
 	
 	#### EXTRACT LIGHTCURVES (ALL)
 	#ExtLCs(data['STAR'],data['RA'],data['DEC'],data['TIC'],4,pdf_name=args.filename+'_ExtLCs')
@@ -605,10 +604,10 @@ if __name__ == '__main__':
 	#ProcessLevel(level='ls',star_ids=fdata['STAR'], rows_page = 6, cols_page = 2, folder = 'EXTLC_R1',
 	#		        output_name = args.filename+'_LC', output_format = None, inter = False)
 
-	LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
+LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
 			   output_name = args.filename+'_LS', coll_x = True, coll_y = True, output_format = None, inter = True)
 
-	ext_files = ['HAUCKE+19','ext_prop','FRASER+10']
+ext_files = ['HAUCKE+19','ext_prop','FRASER+10']
 	#ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
 	#ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC','VINF']
 	#ext_keys = ['EW3995','EW4129','EW4131','EW4553','EW4568','EW4575']
@@ -624,47 +623,6 @@ if __name__ == '__main__':
 
 
 
-	'''
-	WWZ_simple_linear = np.load(TESS_WWZ_PATH+'HD34085_32.npy')
-
-	fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4), gridspec_kw={'width_ratios': [3, 1]})
-
-
-	heatmap = ax1.pcolormesh(WWZ_simple_linear[0], WWZ_simple_linear[1], WWZ_simple_linear[2], cmap='hot') #la funcion pcolormesh es para hacer el escalograma
-
-	df = pd.DataFrame(WWZ_simple_linear[2])
-	df2 = pd.DataFrame(WWZ_simple_linear[1])
-	df11 = df.mean()
-	df22 = df2.mean()
-	time1 = df22.to_numpy() 
-	Averag = df11.to_numpy() 
-	ax2.plot(Averag/max(Averag), time1, 'r',lw=1.5)
-	ax2.set_xlabel("Potencia")
-	ax2.yaxis.tick_right()
-	ax2.yaxis.set_label_position("right")
-	ax2.set_ylabel("Freq")
-
-	#lsx, lsy = np.loadtxt(TESS_LS_PATH + 'HD34085_5_LSS', delimiter=',', skiprows = 1, usecols=(0, 1), unpack=True)	
-
-	with open(TESS_LS_PATH + 'HD34085_32_FREQ') as f:
-					for line in f:
-
-						freq = float(line.split()[1])
-
-						if '(F)' in line:
-							ax2.axhline(freq,**AX_FMARK['(F)'])
-						elif '(H)' in line:
-							ax2.axhline(freq,**AX_FMARK['(H)'])
-						elif '(C)' in line:
-							ax2.axhline(freq,**AX_FMARK['(C)'] )
-		
-	#ax2.plot(lsy/max(lsy),lsx,'k',lw=0.5)
-
-	ax1.set_ylim(0.1, 1); ax2.set_ylim(0.1, 1); ax2.set_xlim(0,1); ax2.set_xticks([0.25,0.5,0.75])
-
-	plt.subplots_adjust(wspace=0.01)
-	plt.show()	
-	'''
 
 
 
