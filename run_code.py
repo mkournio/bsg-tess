@@ -12,13 +12,12 @@ parser.add_argument("-l1","--from_line", type=int, default = 1, help="First read
 parser.add_argument("-l2","--to_line", type=int, default = None, help="End reading line")	
 args = parser.parse_args()
 	
-	#### READ TABLE
+# READ TABLE
 inputf = ascii.read(args.filename, header_start=0, delimiter=",",data_start=args.from_line, data_end=args.to_line)
 inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
 
 coord = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 
 		       'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK']})
-
 
 data = XMatch.query(cat1=coord, cat2='vizier:IV/39/tic82',  max_distance=2*u.arcsec, colRA1='RA', colDec1='DEC')
 fdata =  match_tabs(coord,data)
@@ -40,22 +39,25 @@ fdata.pprint(max_lines=-1)
 	#		        output_name = args.filename+'_LC', output_format = None, inter = False)
 
 LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
-			   output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
-			output_format = None, inter = False)
+			  output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
+			  output_format = None, inter = False)
 
 ext_files = ['HAUCKE+19','FRASER+10']
 ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
 #ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC','VINF']
 #ext_keys = ['EW3995','EW4129','EW4131','EW4553','EW4568','EW4575']
+
 for k in ext_keys:
 	external = XmExtCol(inputf['RA'], inputf['DEC'],ext_files=ext_files,ext_col= k)
 	fdata = hstack([fdata,external])
 
 ext_keys = ['STAR'] + ['f_'+ k for k in ext_keys] + ext_keys
 
+#corr_scatter(ext_x = LS.rn_tab, ext_y = fdata[ext_keys], match_keys = 'STAR', 
+#	    coll_x = True, coll_y = True, output_format = None, inter = True)
 
-Correlation(ext_x = LS.rn_tab, ext_y = fdata[ext_keys], match_keys = 'STAR', 
-		coll_x = True, coll_y = True, output_format = None, inter = True)
+corr_hist(star_ids=fdata['STAR'], ext_y = fdata[ext_keys], match_keys = 'STAR', 
+	    output_format = None, inter = True)
 
 
 
