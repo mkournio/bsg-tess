@@ -49,7 +49,10 @@ class GridTemplate(object):
 			 	self.gs.update(hspace=0.1)
 		else:
 			if 'col_labels' in self.__dict__:
-				ax.set_xlabel(self.col_labels[plot_col])
+				ax.set_xlabel(STY_LB[self.col_labels[plot_col]])
+
+		if plot_row == 0 and 'sup_xlabels' in self.__dict__:
+				ax.set_title(self.sup_xlabels[plot_col])
 
 		if plot_col > 0 :
 			if self.coll_y:
@@ -57,7 +60,8 @@ class GridTemplate(object):
 			 	self.gs.update(wspace=0.1)
 		else:
 			if 'row_labels' in self.__dict__:
-				ax.set_ylabel(self.row_labels[plot_row])
+				ax.set_ylabel(STY_LB[self.row_labels[plot_row]])
+			
 
 		self.ind += 1
 

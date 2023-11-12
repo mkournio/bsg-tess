@@ -38,13 +38,14 @@ fdata.pprint(max_lines=-1)
 	#ProcessLevel(level='ls',star_ids=fdata['STAR'], rows_page = 6, cols_page = 2, folder = 'EXTLC_R1',
 	#		        output_name = args.filename+'_LC', output_format = None, inter = False)
 
-LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
-			  output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
-			  output_format = None, inter = False)
+#LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
+#			  output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
+#			  output_format = None, inter = False)
 
 ext_files = ['HAUCKE+19','FRASER+10']
-ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
-#ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC','VINF']
+ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
+#ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
+#ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC']
 #ext_keys = ['EW3995','EW4129','EW4131','EW4553','EW4568','EW4575']
 
 for k in ext_keys:
@@ -56,8 +57,7 @@ ext_keys = ['STAR'] + ['f_'+ k for k in ext_keys] + ext_keys
 #corr_scatter(ext_x = LS.rn_tab, ext_y = fdata[ext_keys], match_keys = 'STAR', 
 #	    coll_x = True, coll_y = True, output_format = None, inter = True)
 
-corr_hist(star_ids=fdata['STAR'], ext_y = fdata[ext_keys], match_keys = 'STAR', 
-	    output_format = None, inter = True)
+corr_hist(ext_tab = fdata[ext_keys], snr_show = 4, output_format = None, coll_x = True, inter = True)
 
 
 

@@ -17,6 +17,15 @@ def to_deg(ra,dec):
 
 	return c.ra.degree, c.dec.degree
 
+def mask_flatten(arr,mask):
+	return np.hstack(arr[mask])
+
+def fill_array(a, fillvalue = 0):
+
+	import itertools
+
+	return np.array(list(itertools.izip_longest(*a, fillvalue=fillvalue))).T
+
 def XmExtCol(ra,dec,ext_files,ext_col,fill_nan_viz=None,**kwargs):
 
 	coord = Table({'RA':ra,'DEC':dec})

@@ -1,7 +1,9 @@
 from plot_methods import GridTemplate
 from functions import *
+from constants import *
 from astropy.table import join
 import numpy as np
+from scipy.stats import norm, gamma
 
 class corr_scatter(GridTemplate):
 
@@ -45,19 +47,20 @@ class corr_scatter(GridTemplate):
 
 class corr_hist(GridTemplate):
 
-	def __init__(self, star_ids, ext_y, match_keys, type_data = 'frequency', **kwargs):
+	def __init__(self, ext_tab, snr_show = 5, type_data = 'frequency', **kwargs):
 
-		self.star_ids = star_ids
-		self.ext_y = ext_y
-		self.match_keys = match_keys
-		self.type_data = type_data	
+		self.ext_tab = ext_tab
+		self.type_data = type_data
+		self.snr_show = snr_show	
 		self.freqs = []
 		self.snrs = []
 		self.ident = []	
 
-		self.cols_y = [c for c in self.ext_y.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
-		super(corr_hist,self).__init__(rows_page = 1, cols_page = 1,
-						    **kwargs)
+		self.cols_y = [c for c in self.ext_tab.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
+		super(corr_hist,self).__init__(rows_page = len(self.cols_y), cols_page = 3, row_labels = self.cols_y, 
+					       fig_xlabel = PLOT_XLABEL['ls'], 
+						sup_xlabels = ['Fundamental (S/N > %s)' % self.snr_show,'Fundamental', 'Harmonics'],
+					       **kwargs)
 
 		self._get_data()
 
@@ -68,7 +71,7 @@ class corr_hist(GridTemplate):
 
 		if self.type_data == 'frequency':	
 
-			for star in self.star_ids:
+			for star in self.ext_tab['STAR']:
 
 				star_freqs = []
 				star_snrs = []
@@ -80,32 +83,88 @@ class corr_hist(GridTemplate):
 						file_.readline()
 						for line in file_:
 							fr, snr, ident = map(line.split().__getitem__,[1,5,6])
-							star_freqs.append(fr)
-							star_snrs.append(snr)
+							star_freqs.append(float(fr))
+							star_snrs.append(float(snr))
 							star_ident.append(ident)
 					file_.close()
 
-				self.freqs.append(np.array(star_freqs).astype(np.float64))
-				self.snrs.append(np.array(star_snrs).astype(np.float64))
-				self.ident.append(np.array(star_ident))
+				self.freqs.append(star_freqs)
+				self.snrs.append(star_snrs)
+				self.ident.append(star_ident)
 
-		self.freqs = np.array(self.freqs)
-		self.snrs = np.array(self.snrs)
-		self.ident = np.array(self.ident)
+			self.freqs = fill_array(self.freqs)
+			self.snrs = fill_array(self.snrs)
+			self.ident = fill_array(self.ident)
 
-		return
+			return
 
 	def _hist_panel(self):
-				ax = self.GridAx()		
-				bins=np.arange(0.08,1.5,0.05);
+						
+		bins=np.arange(0.05,1.15,0.04);
 
-				masked_freqs = mask_flatten(self.freqs,star_mask)
 
-		
-				ax.hist(masked_freqs, bins=bins, color= 'b')
+		for prop in self.cols_y:
 
-	def _mask_flatten
+			ax_hsn = self.GridAx()
+			ax_all = self.GridAx()
+			ax_depf = self.GridAx()
 
+			nanprop = self.ext_tab[prop].filled(np.nan)
+
+			brp_ini = [np.nanpercentile(nanprop, 33.33),np.nanpercentile(nanprop, 66.66)] 
+
+			tb = [-np.inf] + sorted(brp_ini) + [+np.inf]
+
+			for i in range(len(tb)-1):
+
+				mask_star = np.logical_and(tb[i] < self.ext_tab[prop],self.ext_tab[prop] < tb[i+1])
+				mask_star = np.logical_and(mask_star,self.ext_tab[prop].mask == False)
+
+				bin_freqs = self.freqs[mask_star]
+				bin_snrs = self.snrs[mask_star]
+				bin_ident = self.ident[mask_star]
+
+				for s, ax in zip([self.snr_show,0],[ax_hsn,ax_all]):
+							
+					mask_fund = np.logical_and(bin_snrs > s, bin_ident == '(F)')
+					hdata = bin_freqs[mask_fund]
+
+					hdata_fit = [x for x in hdata if abs(x - np.mean(hdata)) < 3 * np.std(hdata)]
+					#(mu, sigma) = norm.fit(hdata_fit)
+					gparam = gamma.fit(hdata_fit, floc=0)
+
+					if len(hdata) > 0: 
+						values, _, _ =ax.hist(hdata, histtype='step', lw = 2, color = HIST_COLORS[i], 
+							bins=bins, label = self._hist_legend(i,STY_LB[prop],tb[i],tb[i+1],FMT_PR[prop]))
+								
+						xfit = np.linspace(min(hdata), max(hdata), 100)
+						area = sum(np.diff(bins) * values)
+
+						if s > 0 : print prop, i, area
+
+						#ax.plot(xfit,norm.pdf(xfit,mu,sigma)*area, lw=2.5, color = HIST_COLORS[i])
+						ax.plot(xfit,gamma.pdf(xfit,*gparam)*area, lw=2.5, color = HIST_COLORS[i])
+
+						ax.set_ybound(lower=0.1)
+						ax.set_xbound(lower=0.01)		
+
+
+				mask_depf = np.logical_and(bin_snrs > 0, bin_ident == '(H)')
+				data_depf = bin_freqs[mask_depf]
+				ax_depf.hist(data_depf, alpha = 0.4, histtype='step', lw = 2, color = HIST_COLORS[i],bins=bins)
+
+			ax_hsn.text(0.7,0.3,'stbin_size %s' % mask_star.sum(), size = 8, transform=ax_hsn.transAxes)
+			ax_all.legend(loc="upper right")	
+
+
+	def _hist_legend(self,i,prop,low,high,frm):
+
+		if i == 0:
+			return '%s < ' % prop + frm % high
+		elif i == 1:
+			return frm % low + ' < %s < ' % prop + frm % high
+		elif i == 2:
+			return '%s > ' % prop + frm % low
 
 
 '''
