@@ -23,27 +23,29 @@ data = XMatch.query(cat1=coord, cat2='vizier:IV/39/tic82',  max_distance=2*u.arc
 fdata =  match_tabs(coord,data)
 fdata.pprint(max_lines=-1)
 	
-	#### EXTRACT LIGHTCURVES (ALL)
-	#ExtLCs(data['STAR'],data['RA'],data['DEC'],data['TIC'],4,pdf_name=args.filename+'_ExtLCs')
+#### EXTRACT LIGHTCURVES (ALL)
+#ExtLCs(data['STAR'],data['RA'],data['DEC'],data['TIC'],4,pdf_name=args.filename+'_ExtLCs')
 
-	#### EXTRACT LIGHTCURVES (SELECTED)
-	#ExtLCs(data['STAR'],data['RA'], data['DEC'], data['TIC'], 4, sspoc = data['SSPOC'], sffi = data['SFFI'],
-	#		    thmask = data['MASK'], pdf_name=args.filename+'_ExtLCs')
+#### EXTRACT LIGHTCURVES (SELECTED)
+#ExtLCs(data['STAR'],data['RA'], data['DEC'], data['TIC'], 4, sspoc = data['SSPOC'], sffi = data['SFFI'],
+#		    thmask = data['MASK'], pdf_name=args.filename+'_ExtLCs')
 
-	#### VISUALIZE LIGHTCURVES
-	#VisLCs(star_ids=fdata['STAR'], plots_per_grid = 8, folder = 'EXTLC_R1', pdf_name = args.filename+'_LCs', 
-	#								       pdf_save = True, inter = False)
+#### VISUALIZE LIGHTCURVES
+#VisLCs(star_ids=fdata['STAR'], plots_per_grid = 8, folder = 'EXTLC_R1', pdf_name = args.filename+'_LCs', 
+#								       pdf_save = True, inter = False)
 
-	#### VISUALIZE PERIODOGRAMS
-	#ProcessLevel(level='ls',star_ids=fdata['STAR'], rows_page = 6, cols_page = 2, folder = 'EXTLC_R1',
-	#		        output_name = args.filename+'_LC', output_format = None, inter = False)
+#### VISUALIZE PERIODOGRAMS
+#ProcessLevel(level='ls',star_ids=fdata['STAR'], rows_page = 6, cols_page = 2, folder = 'EXTLC_R1',
+#		        output_name = args.filename+'_LC', output_format = None, inter = False)
 
 #LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
 #			  output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
 #			  output_format = None, inter = False)
 
 ext_files = ['HAUCKE+19','FRASER+10']
-ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
+#ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
+ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ','NABUN','LOGD','LOGG','MASS','LOGL','VMAC','VMIC']
+#ext_keys = ['TEFF','NABUN','MASS','LOGL','VMIC']
 #ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
 #ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC']
 #ext_keys = ['EW3995','EW4129','EW4131','EW4553','EW4568','EW4575']
@@ -55,9 +57,11 @@ for k in ext_keys:
 ext_keys = ['STAR'] + ['f_'+ k for k in ext_keys] + ext_keys
 
 #corr_scatter(ext_x = LS.rn_tab, ext_y = fdata[ext_keys], match_keys = 'STAR', 
-#	    coll_x = True, coll_y = True, output_format = None, inter = True)
+#	    coll_x = True, coll_y = True, output_format = 'pdf', inter = False)
 
-corr_hist(ext_tab = fdata[ext_keys], snr_show = 4, output_format = None, coll_x = True, inter = True)
+autocorr_scatter(vector=fdata[ext_keys], output_format = None, inter = 'True', coll_x = True, coll_y = True )
+
+#corr_hist(ext_tab = fdata[ext_keys], snr_show = 4, output_format = 'pdf', coll_x = True, inter = False)
 
 
 

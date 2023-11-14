@@ -3,15 +3,17 @@ from functions import *
 from constants import *
 from astropy.table import join
 import numpy as np
-from scipy.stats import norm, gamma
+from scipy.stats import norm, gamma 
+from scipy.stats.mstats import pearsonr, spearmanr, describe
 
 class corr_scatter(GridTemplate):
 
-	def __init__(self, ext_x, ext_y, match_keys, **kwargs):
+	def __init__(self, ext_x, ext_y, match_keys = 'STAR', auto = False, **kwargs):
 
 		self.ext_x = ext_x
 		self.ext_y = ext_y
 		self.match_keys = match_keys
+		self.auto = auto
 
 		self.cols_x = [c for c in self.ext_x.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
 		self.cols_y = [c for c in self.ext_y.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
@@ -24,25 +26,45 @@ class corr_scatter(GridTemplate):
 
 	def _scatter_panel(self):
 
+		if self.auto:
+			jtab = self.ext_x
+		else:
+			jtab = join(self.ext_x, self.ext_y, keys=self.match_keys)
 
-		jtab = join(self.ext_x, self.ext_y, keys=self.match_keys)
-
-		try:
-			jtab['TEFF'] = np.log10(jtab['TEFF'])
-		except:
-			pass
+		if 'TEFF' in jtab.columns: jtab['TEFF'] = np.log10(jtab['TEFF'])
 
 		for c1 in self.cols_x :
+
+			nx = mask_outliers(jtab[c1], m = 4)
+
 			for c2 in self.cols_y :
 
 				ax = self.GridAx()
 
 				flag_fraser = jtab['f_'+c2] == 2
-				ax.plot(jtab[c2][flag_fraser],jtab[c1][flag_fraser],'g^')
+				ax.plot(jtab[c2][flag_fraser],jtab[c1][flag_fraser],'^',color='limegreen')
 
 				flag_haucke = jtab['f_'+c2] == 1
-				ax.plot(jtab[c2][flag_haucke],jtab[c1][flag_haucke],'ro')
-				#ax.plot(jtab[c2],jtab[c1],'k.')				
+				ax.plot(jtab[c2][flag_haucke],jtab[c1][flag_haucke],'ro')				
+
+				ny = mask_outliers(jtab[c2], m = 4)
+
+				ax.plot(ny,nx,'k.',markersize=2)
+
+				if not (nx.mask.all() or ny.mask.all()):
+					pears_val = pearsonr(x=nx,y=ny)[0]
+					spear_val = spearmanr(x=nx,y=ny)[0]
+					ax.text(0.05,0.30,'%.2f' % pears_val,size = 6,color='c',transform=ax.transAxes)
+					ax.text(0.05,0.15,'%.2f' % spear_val,size = 6,color='b',transform=ax.transAxes)
+
+				#ax.plot(jtab[c2],jtab[c1],'k.')	
+			
+class autocorr_scatter(corr_scatter):
+
+	def __init__(self, vector, **kwargs):
+
+		super(autocorr_scatter,self).__init__(ext_x = vector, ext_y = vector, auto = True, **kwargs)
+		return
 
 
 class corr_hist(GridTemplate):

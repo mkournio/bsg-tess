@@ -17,8 +17,18 @@ def to_deg(ra,dec):
 
 	return c.ra.degree, c.dec.degree
 
-def mask_flatten(arr,mask):
-	return np.hstack(arr[mask])
+def mask_outliers(m_arr, m = 3.):
+
+    x = np.ma.copy(m_arr)	
+
+    d = np.abs(x - np.ma.median(x))
+    mdev = np.ma.median(d)
+    s = d / (float(mdev) if mdev else 1.)
+
+    x.mask[s>m] = True
+
+    return x
+	
 
 def fill_array(a, fillvalue = 0):
 
