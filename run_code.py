@@ -43,8 +43,8 @@ fdata.pprint(max_lines=-1)
 #			  output_format = None, inter = False)
 
 ext_files = ['HAUCKE+19','FRASER+10']
-#ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
-ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ','NABUN','LOGD','LOGG','MASS','LOGL','VMAC','VMIC']
+ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
+#ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ','NABUN','LOGD','LOGG','MASS','LOGL','VMAC','VMIC']
 #ext_keys = ['TEFF','NABUN','MASS','LOGL','VMIC']
 #ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
 #ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC']
@@ -59,9 +59,9 @@ ext_keys = ['STAR'] + ['f_'+ k for k in ext_keys] + ext_keys
 #corr_scatter(ext_x = LS.rn_tab, ext_y = fdata[ext_keys], match_keys = 'STAR', 
 #	    coll_x = True, coll_y = True, output_format = 'pdf', inter = False)
 
-autocorr_scatter(vector=fdata[ext_keys], output_format = None, inter = 'True', coll_x = True, coll_y = True )
+#autocorr_scatter(vector=fdata[ext_keys], output_format = None, inter = 'True', coll_x = True, coll_y = True )
 
-#corr_hist(ext_tab = fdata[ext_keys], snr_show = 4, output_format = 'pdf', coll_x = True, inter = False)
+corr_hist(ext_tab = fdata[ext_keys], snr_show = 4, output_format = None, coll_x = True, inter = True)
 
 
 
