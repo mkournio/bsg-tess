@@ -1,6 +1,8 @@
 from constants import *
 import os
 import numpy as np
+import numpy.ma as ma
+from functools import reduce
 
 class FreqIdent(object):
 
@@ -49,27 +51,35 @@ class FreqIdent(object):
 			sect_snr[0], sect_snr[m_ind] = sect_snr[m_ind], sect_snr[0]
 
 			ident = np.copy(sect_f)
+
 			i = 0; fi = 0
 
-
 			print ident
+			masks = [np.ones(len(sect_f),dtype=bool)]
 
 			while i < len(ident):
 				
 				try:
-
 					f = float(ident[i])
 
 					idtx = 'F%d' % fi
-					ident = np.where(abs(sect_f - f) < rayleigh, idtx, ident)
 
-					mult =	np.array([str(int(round(x/f)))+idtx for x in sect_f])	
-					ident = np.where(np.logical_and(sect_f > f + rayleigh,
-			           	 np.logical_or(sect_f % f < rayleigh, f - (sect_f % f) < rayleigh)), mult, ident)
+					cond = abs(sect_f - f) < rayleigh 
+					ident = np.where(cond & reduce(np.logical_and,masks), idtx, ident)
+					#print cond & reduce(np.logical_and,masks), ident
+
+					masks.append(~cond)
+
+					mult =	np.array([str(int(round(x/f))) + idtx for x in sect_f])
+					cond = np.logical_or(sect_f % f < rayleigh, f - sect_f % f < rayleigh)
+					ident = np.where(cond & reduce(np.logical_and,masks), mult, ident)
+					#print cond & reduce(np.logical_and,masks), ident
+
+					masks.append(~cond)
 
 
 					fi += 1
-				except:
+				except 
 					pass
 
 				i += 1
@@ -77,8 +87,11 @@ class FreqIdent(object):
 			print ident
 
 
-
-
+	def _flconv(self,x):
+		try:
+			return float(x)
+		except:
+			return x
 			
 
 		#return star_freqs, star_snrs, star_ident
