@@ -3,6 +3,7 @@ import os
 import numpy as np
 import numpy.ma as ma
 from functools import reduce
+import itertools
 
 class FreqIdent(object):
 
@@ -50,49 +51,65 @@ class FreqIdent(object):
 			sect_f[0], sect_f[m_ind] = sect_f[m_ind], sect_f[0]
 			sect_snr[0], sect_snr[m_ind] = sect_snr[m_ind], sect_snr[0]
 
+			i = 0; fi = 0; fund = []
 			ident = np.copy(sect_f)
-
-			i = 0; fi = 0
+			masks = [np.ones(len(sect_f),dtype=bool)]			
 
 			print ident
-			masks = [np.ones(len(sect_f),dtype=bool)]
 
 			while i < len(ident):
+
+				comb = False
 				
 				try:
 					f = float(ident[i])
 
-					idtx = 'F%d' % fi
+					if len(fund) > 2 :
+						bc = []			
+						for c0, c1 in list(itertools.product(np.arange(-5,5,1), repeat=2)):
+							if abs(f - c0 * fund[0] - c1 * fund[1]) < rayleigh:
+								bc.append((c0,c1))
+								comb = True
+						if comb:
+							m_ind = np.argmin([abs(c[0]) + abs(c[1]) for c in bc])
+							idtx = '%sF0 %sF1' % (bc[m_ind][0],bc[m_ind][1])
 
-					cond = abs(sect_f - f) < rayleigh 
-					ident = np.where(cond & reduce(np.logical_and,masks), idtx, ident)
-					#print cond & reduce(np.logical_and,masks), ident
-
-					masks.append(~cond)
-
-					mult =	np.array([str(int(round(x/f))) + idtx for x in sect_f])
-					cond = np.logical_or(sect_f % f < rayleigh, f - sect_f % f < rayleigh)
-					ident = np.where(cond & reduce(np.logical_and,masks), mult, ident)
-					#print cond & reduce(np.logical_and,masks), ident
-
-					masks.append(~cond)
+							cond = sect_f == f
+							ident = np.where(cond & reduce(np.logical_and,masks),idtx,ident)
+							masks.append(~cond)
 
 
-					fi += 1
-				except 
+					if not comb: 
+						idtx = 'F%d' % fi
+
+						cond = abs(sect_f - f) < rayleigh 
+
+						ident = np.where(cond & reduce(np.logical_and,masks), idtx, ident)
+
+						masks.append(~cond)
+
+						mult =	np.array([str(int(round(x/f))) + idtx for x in sect_f])
+						cond = np.logical_or(sect_f % f < rayleigh, f - sect_f % f < rayleigh)
+						ident = np.where(cond & reduce(np.logical_and,masks), mult, ident)
+
+						masks.append(~cond)
+
+						fund.append(f)
+						fi += 1
+
+				except:
 					pass
 
 				i += 1
 
 			print ident
 
+			return 1,2,3
 
-	def _flconv(self,x):
-		try:
-			return float(x)
-		except:
-			return x
-			
+
+	def _mask_update(self):		
+
+	
 
 		#return star_freqs, star_snrs, star_ident
 
