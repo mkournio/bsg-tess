@@ -49,3 +49,9 @@ LSPRW_PLOT_NUM = 4
 
 HIST_COLORS = ['r','limegreen','dodgerblue']
 
+BIN_PROP =	{
+		'LOW' : 0.05, 
+		'UP' : 1.50, 
+		'RES' : 0.05
+		}
+

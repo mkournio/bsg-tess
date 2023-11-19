@@ -43,9 +43,9 @@ fdata.pprint(max_lines=-1)
 #			  output_format = None, inter = False)
 
 ext_files = ['HAUCKE+19','FRASER+10']
-ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
+#ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ']
 #ext_keys = ['TEFF','VSINI','MDOT','LOGLM','LOGQ','NABUN','LOGD','LOGG','MASS','LOGL','VMAC','VMIC']
-#ext_keys = ['TEFF','NABUN','MASS','LOGL','VMIC']
+ext_keys = ['TEFF','NABUN','MASS','LOGL','VMIC']
 #ext_keys = ['TEFF','MDOT','VSINI','LOGQ','NABUN','LOGD','LOGLM']
 #ext_keys = ['LOGG','MASS','LOGL','VMAC','VMIC']
 #ext_keys = ['EW3995','EW4129','EW4131','EW4553','EW4568','EW4575']
