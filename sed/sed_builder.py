@@ -1,58 +1,97 @@
+from plot_methods import GridTemplate
+from astropy.table import Table, hstack
+from scipy.interpolate import interp1d
+from functions import *
+from constants import *
+import numpy as np
+import os 
+
+def synthetic_fluxes(synth_l, model_type = 'kurucz'):
+
+	# Creates a tabular of synthetic SED fluxes over a vector of effective wavelengths. 
+	# Model grids: Kurucz/PoWR
+
+	model_tab = Table(names=['t','g']+synth_l)
+	if model_type == 'kurucz':
+		grid_teffs = sorted(set([float(f[1:6]) for f in os.listdir(KURUCZ_SED_PATH) if f.endswith('flx')]))
+		grid_loggs = sorted(set([float(f[7:9]) for f in os.listdir(KURUCZ_SED_PATH) if f.endswith('flx')]))
+	elif model_type == 'powr':
+		grid_teffs = sorted(set([1e+3*float(f[5:7]) for f in os.listdir(POWR_SED_PATH) if f.startswith('ob')]))
+		grid_loggs = sorted(set([float(f[8:10]) for f in os.listdir(POWR_SED_PATH) if f.startswith('ob')]))
+
+	for t in grid_teffs:
+		for g in grid_loggs:
+			try:
+					sed = sed_read(t,g,model_type,synth_l)
+					model_tab.add_row(np.append([t,g],sed))				
+			except:
+				pass
+
+	return model_tab
 
 
+def sed_read(temp,logg,models,wave):
+
+	# Read SED and interpolate flux at given list of wavelengths. 
+
+	if models == 'kurucz':
+		sed_name = 't%05dg%02d.flx' % (temp,logg)
+  		tab = np.genfromtxt(KURUCZ_SED_PATH+sed_name, names = "wave, flux")
+	elif models == 'powr':
+		sed_name = 'ob-i_%2d-%2d_sed.txt' % (1e-3*temp,logg)
+  		tab = np.genfromtxt(POWR_SED_PATH+sed_name, names = "wave, flux")
+		tab['wave'] = 10 ** tab['wave']
+		# Conversion into surface flux - raw is flux received at D = 10 pc
+		for l in open(POWR_SED_PATH+'modelparameters.txt'):
+			if '%2d-%2d'% (1e-3*temp,logg) in l :
+				lstar = 10**float(l.split()[5])
+				rad2 = lstar * ((float(l.split()[1])/5778.)**-4)
+				scalar = rad2 * (1e-1 *  RSUN_TO_PC)**2
+		tab['flux'] = (10 **  tab['flux']) * (scalar**-1)
+		
+	f = interp1d(tab['wave'],tab['flux'],kind='linear')
+
+ 	return f(wave)
 
 
+class SEDBuilder(GridTemplate):
 
-class PdFSEDs(object):
+	def __init__(self, photo_tab, filt_dict, fit_dict = None, **kwargs):
 
-	def __init__(self,pdf_name,data,plots_per_page,sed_fit=False,lambda_fit_thres=1e+9,fit_bodies=['psph']):
+		super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
+					        fig_ylabel=PLOT_YLABEL['sed'],**kwargs)
+		self.photo_tab = photo_tab
+		self.filt_dict = filt_dict
 
-		self.pdf = PdfPages(pdf_name)
-		self.photo_tab = data['photo_tab']
-		self.filt_tab = data['filt_tab']
-		self.plot_num = plots_per_page
-		self.lambda_fit_thres = lambda_fit_thres
-		self.ind = 0
+		if fit_dict != None :
 
-		self.sed_fit = sed_fit
-		self.fit_bodies = fit_bodies
-		if sed_fit :
-			if 'mod_tabs' not in data:
-				raise Exception('Fit is activated but no model tab is found')
-			else :
-				from lmfit import minimize, Parameters, Parameter
-				from bisect import bisect
+			fit_keys = ['MODELS','FIT_BODIES','DIST','TEFF','LOGG']
 
-				self.minimize, self.Parameter, self.Parameters = minimize, Parameter, Parameters
-				self.bisect = bisect
+			if not all([x in fit_dict for x in fit_keys]):
+				raise ValueError("One or more of the fit columns are missing.")
+			self.__dict__.update(fit_dict)
 
-				self.mod_tabs = data['mod_tabs']
+			VALIDATE HERE
 
-				self.dist_tab = data['dist_tab']
-				self.teff_tab = data['teff_tab']
-				self.logg_tab = data['logg_tab']
+			from lmfit import minimize, Parameters, Parameter
+			from bisect import bisect
+
+			self.minimize, self.Parameter, self.Parameters = minimize, Parameter, Parameters
+			self.bisect = bisect
+
+		self._sed_plot()
+
+		self.GridClose()
 
 		return
 
-	def plot(self,
-		t_ind,
-		star_label		
-		):
+	def _sed_plot_single(self, t_ind, star_label):
 
-		if self.ind % self.plot_num == 0:
-			self.fig, self.axes = plt.subplots(**GR_SED[self.plot_num])
-			self.fig.text(0.5,0.04,'Wavelength (A)', ha="center", va="center")
-			self.fig.text(0.06,0.5,r'$F_{\lambda}$ (erg/s/cm$^2$/A)', ha="center", va="center", rotation=90)
+		ax = self.GridAx()
 
-		plot_ind = self.ind % self.plot_num
-		if self.plot_num > 1 :
-			self.axes = self.axes.flatten()
-			ax = self.axes[plot_ind]
-		else: ax = self.axes
+		if self.fit_dict != None : self.fit_l=[]; self.fit_f=[]; self.fit_ef=[]
 
-		if self.sed_fit : self.fit_l=[]; self.fit_f=[]; self.fit_ef=[]
-
- 		for k, v in self.filt_tab.items() :
+ 		for k, v in self.filt_dict.items() :
 
 			photo_star = []; photo_star_err = []
 			for c, ec in zip(v['f'],v['e']):
@@ -81,14 +120,14 @@ class PdFSEDs(object):
 				ax.plot(lambdas,photo_star_flx,v['mrk']['m'],c=v['mrk']['c'],markersize=v['mrk']['s'],label=k)
   				ax.errorbar(lambdas,photo_star_flx,photo_star_eflx,ecolor=v['mrk']['c'],elinewidth=1, capsize=0, ls='none')
 
-			if self.sed_fit and v['fit'] == 1:
+			if self.fit_dict != None and v['fit'] == 1:
 				self.fit_l.extend(np.array(lambdas))
 				self.fit_f.extend(np.array(photo_star_flx))
 				self.fit_ef.extend(np.array(photo_star_eflx))
 				#ax.scatter(np.array(lambdas)[fit_ind],3*np.array(photo_star_flx)[fit_ind],marker=u'$\u2193$',\
 				#	color='c',s=17)
 
-		if self.sed_fit: 
+		if self.fit_dict != None: 
 			try:
 				self.teff = self.teff_tab[t_ind][0]
 				self.dist = self.dist_tab[t_ind][0]
@@ -112,9 +151,6 @@ class PdFSEDs(object):
 		ax.set_xscale('log'); ax.set_yscale('log')
 		ax.set_title(star_label)
 
-		self.ind += 1
-		if self.ind % self.plot_num == 0: self.pdf.savefig(self.fig,bbox_inches='tight'); plt.clf(); plt.close(self.fig)		
-
 		return
 
 	def _fit(self):
@@ -132,15 +168,15 @@ class PdFSEDs(object):
 				params['teff'].set(value = self.teff)
 				params['dist'].set(value = self.dist)
 				if len(self.fit_bodies) == 1 :
-					self.mask = map(lambda x: x < self.lambda_fit_thres, self.fit_l)
+					self.mask = map(lambda x: x < LAMBDA_FIT_THRES, self.fit_l)
 				else:
-					self.mask = map(lambda x: x < min(1.5e+4,self.lambda_fit_thres), self.fit_l)
+					self.mask = map(lambda x: x < min(1.5e+4,LAMBDA_FIT_THRES), self.fit_l)
 
 			elif fb == 'hd' and 'wd' in self.fit_bodies:
-				self.mask = map(lambda x: x < min(3e+4,self.lambda_fit_thres), self.fit_l)
+				self.mask = map(lambda x: x < min(3e+4,LAMBDA_FIT_THRES), self.fit_l)
 
 			else:
-				self.mask = map(lambda x: x <= self.lambda_fit_thres, self.fit_l)
+				self.mask = map(lambda x: x <= LAMBDA_FIT_THRES, self.fit_l)
 
 			result = self.minimize(self._resid, params, method = 'least_squares')
 
@@ -279,13 +315,4 @@ class PdFSEDs(object):
 		else:	
 			return '%s %s\n' % (value,note)
 			
-
-	def close(self):
-
-		if self.ind % self.plot_num != 0: self.pdf.savefig(self.fig,bbox_inches='tight')
-
-		plt.clf(); plt.close('all')
-		self.pdf.close()
-
-		return
 

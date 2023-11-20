@@ -363,6 +363,36 @@ def frequencies(tpf, mask, bk_mask, pca = 1, peak_thres = 3):
 
 	return glob_pg, glob_ps_freq, peaks_array
 
+
+def freqs_to_tex_tab(d_fund, d_harm, d_comb, file_):
+
+	with open(file_, 'w') as tex: 
+
+		tex.write(TEX_FREQ_TAB['PRE'])
+
+		for star in d_fund.keys():
+
+			for index_f, sect in enumerate(d_fund[star]['SECT']) :
+
+				for f, ident, sn in zip(d_fund[star]['FREQ'][index_f],d_fund[star]['IDS'][index_f],d_fund[star]['SNR'][index_f]):
+					 tex.write("%s & %s & %s & %.3f & %.1f\\\\ \n" % (star,sect,ident,f,sn))
+
+				index_h = d_harm[star]['SECT'].index(sect)
+				for f, ident, sn in zip(d_harm[star]['FREQ'][index_h],d_harm[star]['IDS'][index_f],d_harm[star]['SNR'][index_h]):
+					 tex.write("%s & %s & %s & %.3f & %.1f\\\\ \n" % (star,sect,ident,f,sn))
+
+				index_c = d_comb[star]['SECT'].index(sect)
+				for f, ident, sn in zip(d_comb[star]['FREQ'][index_c],d_comb[star]['IDS'][index_f],d_comb[star]['SNR'][index_c]):
+					 tex.write("%s & %s & %s & %.3f & %.1f\\\\ \n" % (star,sect,ident,f,sn))
+
+				tex.write("\\hline\n")
+
+		tex.write(TEX_FREQ_TAB['POST'])
+	tex.close()
+
+	return
+	
+
 ######################################
 
 def roundup(x):

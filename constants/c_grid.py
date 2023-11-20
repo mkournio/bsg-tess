@@ -1,8 +1,8 @@
 #### Plotting constants and labels
 grid_params = {'legend.fontsize': 8,
-	 	'font.size':  15,
-         	'axes.labelsize': 12,
-         	'axes.titlesize': 11,
+	 	'font.size':  11,
+         	'axes.labelsize': 14,
+         	'axes.titlesize': 13,
          	'xtick.labelsize': 12,
          	'ytick.labelsize': 9}
 
@@ -10,11 +10,13 @@ PLOT_XLC_NCOL = 3
 
 PLOT_XLABEL =   { 
 		'lc' : r'Time $-$ 2457000 [BTJD d]',
-		'ls' : r'Frequency [d$^{-1}$]'
+		'ls' : r'Frequency [d$^{-1}$]',
+		'sed': r'Wavelength (A)'
 		}
 PLOT_YLABEL =   { 
 		'lc' : r'mag',
-		'ls' : r'Power'
+		'ls' : r'Power',
+		'sed': r'$F_{\lambda}$ (erg/s/cm$^2$/A)'
 		}
 LC_COLOR = 	{
 		'SPOC'	 : 'c',
@@ -37,9 +39,9 @@ STY_LB = 	{
 
 FMT_PR = 	{
 		'TEFF' : '%d','VSINI' : '%d','MDOT' : '%.2f',
-		'LOGLM': '%.2f', 'LOGL' : '%.2f', 'LOGQ' : '%.2f', 
+		'LOGLM': '%.2f', 'LOGL' : '%.1f', 'LOGQ' : '%.2f', 
 		'LOGG' : '%.1f', 'MASS' : '%d', 'VMAC': '%d', 'VMIC' : '%d', 
-		'NABUN' : '%.2f', 'LOGD' : '%.2f'
+		'NABUN' : '%.1f', 'LOGD' : '%.2f'
 		}
 
 

@@ -1,79 +1,14 @@
-from astropy import units as u
-from astroquery.xmatch import XMatch
+
+
 import pandas as pd
 from astropy.table import Table, hstack
 import numpy as np
 from constants import *
-from scipy.interpolate import interp1d
+
 import os
 from astropy.io import ascii
 
-# SEDs, photometry, conversion
 
-def sed_read(temp,logg,models,wave):
-
-	# Read SED and interpolate flux at given wavelengths. 
-
-
-	if models == 'kurucz':
-		sed_name = 't%05dg%02d.flx' % (temp,logg)
-  		tab = np.genfromtxt(KURUCZ_SED_PATH+sed_name, names = "wave, flux")
-	elif models == 'powr':
-		sed_name = 'ob-i_%2d-%2d_sed.txt' % (1e-3*temp,logg)
-  		tab = np.genfromtxt(POWR_SED_PATH+sed_name, names = "wave, flux")
-		tab['wave'] = 10 ** tab['wave']
-		# Conversion into surface flux - raw is flux received at D = 10 pc
-		for l in open(POWR_SED_PATH+'modelparameters.txt'):
-			if '%2d-%2d'% (1e-3*temp,logg) in l :
-				lstar = 10**float(l.split()[5])
-				rad2 = lstar * ((float(l.split()[1])/5778.)**-4)
-				scalar = rad2 * (1e-1 *  RSUN_TO_PC)**2
-		tab['flux'] = (10 **  tab['flux']) * (scalar**-1)
-		
-	f = interp1d(tab['wave'],tab['flux'],kind='linear')
-
- 	return f(wave)
-
-def getPhot(ra,dec,photo_cats):
-
-	# Retrieve photometry from directory catalogs
-	# Data should be a Table containing columns named RA and DEC (in degrees)
-	# Return photometric table (in mag) and filter tab dictionary
-
-	print 'Generating photometry from queried catalogues'
-
-	coord = Table({'RA':ra,'DEC':dec})
-
-	filt_tab = {}
-	integr=[coord]; table_names=['INPUT']
-	for k, v in photo_cats.items():
-		query = XMatch.query(cat1=coord, cat2='vizier:'+v['cat'],  max_distance=v['rad']*u.arcsec, \
-				     colRA1='RA', colDec1='DEC')
-		#print query.columns
-		filt = v['flt']
-		query = query[['RA','DEC','angDist']+filt]
-
-		if k == 'Merm91': 
-			query['Bmag'] = query['Vmag'] + query['B-V']
-			query['e_Bmag'] = np.sqrt((query['e_Vmag']**2) + (query['e_B-V']**2))
-			query['Umag'] = query['Bmag'] + query['U-B']
-			query['e_Umag'] = np.sqrt((query['e_Bmag']**2) + (query['e_U-B']**2))		
-			filt = ['Umag','Bmag','Vmag','e_Vmag','e_Bmag','e_Umag']
-	
-		filt_tab[k] = {}
-		filt_tab[k]['f'] = [c for c in filt if not c.startswith('e_')]
-		filt_tab[k]['e'] = ['e_'+c for c in filt_tab[k]['f']]
-		filt_tab[k]['l'] = [FLZ_DIR[c]['l'] for c in filt_tab[k]['f']]
-		filt_tab[k]['z'] = [FLZ_DIR[c]['z'] for c in filt_tab[k]['f']]
-		filt_tab[k]['mrk'],filt_tab[k]['fit'] = v['mrk'],v['fit']
-
-		integr.append(match_tabs(coord,query))
-		table_names.append(k)
-
-	photo_tab = hstack(integr,uniq_col_name='{col_name}/{table_name}',table_names=table_names)	
-	ascii.write(photo_tab, 'photo.dat', overwrite=True)
-
-	return photo_tab, filt_tab
 
 def match_tabs(tab1,tab2):
 
@@ -95,35 +30,6 @@ def match_tabs(tab1,tab2):
 
 	return merged
 
-def modelTab(filt_dict,models='kurucz'):
-
-	#Creates tab with synthetic fluxes from LTE ATLAS9 or NLTE PoWR grids
-	#It is generated over a filter dictionary containing effective wavelengths of bands
-
-	print 'Generating synthetic photometry with %s models' % models
-
-	synth_l = []
-	for v in filt_dict.values(): synth_l += v['l']
-	synth_l = sorted(set(synth_l))
-
-	mod_tab = Table(names=['t','g']+synth_l)
-
-	if models == 'kurucz':
-		grid_teffs = sorted(set([float(f[1:6]) for f in os.listdir(KURUCZ_SED_PATH) if f.endswith('flx')]))
-		grid_loggs = sorted(set([float(f[7:9]) for f in os.listdir(KURUCZ_SED_PATH) if f.endswith('flx')]))
-	elif models == 'powr':
-		grid_teffs = sorted(set([1e+3*float(f[5:7]) for f in os.listdir(POWR_SED_PATH) if f.startswith('ob')]))
-		grid_loggs = sorted(set([float(f[8:10]) for f in os.listdir(POWR_SED_PATH) if f.startswith('ob')]))
-
-	for t in grid_teffs:
-		for g in grid_loggs:
-			try:
-					sed = sed_read(t,g,models,synth_l)
-					mod_tab.add_row(np.append([t,g],sed))				
-			except:
-				pass
-
-	return mod_tab
 
 def mg2flux(mag,emag,zpf,wv,cat):    
  	# Converts magnitudes to fluxes

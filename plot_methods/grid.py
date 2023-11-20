@@ -92,9 +92,9 @@ class GridTemplate(object):
 		self.fig = plt.figure(figsize=(10,12))
 		self.gs = GridSpec(self.rows_page, self.cols_page, figure=self.fig)
 		if 'fig_xlabel' in self.__dict__:
-			self.fig.text(0.5,0.04,self.fig_xlabel,ha="center",va="center")
+			self.fig.text(0.5,0.04,self.fig_xlabel,size = 15,ha="center",va="center")
 		if 'fig_ylabel' in self.__dict__:
-			self.fig.text(0.06,0.5,self.fig_ylabel, ha="center", va="center", rotation=90)
+			self.fig.text(0.06,0.5,self.fig_ylabel,size = 15, ha="center", va="center", rotation=90)
 
 		return
 

@@ -147,3 +147,106 @@ class ExtLCs(GridTemplate):
 			gaia_sizes = GAIA_UPMARK / 2**RPdiff
 
 			return RA_pix, DE_pix, gaia_sizes, gaia_ind, star_row, star_col
+
+
+class ProcessLevel(GridTemplate):
+	
+	def __init__(self, level, star_ids, folder, **kwargs):
+
+		self.level = level
+		self.LCPATH = TESS_LC_PATH+folder+'/'
+		super(ProcessLevel,self).__init__(fig_xlabel=PLOT_XLABEL[self.level],
+							         fig_ylabel=PLOT_YLABEL[self.level],**kwargs)		
+		self._proc(star_ids)
+		self.GridClose()
+
+	def _proc(self, star_ids):
+		for star in star_ids:
+			lc_files = [j for j in os.listdir(self.LCPATH) if (star in j)]
+			if len(lc_files) > 0: self._proc_single(star,lc_files)
+		return		
+
+	def _proc_single(self, star, lc_files):
+
+		ax = self.GridAx()
+		divider = make_axes_locatable(ax)
+
+		if self.level == 'lc':
+			ymin, ymax = self._lcs_glob_stats(lc_files)
+			ym = 1.1 * max(abs(ymax),abs(ymin))
+
+		g_lc_files = group_consec_lcs(lc_files)	
+		len_gls = len(g_lc_files)
+
+		k = 0
+		for gl in g_lc_files:
+
+			g_times = np.empty(0); g_fluxes = np.empty(0); g_sects = []
+			for l in gl:
+				time, flux = lc_read(self.LCPATH + l)
+				g_sects.append(sect_from_lc(l))	
+				offset = np.nanmedian(flux)
+				g_times = np.append(g_times,time)
+				g_fluxes = np.append(g_fluxes,flux - offset)
+			g_sect_tx = '+'.join([str(x) for x in g_sects])
+
+			if   self.level == 'lc':
+				ax.plot(g_times, g_fluxes,'k'); ax.invert_yaxis(); ax.set_ylim(ym,-ym)
+			elif self.level == 'ls':
+
+				# Building light curve from the merged (stitched) sectors
+				lc = lk.LightCurve(time=g_times,flux=g_fluxes).remove_nans()
+
+				# Pre-whitening
+				obj_prw =PreWhitening(star,g_sect_tx)
+				obj_prw.prw(lc)
+				obj_prw.close()
+
+				pg = lc.to_periodogram()
+				x = np.log10(np.array(pg.frequency))
+				y = np.log10(np.array(pg.power))
+
+				ax.plot(x,y,'b')
+				ax.set_ylim(-5.9,-2.1)	
+
+
+			ax.xaxis.set_tick_params(direction="in",labelsize=6)
+			ax.yaxis.set_tick_params(labelsize=9)
+			if k == 0: ax.text(0.05,0.85,star,color='r',fontsize=10,transform=ax.transAxes)
+			ax.text(0.4,0.05,g_sect_tx,color='b',fontsize=9,transform=ax.transAxes	)
+
+			if (len_gls > 1) and (k < len_gls - 1):
+				d=.02
+				kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+				ax.plot((1,1),(-d,+d), **kwargs) 
+				ax.plot((1,1),(1-d,1+d), **kwargs) 
+				ax.spines['right'].set_visible(False)
+
+				ax = divider.append_axes("right", size="100%", pad=0.12)
+
+				kwargs.update(transform=ax.transAxes) 
+				ax.plot((0,0),(-d,+d), **kwargs) 
+				ax.plot((0,0),(1-d,1+d), **kwargs) 
+				ax.spines['left'].set_visible(False)
+				ax.tick_params(labelleft = False) 
+					
+
+			k += 1
+
+		return	
+
+	def _redn(self,x,w,zero,tau,gamma):
+		x = np.array(x)
+		return w + ( zero / ( 1 + (2 * 3.14 * tau * x)**gamma))
+
+	def _lcs_glob_stats(self,lc_files):
+
+		minfs=[]; maxfs=[]	
+		for l in lc_files:
+			time, flux = np.loadtxt(self.LCPATH + l, delimiter=' ', usecols=(0, 1), unpack=True)
+			time_dif = time[1:] - time[:-1]; ind_nan = np.argmax(time_dif)
+			flux[ind_nan-3:ind_nan+15] = np.nan; flux[:5] = np.nan; flux[-30:] = np.nan
+			minfs.append(np.nanmin(flux)); maxfs.append(np.nanmax(flux))
+
+		return min(minfs), max(maxfs)
+

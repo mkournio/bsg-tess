@@ -1,4 +1,6 @@
 #### Constants for spectral energy distributions
+LAMBDA_FIT_THRES = 3e+4
+
 
 #Photometric catalogs
 PHOTO_CATS =	{
