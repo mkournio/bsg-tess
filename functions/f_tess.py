@@ -7,6 +7,7 @@ import numpy as np
 from constants import *
 from lightkurve.correctors import DesignMatrix,RegressionCorrector
 from scipy import signal
+from tables import *
 
 class Gaia(object):
 

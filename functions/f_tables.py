@@ -61,7 +61,7 @@ def XmExtCol(ra,dec,ext_files,ext_col,fill_nan_viz=None,**kwargs):
 		if not viz_col in viz_query.columns:
 			raise Exception('Column name in queried Vizier catalogue does not exist or is not provided')
 		viz_query = viz_query[['RA','DEC','angDist',viz_col]]
-		viz_tab = hstack([coord,match_tabs(coord,viz_query)])
+		viz_tab = hstack([coord,coord_near_matches(coord,viz_query)])
 
 	xmcol = Table(names=[ext_col,'f_'+ext_col],dtype=('f8', 'i2')) 
 	for line1 in coord:		
@@ -90,3 +90,5 @@ def XmExtCol(ra,dec,ext_files,ext_col,fill_nan_viz=None,**kwargs):
 				xmcol.add_row(match,mask=[True,True])
 
 	return xmcol
+
+

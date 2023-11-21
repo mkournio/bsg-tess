@@ -10,27 +10,6 @@ from astropy.io import ascii
 
 
 
-def match_tabs(tab1,tab2):
-
-	merged = Table(tab2[0:0])
-	for line1 in tab1:
-		min_ang = 99
-		match = np.ones(len(tab2.columns))
-		for line2 in tab2:
-			if (line1['RA']==line2['RA']) and (line1['DEC']==line2['DEC']) and (line2['angDist'] < min_ang):
-				min_ang = line2['angDist']
-				match = line2
-		if min_ang == 99:
-			merged.add_row(match,mask=np.ones(len(tab2.columns)))
-		else:
-			mask = [np.ma.is_masked(match[c]) for c in tab2.columns]
-			merged.add_row(match,mask=mask)
-				
-	del merged['RA','DEC','angDist']
-
-	return merged
-
-
 def mg2flux(mag,emag,zpf,wv,cat):    
  	# Converts magnitudes to fluxes
 	# Output in Janskys. 

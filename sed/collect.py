@@ -4,6 +4,7 @@ from astropy import units as u
 from astropy.io import ascii
 from constants import *
 from functions import *
+from tables import *
 import numpy as np
 import os
 
@@ -26,7 +27,7 @@ class PhotoCollector(object):
 
 		coord = Table({'RA':self.input_tab['RA'],'DEC':self.input_tab['DEC']})
 
-		integr=[coord]; table_names=['INPUT']
+		integr=[self.input_tab]; table_names=['INPUT']
 		for k, v in self.photo_cats.items():
 
 			query = XMatch.query(cat1=coord, cat2='vizier:'+v['cat'],  max_distance=v['rad']*u.arcsec, \
@@ -48,17 +49,16 @@ class PhotoCollector(object):
 			self.filt_dict[k]['z'] = [FLZ_DIR[c]['z'] for c in self.filt_dict[k]['f']]
 			self.filt_dict[k]['mrk'],self.filt_dict[k]['fit'] = v['mrk'],v['fit']
 
-			integr.append(match_tabs(coord,query))
+			integr.append(coord_near_matches(coord,query))
 			table_names.append(k)
 
 		self.photo_tab = hstack(integr,uniq_col_name='{col_name}/{table_name}',table_names=table_names)	
 
 		return
 
-	def save_tabs(self,*tabs):
+	def save_tab(self):
 
-		for index, tab in enumerate(tabs):
-			ascii.write(tab, 'phototab_%s.dat' % index, overwrite=True)
+		ascii.write(self.photo_tab, 'phototab.dat', overwrite=True)
 
 		return
 

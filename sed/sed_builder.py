@@ -32,7 +32,7 @@ def synthetic_fluxes(synth_l, model_type = 'kurucz'):
 
 def sed_read(temp,logg,models,wave):
 
-	# Read SED and interpolate flux at given list of wavelengths. 
+	# Read SED files and interpolate flux at given list of wavelengths. 
 
 	if models == 'kurucz':
 		sed_name = 't%05dg%02d.flx' % (temp,logg)
@@ -53,7 +53,7 @@ def sed_read(temp,logg,models,wave):
 
  	return f(wave)
 
-
+'''
 class SEDBuilder(GridTemplate):
 
 	def __init__(self, photo_tab, filt_dict, fit_dict = None, **kwargs):
@@ -65,7 +65,7 @@ class SEDBuilder(GridTemplate):
 
 		if fit_dict != None :
 
-			fit_keys = ['MODELS','FIT_BODIES','DIST','TEFF','LOGG']
+			fit_keys = ['MODELS','FIT_BODIES','ST_PROP']
 
 			if not all([x in fit_dict for x in fit_keys]):
 				raise ValueError("One or more of the fit columns are missing.")
@@ -315,4 +315,4 @@ class SEDBuilder(GridTemplate):
 		else:	
 			return '%s %s\n' % (value,note)
 			
-
+'''
