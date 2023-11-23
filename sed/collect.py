@@ -1,4 +1,4 @@
-from astropy.table import Table, hstack
+from astropy.table import Table, hstack, MaskedColumn
 from astroquery.xmatch import XMatch
 from astropy import units as u
 from astropy.io import ascii
@@ -32,7 +32,12 @@ class PhotoCollector(object):
 
 			query = XMatch.query(cat1=coord, cat2='vizier:'+v['cat'],  max_distance=v['rad']*u.arcsec, \
 					     colRA1='RA', colDec1='DEC')
+
 			filt = v['flt']
+
+			for f in filt :
+				if not f in query.columns: query[f] = MaskedColumn(np.zeros(len(query)), mask=np.ones(len(query)), fill_value=np.nan)
+
 			query = query[['RA','DEC','angDist']+filt]
 
 			if k == 'Merm91': 
@@ -44,7 +49,7 @@ class PhotoCollector(object):
 	
 			self.filt_dict[k] = {}
 			self.filt_dict[k]['f'] = [c for c in filt if not c.startswith('e_')]
-			self.filt_dict[k]['e'] = ['e_'+c for c in self.filt_dict[k]['f']]
+			self.filt_dict[k]['e'] = [c for c in filt if c.startswith('e_')]
 			self.filt_dict[k]['l'] = [FLZ_DIR[c]['l'] for c in self.filt_dict[k]['f']]
 			self.filt_dict[k]['z'] = [FLZ_DIR[c]['z'] for c in self.filt_dict[k]['f']]
 			self.filt_dict[k]['mrk'],self.filt_dict[k]['fit'] = v['mrk'],v['fit']
@@ -54,6 +59,17 @@ class PhotoCollector(object):
 
 		self.photo_tab = hstack(integr,uniq_col_name='{col_name}/{table_name}',table_names=table_names)	
 
+		# Rename filter names in dict to match the possible dublicates in the data table
+
+		for k in self.filt_dict:
+			dict_filt = self.filt_dict[k]['f']
+			dict_filt_e = self.filt_dict[k]['e']
+
+			check_filt = ['%s/%s' % (f,k) for f in dict_filt]
+			check_filt_e = ['%s/%s' % (f,k) for f in dict_filt_e]
+
+			self.filt_dict[k]['f'] = [x if x in self.photo_tab.columns else y for x, y in zip(check_filt,dict_filt)]
+			self.filt_dict[k]['e'] = [x if x in self.photo_tab.columns else y for x, y in zip(check_filt_e,dict_filt_e)]
 		return
 
 	def save_tab(self):

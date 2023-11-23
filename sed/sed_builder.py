@@ -4,6 +4,7 @@ from scipy.interpolate import interp1d
 from functions import *
 from constants import *
 import numpy as np
+from numpy.ma import MaskedArray
 import os 
 
 def synthetic_fluxes(synth_l, model_type = 'kurucz'):
@@ -53,25 +54,21 @@ def sed_read(temp,logg,models,wave):
 
  	return f(wave)
 
-'''
+
 class SEDBuilder(GridTemplate):
 
-	def __init__(self, photo_tab, filt_dict, fit_dict = None, **kwargs):
+	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_dict = {}, **kwargs):
 
 		super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
 					        fig_ylabel=PLOT_YLABEL['sed'],**kwargs)
 		self.photo_tab = photo_tab
 		self.filt_dict = filt_dict
+		self.fit_sed = fit_sed
 
-		if fit_dict != None :
+		if self.fit_sed: 
 
-			fit_keys = ['MODELS','FIT_BODIES','ST_PROP']
-
-			if not all([x in fit_dict for x in fit_keys]):
-				raise ValueError("One or more of the fit columns are missing.")
-			self.__dict__.update(fit_dict)
-
-			VALIDATE HERE
+			self.fit_dict = fit_dict
+			self.__validate_fit_request()
 
 			from lmfit import minimize, Parameters, Parameter
 			from bisect import bisect
@@ -79,84 +76,91 @@ class SEDBuilder(GridTemplate):
 			self.minimize, self.Parameter, self.Parameters = minimize, Parameter, Parameters
 			self.bisect = bisect
 
-		self._sed_plot()
-
+		self._sed()
 		self.GridClose()
 
 		return
 
-	def _sed_plot_single(self, t_ind, star_label):
+	def __validate_fit_request(self):
+
+		fit_keys = ['MODELS','FIT_BODIES']
+		tab_keys = ['TEFF','LOGG']
+
+		if not all([x in self.photo_tab.columns for x in tab_keys]):
+			raise KeyError("SED fit is activated: Data table must contain column keys %s" % tab_keys)
+		if not all([x in self.fit_dict for x in fit_keys]):
+			raise KeyError("SED fit is activated: fit_dict must contain keys %s" % fit_keys)
+		elif not all([len(self.fit_dict[x]) > 0 for x in fit_keys]):
+			raise IndexError("SED fit is activated: you must provide at least one entry for each of keys %s" % fit_keys)
+		return
+
+	def _sed(self):
+
+	        for ind in range(len(self.photo_tab)): 
+			self._sed_single(ind)
+			
+		return	
+
+	def _sed_single(self, t_ind):
+
+	    if not self.photo_tab['SEDFIT'][t_ind] is np.ma.masked :
 
 		ax = self.GridAx()
+		self.fit_l=[]; self.fit_f=[]; self.fit_ef=[]
 
-		if self.fit_dict != None : self.fit_l=[]; self.fit_f=[]; self.fit_ef=[]
+		for k, v in self.filt_dict.items() :
 
- 		for k, v in self.filt_dict.items() :
+			filter_phot = self.photo_tab[v['f']][t_ind]
+			filter_ephot = self.photo_tab[v['e']][t_ind]
+			filter_zeros = np.array(v['z'])
+			filter_lambdas = np.array(v['l'])
 
-			photo_star = []; photo_star_err = []
-			for c, ec in zip(v['f'],v['e']):
+			filter_flx, filter_eflx = mg2flux(filter_phot,filter_ephot,filter_zeros,filter_lambdas,k)
 
-				if c in self.photo_tab.columns:
-					photo_star.append(self.photo_tab[c][t_ind])
-				elif c+'/'+k in self.photo_tab.columns:
-					photo_star.append(self.photo_tab[c+'/'+k][t_ind])	
-				else:
-					photo_star.append(np.ma.masked)
+			ax.plot(filter_lambdas,filter_flx,v['mrk']['m'],c=v['mrk']['c'],markersize=v['mrk']['s'],label=k)
+			ax.errorbar(filter_lambdas,filter_flx,filter_eflx,ecolor=v['mrk']['c'],elinewidth=1, capsize=0, ls='none')
 
-				if ec in self.photo_tab.columns:
-					photo_star_err.append(self.photo_tab[ec][t_ind])
-				elif ec+'/'+k in self.photo_tab.columns:
-					photo_star_err.append(self.photo_tab[ec+'/'+k][t_ind])	
-				else:
-					photo_star_err.append(np.ma.masked)				
+			if self.fit_sed and v['fit'] == 1:
+				self.fit_l.extend(filter_lambdas)
+				self.fit_f.extend(filter_flx)
+				self.fit_ef.extend(filter_eflx)
 
-			zeros = v['z']
-			lambdas = v['l']
+		if self.fit_sed: 
+			fit_prop = self._fit(t_ind)
+			self._plot_fit(ax,fit_prop)
 
-			photo_star_flx, photo_star_eflx = mg2flux(photo_star,photo_star_err,zeros,lambdas,k)
-
-			if not np.ma.array(photo_star).all() is np.ma.masked:
-				print k, np.array([lambdas, photo_star, photo_star_err, photo_star_flx, photo_star_eflx]).T
-				ax.plot(lambdas,photo_star_flx,v['mrk']['m'],c=v['mrk']['c'],markersize=v['mrk']['s'],label=k)
-  				ax.errorbar(lambdas,photo_star_flx,photo_star_eflx,ecolor=v['mrk']['c'],elinewidth=1, capsize=0, ls='none')
-
-			if self.fit_dict != None and v['fit'] == 1:
-				self.fit_l.extend(np.array(lambdas))
-				self.fit_f.extend(np.array(photo_star_flx))
-				self.fit_ef.extend(np.array(photo_star_eflx))
-				#ax.scatter(np.array(lambdas)[fit_ind],3*np.array(photo_star_flx)[fit_ind],marker=u'$\u2193$',\
-				#	color='c',s=17)
-
-		if self.fit_dict != None: 
-			try:
-				self.teff = self.teff_tab[t_ind][0]
-				self.dist = self.dist_tab[t_ind][0]
-				self.logg = int(10*self.logg_tab[t_ind][0])
-
-				if self.teff > 15000. :
-					self.models_key = 'powr'
-				else:
-					self.models_key = 'kurucz'
-
-				self.mod_tab = self.mod_tabs[self.models_key]
-				self.mod_tarr = sorted(set(self.mod_tab['t']))
-
-				fit_prop = self._fit()
-				self._plot_model(ax,fit_prop)
-
-			except:
-				pass
-
-		ax.legend(loc='upper right')
+		#ax.legend(loc='upper right')
 		ax.set_xscale('log'); ax.set_yscale('log')
-		ax.set_title(star_label)
+		ax.text(0.6,0.8,self.photo_tab['STAR'][t_ind],transform=ax.transAxes)
 
 		return
 
-	def _fit(self):
+	def _fit(self,t_ind):
 
-		params = self.Parameters()
-		for fb in self.fit_bodies :
+		self.teff = self.photo_tab['TEFF'][t_ind]
+		self.logg = self.photo_tab['LOGG'][t_ind]
+		self.dist = self.photo_tab['DIST'][t_ind]
+
+		if any([x is np.ma.masked for x in [self.teff,self.logg,self.dist]]):
+
+			print "%s: stellar parameter missing, aborting SED fit" % self.photo_tab['STAR'][t_ind]
+
+			return None
+
+		self.logg = int(10 * self.logg)
+		if self.teff > 15000. :
+			self.models_key = 'powr'
+		else:
+			self.models_key = 'kurucz'
+
+		self.mod_tab =  self.fit_dict['MODELS'][self.models_key]
+		self.mod_tarr = sorted(set(self.mod_tab['t']))
+
+		fit_bodies = self.fit_dict['FIT_BODIES']
+
+		params = self.Parameters()		
+		
+		for fb in fit_bodies :
 
 			self.fit_body = fb
 
@@ -167,14 +171,13 @@ class SEDBuilder(GridTemplate):
 			if fb == 'psph' :
 				params['teff'].set(value = self.teff)
 				params['dist'].set(value = self.dist)
-				if len(self.fit_bodies) == 1 :
+				if len(fit_bodies) == 1 :
 					self.mask = map(lambda x: x < LAMBDA_FIT_THRES, self.fit_l)
 				else:
 					self.mask = map(lambda x: x < min(1.5e+4,LAMBDA_FIT_THRES), self.fit_l)
 
-			elif fb == 'hd' and 'wd' in self.fit_bodies:
+			elif (fb == 'hd') and ('wd' in fit_bodies):
 				self.mask = map(lambda x: x < min(3e+4,LAMBDA_FIT_THRES), self.fit_l)
-
 			else:
 				self.mask = map(lambda x: x <= LAMBDA_FIT_THRES, self.fit_l)
 
@@ -215,12 +218,12 @@ class SEDBuilder(GridTemplate):
 		try:
 			hds = params['hds'].value
 			hdt = params['hdt'].value
-			hd_f = (IR_SCALAR * hds) * planck(tr_l,hdt,kind='grey')
+			hd_f = (NIR_SCALAR * hds) * planck(tr_l,hdt,kind='grey')
 			scaled_f += hd_f
 	
 			wds = params['wds'].value
 			wdt = params['wdt'].value
-			wd_f = (IR_SCALAR * wds) * planck(tr_l,wdt,kind='grey')
+			wd_f = (FIR_SCALAR * wds) * planck(tr_l,wdt,kind='grey')
 			scaled_f = scaled_f + wd_f	
 		except:
 			pass
@@ -250,7 +253,10 @@ class SEDBuilder(GridTemplate):
 	def _get_scalar(self,radius, dist):
 		return (radius * RSUNM / (float(dist) * PC_TO_M))**2
 
-	def _plot_model(self,axis,fit_prop):
+
+	def _plot_fit(self,axis,fit_prop):
+
+	      if fit_prop != None :
 
 		rad = float(fit_prop.params['rad'].value) 
 		ext = float(fit_prop.params['ext'].value)
@@ -259,7 +265,6 @@ class SEDBuilder(GridTemplate):
 		logL = np.log10( (rad**2) * ((teff/5778.)**4) )
 
 		#print fit_prop.params
-		
 		w = np.append(np.arange(1000,100000,1),[200000,400000])
 		t_low, t_up, q, logg_gr = self._get_tvals(teff,self.logg)
 		sed_low = sed_read(t_low,logg_gr,self.models_key,w)
@@ -277,17 +282,17 @@ class SEDBuilder(GridTemplate):
 		try:
 			hdt = float(fit_prop.params['hdt'].value)
 			hds = float(fit_prop.params['hds'].value)
-			hd_f = (IR_SCALAR * hds) * planck(w,hdt,kind='grey')
+			hd_f = (NIR_SCALAR * hds) * planck(w,hdt,kind='grey')
 			scaled_sed += hd_f
-			hd_f[w < 5e+3] = np.nan			
+			hd_f[w < 6e+3] = np.nan			
 			axis.plot(w,hd_f,'r')
 			hdtext = 'T$_\mathrm{hd}$ [K] = %s\n' % roundup(hdt)
 
 			wdt = float(fit_prop.params['wdt'].value)
 			wds = float(fit_prop.params['wds'].value)
-			wd_f = (IR_SCALAR * wds) * planck(w,wdt,kind='grey')
+			wd_f = (FIR_SCALAR * wds) * planck(w,wdt,kind='grey')
 			scaled_sed += wd_f
-			wd_f[w < 1e+4] = np.nan			
+			wd_f[w < 1e+5] = np.nan			
 			axis.plot(w,wd_f,'b')	
 			wdtext = 'T$_\mathrm{wd}$ [K] = %s\n' % roundup(wdt)
 		except:
@@ -296,16 +301,15 @@ class SEDBuilder(GridTemplate):
 		axis.plot(w,scaled_sed,'k')
 	
 
-		vtext = '%s\n' % MODEL_LEG[self.models_key] + \
-			'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),True) + \
+		vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),True) + \
 			'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
 			'R [$R_{\odot}$] = ' + self._pr(int(round(rad)),False) + \
 			'D [pc] = ' + self._pr(int(dist),True) + \
 			'log(L/$L_{\odot}$) = ' + self._pr(round(logL,2),False) + \
 			'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
 	
-		axis.text(0.02,0.005,vtext,size=10,transform=axis.transAxes)
-		axis.text(0.7,0.1,hdtext+wdtext,size=10,transform=axis.transAxes)
+		axis.text(0.02,0.005,vtext,size=7,transform=axis.transAxes)
+		axis.text(0.7,0.1,hdtext+wdtext,size=7,transform=axis.transAxes)
 		
 		return
 
@@ -315,4 +319,4 @@ class SEDBuilder(GridTemplate):
 		else:	
 			return '%s %s\n' % (value,note)
 			
-'''
+

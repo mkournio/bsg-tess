@@ -89,7 +89,7 @@ class GridTemplate(object):
 		
 		#Create grid on new page
 
-		self.fig = plt.figure(figsize=(10,12))
+		self.fig = plt.figure(figsize=(16,10))
 		self.gs = GridSpec(self.rows_page, self.cols_page, figure=self.fig)
 		if 'fig_xlabel' in self.__dict__:
 			self.fig.text(0.5,0.04,self.fig_xlabel,size = 15,ha="center",va="center")

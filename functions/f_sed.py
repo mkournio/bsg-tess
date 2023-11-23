@@ -4,22 +4,23 @@ import pandas as pd
 from astropy.table import Table, hstack
 import numpy as np
 from constants import *
-
+from numpy.ma import filled
 import os
 from astropy.io import ascii
 
 
 
-def mg2flux(mag,emag,zpf,wv,cat):    
+def mg2flux(mag,emag,zpf,wv,cat):
+    
  	# Converts magnitudes to fluxes
 	# Output in Janskys. 
 	# For output in W/m^2/micron append the term  (10**-26) * 2.998E+14 * (wv**-2)
 	# For output in erg/s/cm2/A append the term (2.99792458E-05) * (wv**-2)
 
-	mag = pd.to_numeric(np.array(mag), errors = 'coerce')
-	emag = pd.to_numeric(np.array(emag), errors = 'coerce')
-	zpf = np.array(zpf).astype(np.float)
-	wv = np.array(wv).astype(np.float)
+	mag = np.array([np.nan if x is np.ma.masked else x for x in mag]).astype(float)
+	emag = np.array([np.nan if x is np.ma.masked else x for x in emag]).astype(float)
+	zpf = np.array(zpf).astype(float)
+	wv = np.array(wv).astype(float)
 
   	fl = zpf * 10**(-0.4 * mag) * 2.99792458E-05 * (wv**-2)
 	efl = fl * emag * 0.4 * np.log(10)

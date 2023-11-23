@@ -18,7 +18,7 @@ args = parser.parse_args()
 inputf = ascii.read(args.filename, header_start=0, delimiter=",",data_start=args.from_line, data_end=args.to_line)
 inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
 input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 
-		       'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK']})
+		       'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT']})
 
 
 # CROSS-MATCHING
@@ -27,7 +27,7 @@ xm.match(xtabs = ['HAUCKE+19','FRASER+10'], xcols = ['TEFF','NABUN','MASS','LOGL
 xm.match(xtabs = ['vizier:I/347/gaia2dis'], xcols = ['DIST'], viz_col = 'rest')
 xm.match(xtabs = ['vizier:IV/39/tic82'], xcols = ['TIC'], viz_col = 'TIC', column_format = 'int')
 data = xm.matched
-data.pprint(max_lines=-1)
+#data.pprint(max_lines=-1)
 
 
 '''
@@ -52,8 +52,9 @@ data.pprint(max_lines=-1)
 
 # COLLECT PHOTOMETRY FROM LITERATURE
 photo = PhotoCollector(data)
-photo_data = photo.photo_tab; photo.save_tab()
+photo_data = photo.photo_tab#; photo.save_tab()
 filter_dict = photo.filt_dict
+
 
 # CREATE SED MODEL TABS (Kurucz & PoWR)
 synth_l = []
@@ -63,9 +64,9 @@ PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
 model_dict = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
 
 # BUILD SPECTRAL ENERGY DISTRIBUTION
-SED = SEDBuilder(photo_data, filter_dict, fit_model_dict = model_dict, fit_bodies = ['psph'],
-		rows_page = 5, cols_page = 5, output_name = args.filename+'_SED', 
-		coll_x = True, coll_y = True, output_format = None, inter = False)
+SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_dict = {'MODELS': model_dict, 'FIT_BODIES': ['psph']},
+		 rows_page = 4, cols_page = 5, output_name = args.filename+'_SED', 
+		 coll_x = True, output_format = None, inter = True)
 
 '''
 # Correlation matrix for the studied parameters to enable feature selection

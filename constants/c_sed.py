@@ -1,6 +1,7 @@
 #### Constants for spectral energy distributions
 LAMBDA_FIT_THRES = 3e+4
-
+NIR_SCALAR = 1e-26      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
+FIR_SCALAR = 1e-22      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
 
 #Photometric catalogs
 PHOTO_CATS =	{
@@ -18,7 +19,7 @@ PHOTO_CATS =	{
 			'cat'	: 'I/297/out',
 			'rad'	: 2,
 			'mrk'	: {'m': '+', 'c':'b', 's':9}, 
-			'flt'	: ['Bmag','Vmag','Rmag']
+			'flt'	: ['Bmag','Vmag','Rmag','e_Bmag','e_Vmag','e_Rmag']
 			},
 	'APASS':	{# AAVSO Photometric All Sky Survey (APASS) DR9 (Henden+, 2016)
 			'act'	: 1,		
@@ -93,7 +94,7 @@ PHOTO_CATS =	{
 			'flt'	: ['W1mag','W2mag','W3mag','W4mag','e_W1mag','e_W2mag','e_W3mag','e_W4mag']
 			},
 	'IRAS':		{# IRAS catalogue of Point Sources, Version 2.0 (IPAC 1986) 
-			'act'	: 1,		
+			'act'	: 0,		
 			'fit'	: 0,
 			'cat'	: 'II/125/main',
 			'rad'	: 4,
@@ -179,6 +180,6 @@ SED_BODIES =	{
 				},
 		'wd'	:	{
 				 'wds':{'name':'wds','value':0.,'vary':True,'min':0.},
-				 'wdt':{'name':'wdt','value':500,'min':150,'max':600,'vary':True}
+				 'wdt':{'name':'wdt','value':50,'min':10,'max':100,'vary':True}
 				}
 		}	
