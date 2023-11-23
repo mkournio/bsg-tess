@@ -33,7 +33,7 @@ STY_LB = 	{
 		'TEFF' : r'T$_{\rm eff}$','VSINI' : r'$v$sin $i$','MDOT' : r'$\dot{M}$',
 		'LOGLM': r'log(L/M)', 'LOGL' : r'log(L/L$_{\odot}$)', 'LOGQ' : r'log$Q$',
 		'LOGG' : r'log$g$', 'MASS' : 'M', 'VMAC': r'$v_{mac}$', 'VMIC' : r'$v_{mic}$',
-		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 
+		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'LUM': r'log(L/L$_{\odot})_{\rm SED}$', 
 		'w' : r'$W$', 'zero' : r'$R_{0}$', 'tau' : r'$\tau$', 'gamma' : r'$\gamma$' 
 		}
 
@@ -41,7 +41,7 @@ FMT_PR = 	{
 		'TEFF' : '%d','VSINI' : '%d','MDOT' : '%.2f',
 		'LOGLM': '%.2f', 'LOGL' : '%.1f', 'LOGQ' : '%.2f', 
 		'LOGG' : '%.1f', 'MASS' : '%d', 'VMAC': '%d', 'VMIC' : '%d', 
-		'NABUN' : '%.1f', 'LOGD' : '%.2f'
+		'NABUN' : '%.1f', 'LOGD' : '%.2f', 'LUM': '%.1f' 
 		}
 
 

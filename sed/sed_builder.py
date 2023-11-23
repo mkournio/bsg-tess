@@ -1,5 +1,5 @@
 from plot_methods import GridTemplate
-from astropy.table import Table, hstack
+from astropy.table import Table, hstack, MaskedColumn
 from scipy.interpolate import interp1d
 from functions import *
 from constants import *
@@ -57,7 +57,7 @@ def sed_read(temp,logg,models,wave):
 
 class SEDBuilder(GridTemplate):
 
-	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_dict = {}, **kwargs):
+	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, **kwargs):
 
 		super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
 					        fig_ylabel=PLOT_YLABEL['sed'],**kwargs)
@@ -65,10 +65,20 @@ class SEDBuilder(GridTemplate):
 		self.filt_dict = filt_dict
 		self.fit_sed = fit_sed
 
+		len_ph = len(photo_tab)
+
+		self.lum = self._masked_col(len_ph)
+		self.a_v = self._masked_col(len_ph)
+		self.rad = self._masked_col(len_ph)
+
 		if self.fit_sed: 
 
-			self.fit_dict = fit_dict
-			self.__validate_fit_request()
+			self.fit_model_dict = fit_model_dict
+			self.fit_bodies = self.photo_tab['SEDFIT'] if ('SEDFIT' in self.photo_tab.columns) \
+					  else self._masked_col(len_ph, dtype='str', 
+							fill_value = kwargs.get('fit_bodies',np.ma.masked)).filled()
+
+			self.__validate_fit_request(**kwargs)
 
 			from lmfit import minimize, Parameters, Parameter
 			from bisect import bisect
@@ -79,31 +89,30 @@ class SEDBuilder(GridTemplate):
 		self._sed()
 		self.GridClose()
 
+		self.fit_tab = Table({'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad})
+
 		return
 
-	def __validate_fit_request(self):
+	def _masked_col(self,len_,**mask_kwargs):
+		return MaskedColumn(np.zeros(len_),mask=np.ones(len_),**mask_kwargs)
 
-		fit_keys = ['MODELS','FIT_BODIES']
+	def __validate_fit_request(self,**kwargs):
+
 		tab_keys = ['TEFF','LOGG']
 
 		if not all([x in self.photo_tab.columns for x in tab_keys]):
 			raise KeyError("SED fit is activated: Data table must contain column keys %s" % tab_keys)
-		if not all([x in self.fit_dict for x in fit_keys]):
-			raise KeyError("SED fit is activated: fit_dict must contain keys %s" % fit_keys)
-		elif not all([len(self.fit_dict[x]) > 0 for x in fit_keys]):
-			raise IndexError("SED fit is activated: you must provide at least one entry for each of keys %s" % fit_keys)
+		if len(self.fit_model_dict) == 0:
+			raise KeyError("SED fit is activated: no synthetic model tabs are provided")
 		return
 
 	def _sed(self):
 
 	        for ind in range(len(self.photo_tab)): 
-			self._sed_single(ind)
-			
+			if not self.fit_bodies[ind] is np.ma.masked: self._sed_single(ind)			
 		return	
 
 	def _sed_single(self, t_ind):
-
-	    if not self.photo_tab['SEDFIT'][t_ind] is np.ma.masked :
 
 		ax = self.GridAx()
 		self.fit_l=[]; self.fit_f=[]; self.fit_ef=[]
@@ -153,16 +162,15 @@ class SEDBuilder(GridTemplate):
 		else:
 			self.models_key = 'kurucz'
 
-		self.mod_tab =  self.fit_dict['MODELS'][self.models_key]
+		self.mod_tab =  self.fit_model_dict[self.models_key]
 		self.mod_tarr = sorted(set(self.mod_tab['t']))
 
-		fit_bodies = self.fit_dict['FIT_BODIES']
+		if 'p' in self.fit_bodies[t_ind]:
+			fit_bodies = ['psph']
 
 		params = self.Parameters()		
 		
 		for fb in fit_bodies :
-
-			self.fit_body = fb
 
 			bod_prop = SED_BODIES[fb]
 			for p in bod_prop:
@@ -188,7 +196,12 @@ class SEDBuilder(GridTemplate):
 				params[k].set(value = val)
 				params[k].set(min = 0.8 * val)
 				params[k].set(max = 1.2 * val)
- 		
+
+
+		self.rad[t_ind] = int(result.params['rad'].value) 
+		self.a_v[t_ind] = '%.2f' % float(result.params['ext'].value)
+		self.lum[t_ind] = '%.2f' % np.log10( (self.rad[t_ind]**2) * ((self.teff/5778.)**4) )		
+
 		return result
 
 	def _resid(self, params):

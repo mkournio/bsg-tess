@@ -21,7 +21,6 @@ class corr_scatter(GridTemplate):
 
 		super(corr_scatter,self).__init__(rows_page = len(self.cols_x), cols_page = len(self.cols_y),
 						 row_labels = self.cols_x, col_labels = self.cols_y, **kwargs)
-
 		self._scatter_panel()
 		self.GridClose()	
 
@@ -41,16 +40,18 @@ class corr_scatter(GridTemplate):
 			for c2 in self.cols_y :
 
 				ax = self.GridAx()
+				ax.plot(jtab[c2],jtab[c1],'ko')	
 
-				flag_fraser = jtab['f_'+c2] == 2
-				ax.plot(jtab[c2][flag_fraser],jtab[c1][flag_fraser],'^',color='limegreen')
+				try:
+				 flag_fraser = jtab['f_'+c2] == 2
+				 ax.plot(jtab[c2][flag_fraser],jtab[c1][flag_fraser],'^',color='limegreen')
 
-				flag_haucke = jtab['f_'+c2] == 1
-				ax.plot(jtab[c2][flag_haucke],jtab[c1][flag_haucke],'ro')				
-
+				 flag_haucke = jtab['f_'+c2] == 1
+				 ax.plot(jtab[c2][flag_haucke],jtab[c1][flag_haucke],'ro')
+				except:
+				 pass
+			
 				ny = mask_outliers(jtab[c2], m = 4)
-
-				ax.plot(ny,nx,'k.',markersize=2)
 
 				if not (nx.mask.all() or ny.mask.all()):
 					pears_val = pearsonr(x=nx,y=ny)[0]
@@ -58,7 +59,7 @@ class corr_scatter(GridTemplate):
 					ax.text(0.05,0.30,'%.2f' % pears_val,size = 6,color='c',transform=ax.transAxes)
 					ax.text(0.05,0.15,'%.2f' % spear_val,size = 6,color='b',transform=ax.transAxes)
 
-				#ax.plot(jtab[c2],jtab[c1],'k.')	
+
 			
 class autocorr_scatter(corr_scatter):
 
@@ -166,12 +167,12 @@ class tess_hist(GridTemplate):
 			ax_harm = self.GridAx()
 
 			nanprop = self.ext_tab[prop].filled(np.nan)
-			brp_ini = [np.nanpercentile(nanprop, 33.33),np.nanpercentile(nanprop, 66.66)] 
+			stb_thres = [np.nanpercentile(nanprop, 33.33),np.nanpercentile(nanprop, 66.66)] 
 
 			# round TEFF in nearest 100 K
-			if prop == 'TEFF' : brp_ini = [round(x,-2) for x in brp_ini]
+			if prop == 'TEFF' : stb_thres = [round(x,-2) for x in stb_thres]
 
-			tb = [-np.inf] + sorted(brp_ini) + [+np.inf]
+			tb = [-np.inf] + sorted(stb_thres) + [+np.inf]
 
 			for i in range(len(tb)-1):
 

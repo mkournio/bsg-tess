@@ -10,7 +10,7 @@ PHOTO_CATS =	{
 			'fit'	: 1,
 			'cat'	: 'II/168/ubvmeans', 
 			'rad'	: 4, 
-			'mrk'	: {'m': 'x', 'c':'b', 's':9}, 
+			'mrk'	: {'m': 'o', 'c':'k', 's':9},
 			'flt'	: ['Vmag','B-V','U-B','e_Vmag','e_B-V','e_U-B']
 			}, 
 	'NOMAD05':	{# NOMAD Catalog (Zacharias+ 2005)
@@ -50,7 +50,7 @@ PHOTO_CATS =	{
 			'fit'	: 1,
 			'cat'	: 'I/355/gaiadr3',
 			'rad'	: 2,
-			'mrk'	: {'m': 'o', 'c':'k', 's':9},
+			'mrk'	: {'m': '*', 'c':'r', 's':10},
 			'flt'	: ['BPmag','Gmag','RPmag','e_BPmag','e_Gmag','e_RPmag']
 			},
 	'2MASS':	{# 2MASS All-Sky Catalog of Point Sources (Cutri+ 2003)	
@@ -98,7 +98,7 @@ PHOTO_CATS =	{
 			'fit'	: 0,
 			'cat'	: 'II/125/main',
 			'rad'	: 4,
-			'mrk'	: {'m': '*', 'c':'r', 's':9},
+			'mrk'	: {'m': 'x', 'c':'b', 's':9}, 
 			'flt'	: ['Fnu_12','e_Fnu_12','Fnu_25','e_Fnu_25','Fnu_60','e_Fnu_60','Fnu_100','e_Fnu_100']
 			},
 		}
