@@ -130,3 +130,8 @@ class Visualize(GridTemplate):
 			minfs.append(np.nanmin(flux)); maxfs.append(np.nanmax(flux))
 
 		return min(minfs), max(maxfs)
+
+
+
+
+

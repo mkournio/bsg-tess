@@ -1,7 +1,7 @@
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
-from constants.c_grid import *
+from constants.c_plot import *
 import os
 
 plt.rcParams.update(grid_params)

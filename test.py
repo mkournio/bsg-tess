@@ -1,30 +1,18 @@
+import logging
 
+log = logging.getLogger("my-logger")
+log.info("Hello, world")
+ARGS = (3,4,5)
 
-# declare a class 
-class Employee:  
-    
-    # class attribute 
-    count = 0      
-        
-    # define a method 
-    def increase(self):  
-        Employee.count += 1
-    
-# create an Employee  
-# class object 
-a1 = Employee()  
-  
-# calling object's method 
-a1.increase()  
-  
-# print value of class attribute 
-print(a1.count)  
-     
-a2 = Employee()  
-  
-a2.increase()  
-  
-print(a2.count)  
-    
-print(Employee.count)
+def test(x,*ARGS): 
+
+	print x, ARGS
+	log.warning(
+                "You have passed both a grid of frequencies "
+                "and min_frequency/maximum_frequency arguments; "
+                "the latter will be ignored."
+            )
+
+print test(3, 3)
+
 

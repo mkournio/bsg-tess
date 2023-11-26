@@ -1,0 +1,65 @@
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from constants.c_plot import *
+import os
+
+plt.rcParams.update(panel_params)
+
+class PanelTemplate(object):
+
+	# Class for the creation and management of plotting grid
+
+	def __init__(self, output_format = None, inter = False, **kwargs):
+
+        	self.__dict__.update(kwargs)
+		self.output_format = output_format
+		self.inter = inter
+
+		self.inv_x = kwargs.pop('inv_x',False)
+
+		self.filename = kwargs.pop('output_name','PanelPlot')
+
+		#Initiating pdf
+		if self.output_format == 'pdf': 
+				self.pdf = PdfPages(self._get_filename())
+
+	def PanelAx(self):
+
+		self.fig, ax = plt.subplots(figsize=(10, 10))
+
+		if 'x_label' in self.__dict__: ax.set_xlabel(STY_LB[self.x_label])
+		if 'y_label' in self.__dict__: ax.set_ylabel(STY_LB[self.y_label])
+		
+		if self.inv_x : ax.invert_xaxis()
+
+		return ax
+
+	def PanelClose(self):
+		
+		self._save_output()
+		if self.output_format == 'pdf': self.pdf.close()
+		if self.inter: plt.show()
+		self.fig.clf(); plt.close('all')
+
+		return
+
+	def _get_filename(self):
+
+		fl_id = 0 
+		while os.path.exists('%s_%s' % (self.filename,fl_id)): fl_id += 1
+
+		return '%s_%s' % (self.filename,fl_id)		
+
+	def _save_output(self):
+
+		if self.output_format == 'pdf':
+			self.pdf.savefig(self.fig)
+		elif self.output_format == 'eps':
+			self.fig.savefig('%s' % self._get_filename(), format = 'eps')	
+
+		return					
+
+
+
+
+

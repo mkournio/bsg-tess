@@ -7,7 +7,7 @@ from time_series import *
 from statistics import *
 from sed import *
 #from tables import *
-
+from visualize import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--filename",default= None, help="File containing the star table")
@@ -21,7 +21,6 @@ inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
 input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 
 		       'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT']})
 
-
 # CROSS-MATCHING
 xm = XMatching(input_tab)
 xm.match(xtabs = ['HAUCKE+19','FRASER+10'], xcols = ['TEFF','NABUN','MASS','LOGL','VMIC', 'LOGG'])
@@ -30,9 +29,8 @@ xm.match(xtabs = ['vizier:IV/39/tic82'], xcols = ['TIC'], viz_col = 'TIC', colum
 data = xm.matched
 #data.pprint(max_lines=-1)
 
-#import pdb; pdb.set_trace()
-
-'''
+#HRdiagram(data, lkey = 'LOGL', inter = True)
+	
 #### EXTRACT LIGHTCURVES (ALL)
 #ExtLCs(data['STAR'],data['RA'],data['DEC'],data['TIC'],4,pdf_name=args.filename+'_ExtLCs')
 
@@ -50,7 +48,7 @@ data = xm.matched
 #LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
 #			  output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
 #			  output_format = None, inter = False)
-'''
+
 
 # COLLECT PHOTOMETRY FROM LITERATURE
 photo = PhotoCollector(data)
@@ -65,19 +63,11 @@ KuruczTab = synthetic_fluxes(synth_l,model_type = 'kurucz')
 PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
 model_dict = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
 
-
 # BUILD SPECTRAL ENERGY DISTRIBUTION - APPEND TO TABLE
 SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model_dict,
 		 rows_page = 4, cols_page = 5, output_name = args.filename+'_SED', 
 		 coll_x = True, output_format = None, inter = False)
 photo_data = hstack([photo_data,SED.fit_tab])
-
-# CHECKING AGREEMENT AMONG LITERATURE LOGL AND SED-DERIVED ONES
-corr_scatter(ext_x = photo_data['STAR','LOGL'], ext_y = photo_data['STAR','LUM'], match_keys = 'STAR', 
-             output_format = None, inter = True)
-
-corr_scatter(ext_x = photo_data['STAR','LUM'], ext_y = photo_data['STAR','TEFF'], match_keys = 'STAR', 
-             output_format = None, inter = True)
 
 ext_keys = ['STAR','TEFF','NABUN','LOGL','LUM','MASS','VMIC']
 
@@ -89,12 +79,10 @@ autocorr_scatter(vector=photo_data[ext_keys], output_format = None, inter = True
 #             coll_x = True, coll_y = True, output_format = 'pdf', inter = False)
 
 #Correlations between stellar parameters and distribution of frequencies
-tess_hist(ext_tab = photo_data[ext_keys], snr_show = 4, output_format = None, coll_x = True, inter = True)
+TH = tess_hist(ext_tab = photo_data[ext_keys], snr_show = 4, output_format = None, coll_x = True, inter = True)
+photo_data = hstack([photo_data,TH.hist_tab])
 
-
-
-
-
+HRdiagram(photo_data, lkey = 'LUM', tlines = TH.prop_thres['TEFF'], llines = TH.prop_thres['LUM'], inter = True)
 
 
 

@@ -2,7 +2,7 @@ from plot_methods import GridTemplate
 from functions import *
 from constants import *
 from time_series import FrequencyIdentifier
-from astropy.table import join
+from astropy.table import join, Table, MaskedColumn
 import numpy as np
 from scipy.stats import norm, gamma 
 from scipy.stats.mstats import pearsonr, spearmanr, describe
@@ -71,10 +71,9 @@ class autocorr_scatter(corr_scatter):
 
 class tess_hist(GridTemplate):
 
-	def __init__(self, ext_tab, snr_show = 5, type_data = 'frequency', **kwargs):
+	def __init__(self, ext_tab, snr_show = 5, **kwargs):
 
 		self.ext_tab = ext_tab
-		self.type_data = type_data
 		self.snr_show = snr_show	
 		self.freqs = []
 		self.snrs = []
@@ -82,15 +81,25 @@ class tess_hist(GridTemplate):
 
 		self.bins=np.arange(BIN_PROP['LOW'], BIN_PROP['UP'], BIN_PROP['RES'])
 
+
+		len_ph = len(ext_tab)
+		self.nffreq = self._masked_col(len_ph)
+
 		self._dict_freq_tess()
 
 		self.cols_y = [c for c in self.ext_tab.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
+
+		self.prop_thres = {}
 		super(tess_hist,self).__init__(rows_page = len(self.cols_y), cols_page = 3, row_labels = self.cols_y, 
 					       fig_xlabel = PLOT_XLABEL['ls'], 
 						sup_xlabels = ['Fundamental (S/N > %s)' % self.snr_show,'Fundamental', 'Harmonics'],
 					       **kwargs)
 		self._hist_freq_tess()
-		self.GridClose()
+		self.GridClose()		
+
+		self.hist_tab = Table({'NFFREQ': self.nffreq})
+
+		return
 
 	def _dict_freq_tess(self):
 
@@ -101,7 +110,9 @@ class tess_hist(GridTemplate):
 		self.harms = {}
 		self.combs = {}
 
-		for star in self.ext_tab['STAR']:
+		for s in range(len(self.ext_tab['STAR'])):
+
+			star = self.ext_tab['STAR'][s]
 
 			star_files = [f for f in os.listdir(TESS_LS_PATH) if 'FREQ' in f and star in f]				
 			
@@ -154,9 +165,14 @@ class tess_hist(GridTemplate):
 			self.harms[star].update({'FREQ': sharms, 'SNR': sharms_snr, 'IDS': sharms_ids, 'SECT': sectors})
 			self.combs[star].update({'FREQ': scombs, 'SNR': scombs_snr, 'IDS': scombs_ids, 'SECT': sectors})
 
+			self.nffreq[s] = len(self._convert_to_bin_averaged(np.hstack(sfunds), self.bins))
+			
 		freqs_to_tex_tab(d_fund = self.funds,d_harm = self.harms, d_comb = self.combs, file_='FUND_test_NEW.tex')
 
 		return
+
+	def _masked_col(self,len_,**mask_kwargs):
+		return MaskedColumn(np.zeros(len_),mask=np.ones(len_),**mask_kwargs)
 
 	def _hist_freq_tess(self):	
 
@@ -168,6 +184,8 @@ class tess_hist(GridTemplate):
 
 			nanprop = self.ext_tab[prop].filled(np.nan)
 			stb_thres = [np.nanpercentile(nanprop, 33.33),np.nanpercentile(nanprop, 66.66)] 
+
+			self.prop_thres[prop] = stb_thres
 
 			# round TEFF in nearest 100 K
 			if prop == 'TEFF' : stb_thres = [round(x,-2) for x in stb_thres]
