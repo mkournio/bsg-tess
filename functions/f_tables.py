@@ -8,6 +8,20 @@ from constants import *
 
 #Functions for tables and arrays 
 
+def radmass(logg,rad):
+		
+	logg_arr = np.array(logg.filled(np.nan))
+	rad_arr = np.array(rad.filled(np.nan))
+
+	return (10**logg_arr) * ((rad_arr * RSUN_TO_CM)**2) / (G_ACC * MSUN_TO_GR)
+
+def sedscal(rad,dist):
+
+	rad_arr = np.array(rad.filled(np.nan))		
+	dist_arr = np.array(dist.filled(np.nan))
+
+	return np.log10(rad_arr / dist_arr)
+
 def float_list(a):
 	return [float(x) for x in a]
 

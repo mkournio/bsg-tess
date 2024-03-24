@@ -58,27 +58,35 @@ class getTracks(object):
 		
 class HRdiagram(PanelTemplate):
 
-	def __init__(self, data, tkey = 'TEFF', lkey = 'LOGL', tlines = [], llines = [], **kwargs):
+	def __init__(self, data = None, tkey = 'TEFF', cbar_key = 'MASS', lkey = 'LOGL', tlines = [], llines = [], 
+				hold = False, **kwargs):
 
-		self.data = data
+
 		self.tkey = tkey
 		self.lkey = lkey
+		self.cbar_key = cbar_key
 		self.tlines = tlines
 		self.llines = llines
-		self._validate_hr()
-
-		self.data[self.tkey] = np.log10(self.data[self.tkey])
 		super(HRdiagram,self).__init__(inv_x = True, x_label = 'LTEFF', y_label = lkey, **kwargs)
-
 		self.ax = self.PanelAx()
-		self.ax.set_ylim(3.20,6.30)
-		self.ax.set_xlim(4.7,4)
 
-		self.cmap, self.norm = colorbar(self.fig, vmin=5, vmax=59, label=r'M [M$_{\odot}$]')
-		self._plot_xtras()
-		self._plot_hr()
+		self.ax.set_ylim(HR_YLIM)
+		self.ax.set_xlim(HR_XLIM)		
 
-		self.PanelClose()
+		#self.cmap, self.norm = colorbar(self.fig, vmin=1, vmax=59, label=r'M [M$_{\odot}$]')
+		self.cmap, self.norm = colorbar(self.fig, vmin=0, vmax=15, label=r't [Myr]')
+
+		self._plot_tracks()
+
+		if isinstance(data,Table):
+
+			self.data = data
+			self._validate_hr()
+			self.data[self.tkey] = np.log10(self.data[self.tkey])
+			self._plot_hr()
+
+		if not hold : 
+			self.PanelClose()
 	
 	def _validate_hr(self):
 
@@ -89,12 +97,12 @@ class HRdiagram(PanelTemplate):
 	def _plot_hr(self):
 
 		msizes = 60 #np.array([x**2 for x in self.data['NFFREQ']])
-		colors = np.array([self.cmap(self.norm(k)) for k in self.data['MASS']])
+		colors = 'k' #np.array([self.cmap(self.norm(k)) for k in self.data[self.cbar_key]])
 		self.ax.scatter(self.data[self.tkey], self.data[self.lkey], s = msizes, c = colors, edgecolor='k')		
 
 		return
 
-	def _plot_xtras(self):
+	def _plot_tracks(self):
 
 		# HD LIMIT
 		self.ax.plot(HD_LMT['TEFF'],HD_LMT['LOGL'], lw = HD_LMT['lw'], color = HD_LMT['c'])
@@ -102,14 +110,19 @@ class HRdiagram(PanelTemplate):
 		# EVOL TRACKS
 		MW_tr = getTracks().MW
 		for m in MW_tr:
- 			z = np.asarray(MW_tr[m]['M_ACT'])    
+		     if float(m) > 12 :	
+ 			#z = np.asarray(MW_tr[m]['M_ACT']) 
+ 			z = np.asarray(MW_tr[m]['TIME']/1e+6) 
+
     			segments = make_segments(MW_tr[m]['LTEFF'],MW_tr[m]['LOGL'])
     			lc = LineCollection(segments, array=z, cmap=self.cmap, norm=self.norm, 
-						linewidth=2, alpha=1.0)
+						linewidth=3, alpha=1.0)
     			self.ax.add_collection(lc)
+			if float(m) > 15: self.ax.text(MW_tr[m]['LTEFF'][0]+0.05,MW_tr[m]['LOGL'][0]-0.01,'%s M$_{\odot}$' % int(m), 
+					size = 13, weight= 'bold')
 
 		# LINES - THRESHOLDS
-		for l in self.llines: self.ax.axhline(y=l, color='k', ls=':')
-		for t in self.tlines: self.ax.axvline(x=np.log10(t), color='k', ls=':')
+		#for l in self.llines: self.ax.axhline(y=l, color='k', ls=':')
+		#for t in self.tlines: self.ax.axvline(x=np.log10(t), color='k', ls=':')
 
 		return

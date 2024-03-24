@@ -1,4 +1,4 @@
-
+from constants import *
 
 def colorbar(fig,vmin,vmax,label,cbar='jet'):
 
@@ -13,7 +13,7 @@ def colorbar(fig,vmin,vmax,label,cbar='jet'):
 		cmmapable = cm.ScalarMappable(norm, cmap)
 		cmmapable.set_array([])
 		cbar=fig.colorbar(cmmapable, cax=cbar_ax)
-		cbar.ax.set_title(label)
-		cbar.ax.tick_params(labelsize=14)
+		cbar.ax.set_title(label, size=CBAR_TITLE_SIZE)
+		cbar.ax.tick_params(labelsize=CBAR_TICK_SIZE)
 
 		return cmap, norm

@@ -1,4 +1,5 @@
 from plot_methods import GridTemplate
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from functions import *
 import numpy as np
 import lightkurve as lk
@@ -6,30 +7,39 @@ import os
 
 class Visualize(GridTemplate):
 	
-	def __init__(self, level, star_ids, **kwargs):
+	def __init__(self, data, level, **kwargs):
 
+		self._validate()
+
+		self.stars = data['STAR']
 		self.level = level
-		super(Visualize,self).__init__(fig_xlabel=PLOT_XLABEL[self.level],
+
+		if level == 'ls': 
+			kwargs['coll_x'] = True
+			kwargs['coll_y'] = True
+
+		super(Visualize,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
 					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
-	
-		self.rn_tab = Table(names=('STAR','w','zero','tau','gamma','e_w','e_zero','e_tau','e_gamma'), 
+		if self.level == 'ls':
+		 self.rn_tab = Table(names=('STAR','w','zero','tau','gamma','e_w','e_zero','e_tau','e_gamma'), 
 				    dtype=('<U16','f4', 'f4', 'f4', 'f4','f4', 'f4','f4', 'f4'))
 
-		self._visual(star_ids)
-
+		self._visual()
 		self.GridClose()
 
-	def _visual(self, star_ids):
+	def _validate(self):
+		pass
 
-	        for star in star_ids :
+	def _visual(self):
+
+	        for star in self.stars :
 			if self.level == 'lc':
 				lc_files = [j for j in os.listdir(TESS_LC_PATH) if (star in j)]
 				self._visual_lc(star,lc_files)
 
 			elif self.level == 'ls':				
 				rnopt = self._visual_ls(star)
-				self.rn_tab.add_row(np.append(star,rnopt))
-			
+				self.rn_tab.add_row(np.append(star,rnopt))			
 		return	
 
 	def _visual_ls(self, star):
@@ -48,12 +58,21 @@ class Visualize(GridTemplate):
 
 			ax = self.GridAx()
 			ax.plot(ls_v, ls_ini,'c'); ax.plot(ls_v, ls_end,'r')
-			ax.plot(ls_v, self._redn(ls_v,*rnopt),'k--')
-			ax.text(0.05,0.05,'%s (%s)' % (star,vis_sect),color='k',size=7,transform=ax.transAxes)
+			ax.plot(ls_v, self._redn(ls_v,*rnopt),'k-')
+			ax.axvline(2. / TESS_WINDOW_D,color='k',ls='-',lw=0.5,ymin=0.5,ymax=1)
 
-			ax.set_ylim(2e-6,2e-2) ; ax.set_yscale('log')  
-			ax.set_xlim(3e-3,99); ax.set_xscale('log') 
+			fund, harm, comb = self._get_freqs(TESS_LS_PATH + freq_files[np.argmin(rn_chi2s)])
+			for l in fund : ax.axvline(l,color='b',ls='-',lw=2.5,ymin=0.80,ymax=1)
+			for l in harm : ax.axvline(l,color='g',ls='--',lw=2,ymin=0.84,ymax=1)
+			for l in comb : ax.axvline(l,color='k',ls=':',lw=1.5,ymin=0.87,ymax=1)
 
+			ax.set_ylim(1.1e-6,3e-1) ;  ax.set_yscale('log')  
+			ax.set_xlim(3e-3,25); ax.set_xscale('log') 
+
+			ax.text(0.05,0.05,'%s (%s)' % (star,vis_sect),color='k',transform=ax.transAxes)
+
+			rnerr[0] = rnerr[0]/(np.log(10)*rnopt[0])
+			rnerr[1] = rnerr[1]/(np.log(10)*rnopt[1])
 			rnopt[:2] = np.log10(rnopt[:2])
 
 			return rnopt, rnerr
@@ -84,11 +103,14 @@ class Visualize(GridTemplate):
 				g_sect_tx = '+'.join([str(x) for x in g_sects])
 
 				ax.plot(g_times, g_fluxes,'k'); ax.invert_yaxis(); ax.set_ylim(ym,-ym)
+				ax.xaxis.set_tick_params(direction="in")
+				#ax.yaxis.set_tick_params(labelsize=SIZE_XLABEL_SUB)
+				if k == 0: ax.text(0.05,0.85,star,color='r',fontsize=SIZE_FONT_SUB,transform=ax.transAxes)
+				ax.text(0.4,0.05,g_sect_tx,color='b',fontsize=SIZE_FONT_SUB,transform=ax.transAxes)
 
-				ax.xaxis.set_tick_params(direction="in",labelsize=6)
-				ax.yaxis.set_tick_params(labelsize=9)
-				if k == 0: ax.text(0.05,0.85,star,color='r',fontsize=10,transform=ax.transAxes)
-				ax.text(0.4,0.05,g_sect_tx,color='b',fontsize=9,transform=ax.transAxes	)
+				x1_p = (2*g_times[0]+g_times[-1])/3.
+				x2_p = (2*g_times[-1]+g_times[0])/3.
+				ax.set_xticks([round_to(x1_p,5)[0], round_to(x2_p,5)[1]])
 
 				if (len_gls > 1) and (k < len_gls - 1):
 					d=.02
@@ -97,7 +119,7 @@ class Visualize(GridTemplate):
 					ax.plot((1,1),(1-d,1+d), **kwargs) 
 					ax.spines['right'].set_visible(False)
 
-					ax = divider.append_axes("right", size="100%", pad=0.12)
+					ax = divider.append_axes("right", size="100%", pad=0.14)
 
 					kwargs.update(transform=ax.transAxes) 
 					ax.plot((0,0),(-d,+d), **kwargs) 
@@ -115,6 +137,25 @@ class Visualize(GridTemplate):
         			pass
     		
 		return line.split()[3]
+
+	def _get_freqs(self,path_freq):
+
+		fund = []
+		harm = []
+ 		comb = []
+		with open(path_freq) as f:
+    			first_line = f.readline()
+    			for line in f:
+				freq = float(line.split()[1])
+				if '(F)' in line :
+					fund.append(freq)
+				elif '(H)' in line:
+					harm.append(freq)
+				elif '(C)' in line:
+					comb.append(freq)
+
+		return fund, harm, comb		
+		
 
 	def _redn(self,x,w,zero,tau,gamma):
 		x = np.array(x)

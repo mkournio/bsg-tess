@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 from constants.c_plot import *
 import os
 
-plt.rcParams.update(panel_params)
+
 
 class PanelTemplate(object):
 
 	# Class for the creation and management of plotting grid
+	def __init__(self, output_format = None,  params = PLOT_PARAMS['panel'], inter = False, **kwargs):
 
-	def __init__(self, output_format = None, inter = False, **kwargs):
+		plt.rcParams.update(panel_params)
 
         	self.__dict__.update(kwargs)
 		self.output_format = output_format

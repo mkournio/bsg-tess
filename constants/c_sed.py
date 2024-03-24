@@ -2,6 +2,7 @@
 LAMBDA_FIT_THRES = 3e+4
 NIR_SCALAR = 1e-26      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
 FIR_SCALAR = 1e-22      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
+FIXED_DIST =  999.999999999 # Distance fixed when unavailable - to avoid crash
 
 #Photometric catalogs
 PHOTO_CATS =	{

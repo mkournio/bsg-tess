@@ -11,15 +11,55 @@ from tables import *
 
 class Gaia(object):
 
-    def __init__(self,tpf,cat='Gaia3'):
+    def __init__(self,tpf,ra,dec,cat='Gaia3'):
 
         self.tpf = tpf
+	self.ra = ra
+	self.dec = dec
         if cat=='Gaia3' :
             self.cat = 'I/355/gaiadr3'
         elif cat=='Gaia2' :
             self.cat = 'I/345/gaia2'
         else :
             raise ValueError("Choose between Gaia3 and Gaia2.")
+
+	self.get_prop()
+
+	return
+
+    def get_prop(self):
+
+        DS3 = self._query()
+
+        RA_pix,DE_pix = self.tpf.wcs.all_world2pix(DS3.RA_ICRS,DS3.DE_ICRS,0.01)
+        RA_pix += self.tpf.column ; DE_pix += self.tpf.row
+        RA_pix += 0.5 ; DE_pix += 0.5
+        
+        cond_box = (RA_pix>self.tpf.column) & (RA_pix<self.tpf.column+self.tpf.shape[2]) & \
+                   (DE_pix>self.tpf.row) & (DE_pix<self.tpf.row+self.tpf.shape[1])
+
+        DS3 = DS3[cond_box]
+        self.RA_pix = RA_pix[cond_box]
+        self.DE_pix = DE_pix[cond_box]
+        self.BPRP  = DS3['BP-RP'].values
+        RP    = DS3['RPmag'].values
+	GaIDs  = DS3['Source'].values
+
+	self.gaia_ind = None
+	try:
+		GA_query = Vizier(catalog='I/355/gaiadr3').query_region(SkyCoord(ra=self.ra,dec=self.dec,unit=(u.deg,u.deg),\
+			 frame='icrs'), radius = 10 * u.arcsec)[0]
+		GA_star =  GA_query['Source'][0]
+		self.gaia_ind = np.where(GaIDs == GA_star)
+		self.star_row = int(DE_pix[self.gaia_ind] - self.tpf.row)
+		self.star_col = int(RA_pix[self.gaia_ind] - self.tpf.column)
+		self.RPdiff =  RP - np.ma.min(GA_query['RPmag'])
+	except:
+		print 'No Gaia counterparts retrieved'
+		self.star_row = int(0.5*self.tpf.shape[1])
+		self.star_col = int(0.5*self.tpf.shape[2])
+		self.RPdiff =  RP - min(RP)
+
 
 	return
 
@@ -32,25 +72,33 @@ class Gaia(object):
 
         return DS3
 
-    def get_prop(self):
+    def update_mask(self, check_mask, ref_p, min_thres = 3, update = False):
 
-        DS3 = self._query()
+       min_diff = 100.
 
-        RA_pix,DE_pix = self.tpf.wcs.all_world2pix(DS3.RA_ICRS,DS3.DE_ICRS,0.01)
-        RA_pix += self.tpf.column ; DE_pix += self.tpf.row
-        RA_pix += 0.5 ; DE_pix += 0.5
-        
-        cond_box = (RA_pix>self.tpf.column) & (RA_pix<self.tpf.column+self.tpf.shape[1]) & \
-                          (DE_pix>self.tpf.row) & (DE_pix<self.tpf.row+self.tpf.shape[2])
-        DS3 = DS3[cond_box]
-        RA_pix = RA_pix[cond_box]
-        DE_pix = DE_pix[cond_box]
+       if check_mask is not None :	
+	nmask = check_mask.copy()
+        for i in range(nmask.shape[0]):
+        	for j in range(nmask.shape[1]):
+			if nmask[i,j]:	
+				 tpf_row = ref_p[0] + i 
+				 tpf_col = ref_p[1] + j
+				 cond_box = (self.RA_pix>tpf_col) & (self.RA_pix<tpf_col+1) & \
+					    (self.DE_pix>tpf_row) & (self.DE_pix<tpf_row+1)
+				 
+				 loc_diff = self.RPdiff[cond_box & (self.RPdiff != 0)]
+				 loc_diff = loc_diff[~np.isnan(loc_diff)]
+				 if len(loc_diff) > 0 and min(loc_diff) < min_diff :
+					min_diff = min(loc_diff)
+					if update and min_diff < min_thres :
+						for di in [max(0,i-1),i,min(i+1,nmask.shape[0]-1)]:
+						 for dj in [max(0,j-1),j,min(j+1,nmask.shape[1]-1)]:
+						   nmask[di,dj] = False
+       else:
+	nmask = None
 
-        BPRP  = DS3['BP-RP'].values
-        RP    = DS3['RPmag'].values
-	GaID  = DS3['Source'].values
+       return nmask, min_diff	
 
-        return  RA_pix, DE_pix, BPRP, RP, GaID
 
 def find_harmon(v,e):
 
@@ -60,27 +108,25 @@ def find_harmon(v,e):
 	v = np.array(v)
 	ident_v = np.zeros(len(v),dtype=np.dtype('U100'))
 
-	f = np.where(v > 2 * e)[0]
-	t = np.where(v <= 2 * e)[0]
+	f = np.where(v > 2. / TESS_WINDOW_D)[0]
+	t = np.where(v <= 2. / TESS_WINDOW_D)[0]
 
 	np.put(ident_v,t,'(BTH)')
 
 	ratio = v[f[0]]/v[f[1]]
-	error = ratio * e * np.sqrt( (1/v[f[0]]**2) + (1/v[f[1]]**2) )	
-
-	if (abs(ratio - round(ratio)) < error) and (round(ratio) == 1) :
+	if abs( v[f[0]] - v[f[1]] ) <= e :
 			id0 = '(F)'
 			id1 = '(U) F%d' % f[0]
-	elif abs(ratio - round(ratio)) < error :
+	elif ratio > 1 and v[f[1]] * abs(ratio - round(ratio)) <= e :
 			id0 = '(H) %dF%d' % (round(ratio),f[1])
 			id1 = '(F)'
-	elif abs((1/ratio) - round(1/ratio)) < error * (1/ratio**2) :
+	elif ratio < 1 and v[f[0]] * abs((1./ratio) - round(1./ratio)) <= e :
 			id0 = '(F)'
 			id1 = '(H) %dF%d' % (round(1/ratio),f[0])
 	else:
 			id0 = '(F)'
 			id1 = '(F)'
-
+	
 	ident_v[f[0]] = id0
 	ident_v[f[1]] = id1
 
@@ -88,34 +134,33 @@ def find_harmon(v,e):
 
 		ind_k = np.where(f==k)[0][0]
 
-		minim = 100.
- 		oc1 = '0F'; oc2 = '0F'
- 		for i in f[:ind_k-1] :
-			for j in f[i+1:ind_k] :
-					for c1 in np.arange(-5,10,1):
-    						for c2 in np.arange(-5,10,1):
+		text = None
+		# Repeated frequencies and harmonics (multiples)
+ 		for i in f[:ind_k] :
+			ratio = v[k] / v[i]
+			if abs(v[k] - v[i]) < e :
+				text = '(U) F%d' % i
+				break
+			elif v[i] * abs(ratio - round(ratio)) <= e :
+				text = '(H) %dF%d' % (round(ratio),i)
+				break
 
-				        		if (abs(c1*v[i] + c2*v[j] - v[k]) < np.sqrt(2) * e) and \
-								(abs(c1) + abs(c2) < minim): 
+		# Combinations among previously detected
+		if text ==  None :
+		  minim = 100.
+		  for i in f[:ind_k-1] :
+		        ind_i = np.where(f==i)[0][0]
+			for j in f[ind_i+1:ind_k] :
+				for c1 in np.arange(-5,10,1):
+    					for c2 in np.arange(-5,10,1):
+						if (abs(c1*v[i] + c2*v[j] - v[k]) <= e) and (abs(c1) + abs(c2) < minim): 
+							text = '(C) %sF%s %sF%s' % (c1,i,c2,j)
+							minim = abs(c1) + abs(c2)
 
-								minim = abs(c1) + abs(c2)
-								oc1 = '%sF%s' % (c1,i); oc2 = '%sF%s' % (c2,j)
-
-	 	sum_coeff = abs(float(oc1.split('F')[0]))+abs(float(oc2.split('F')[0]))
-		oc1 = trans_freq_text(oc1)
-		oc2 = trans_freq_text(oc2)
-
-	 	text = '%s %s' % (oc1,oc2)
-
-	 	if sum_coeff == 0:
-			text = '(F)'
-	 	elif sum_coeff == 1:
-			text = '(U) ' + text
-	 	elif sum_coeff > 1 and ('' in [oc1,oc2]):
-			text = '(H) ' + text
-	 	else:
-			text = '(C) ' + text
-
+		# Otherwise a non dependent frequency is fundamental
+		if text == None :
+		 text = '(F)'
+	
 	 	ident_v[k] = text 
 
 	return ident_v
@@ -249,11 +294,11 @@ def dmatr(matr, pca_num):
 
 def lccor(tpf, mask, bk_mask, pca_num): 
 
-	rgr = tpf.flux[:, bk_mask]
+	lc = tpf.to_lightcurve(aperture_mask=mask).remove_nans()
+	flux_mask = lc.flux_err > 0
+	lc = lc[flux_mask]
 
-	lc    = tpf.to_lightcurve(aperture_mask=mask).remove_nans()
-	lc    = lc[lc.flux_err > 0]
-
+	rgr = tpf.flux[flux_mask][:, bk_mask]	
 	dm = dmatr(rgr,pca_num)
 
 	return RegressionCorrector(lc).correct(dm)
@@ -396,10 +441,13 @@ def freqs_to_tex_tab(d_fund, d_harm, d_comb, file_):
 
 ######################################
 
-def roundup(x):
-	import math	
+def round_to(x,ref):
+	import math
 
-	return int(math.ceil(x / 10.0)) * 10
+	rounddown = int(math.floor(x / ref)) * ref
+	roundup = int(math.ceil(x / ref)) * ref	
+
+	return rounddown, roundup
 
 def sect_unmasked(x):
 	

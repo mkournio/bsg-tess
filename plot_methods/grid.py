@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 from constants.c_plot import *
 import os
 
-plt.rcParams.update(grid_params)
 
 class GridTemplate(object):
 
 	# Class for the creation and management of plotting grid
 
-	def __init__(self, rows_page = 3, cols_page = 1, output_format = 'pdf', inter = False, **kwargs):
+	def __init__(self, rows_page = 3, cols_page = 1, output_format = 'pdf', params = PLOT_PARAMS['lc'], inter = False, **kwargs):
+
+		plt.rcParams.update(params)
 
         	self.__dict__.update(kwargs)
 		self.rows_page = rows_page
@@ -19,6 +20,8 @@ class GridTemplate(object):
 		self.inter = inter
 
 		self.filename = kwargs.pop('output_name','GridPlot')
+		self.fig_xlabel  = kwargs.pop('fig_xlabel','X LABEL')
+		self.fig_ylabel  = kwargs.pop('fig_ylabel','Y LABEL')
 		self.coll_x = kwargs.pop('coll_x',False)
 		self.coll_y = kwargs.pop('coll_y',False)
 
@@ -41,12 +44,12 @@ class GridTemplate(object):
 			self._grid_new()
 
 		ax = self.fig.add_subplot(self.gs[plot_row,plot_col])
-
+		self.ax_pos = plot_row
 
 		if plot_row < self.rows_page - 1:
 			if self.coll_x:
 			 	ax.tick_params(labelbottom=False)
-			 	self.gs.update(hspace=0.1)
+			 	self.gs.update(hspace=0.05)
 		else:
 			if 'col_labels' in self.__dict__:
 				ax.set_xlabel(STY_LB[self.col_labels[plot_col]])
@@ -57,17 +60,15 @@ class GridTemplate(object):
 		if plot_col > 0 :
 			if self.coll_y:
 				ax.tick_params(labelleft=False)
-			 	self.gs.update(wspace=0.1)
+			 	self.gs.update(wspace=0.05)
 		else:
 			if 'row_labels' in self.__dict__:
-				ax.set_ylabel(STY_LB[self.row_labels[plot_row]])
-			
+				ax.set_ylabel(STY_LB[self.row_labels[plot_row]])			
+
 
 		self.ind += 1
 
 		return ax
-
-
 
 	def GridClose(self):
 		
@@ -81,7 +82,7 @@ class GridTemplate(object):
 	def _get_filename(self):
 
 		fl_id = 0 
-		while os.path.exists('%s_%s' % (self.filename,fl_id)): fl_id += 1
+		while os.path.exists('%s_%s.%s' % (self.filename,fl_id,self.output_format)): fl_id += 1
 
 		return '%s_%s' % (self.filename,fl_id)		
 
@@ -89,12 +90,8 @@ class GridTemplate(object):
 		
 		#Create grid on new page
 
-		self.fig = plt.figure(figsize=(17,10))
+		self.fig = plt.figure(figsize=SIZE_GRID)
 		self.gs = GridSpec(self.rows_page, self.cols_page, figure=self.fig)
-		if 'fig_xlabel' in self.__dict__:
-			self.fig.text(0.5,0.04,self.fig_xlabel,size = 15,ha="center",va="center")
-		if 'fig_ylabel' in self.__dict__:
-			self.fig.text(0.06,0.5,self.fig_ylabel,size = 15, ha="center", va="center", rotation=90)
 
 		return
 
@@ -109,10 +106,15 @@ class GridTemplate(object):
 
 	def _save_output(self):
 
+		self.glob_ax = self.fig.add_subplot(self.gs[:self.ax_pos+1, :], frameon=False)
+		self.glob_ax.tick_params(labelleft = False, labelbottom = False, bottom = False, left = False)
+		self.glob_ax.set_xlabel(self.fig_xlabel, fontsize = SIZE_XLABEL_FIG, labelpad=30)
+		self.glob_ax.set_ylabel(self.fig_ylabel, fontsize = SIZE_YLABEL_FIG, labelpad=55)
+
 		if self.output_format == 'pdf':
-			self.pdf.savefig(self.fig)
+			self.pdf.savefig(self.fig,bbox_inches='tight')
 		elif self.output_format == 'eps':
-			self.fig.savefig('%s' % self._get_filename(), format = 'eps')	
+			self.fig.savefig('%s.%s' % (self._get_filename(),self.output_format), format = 'eps',bbox_inches='tight')
 
 		return					
 

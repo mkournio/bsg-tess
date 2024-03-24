@@ -1,4 +1,5 @@
-import argparse
+#%%
+import args
 from astropy.table import Table
 from astroquery.xmatch import XMatch
 from astropy.io import ascii
@@ -7,83 +8,131 @@ from time_series import *
 from statistics import *
 from sed import *
 #from tables import *
-from visualize import *
+from constants import *
+from evolution import *
+import pickle
+import os
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--filename",default= None, help="File containing the star table")
-parser.add_argument("-l1","--from_line", type=int, default = 1, help="First reading line")
-parser.add_argument("-l2","--to_line", type=int, default = None, help="End reading line")	
-args = parser.parse_args()
-	
-# READING INPUT
-inputf = ascii.read(args.filename, header_start=0, delimiter=",",data_start=args.from_line, data_end=args.to_line)
-inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
-input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 
-		       'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT']})
+TT = TexTab()
 
-# CROSS-MATCHING
-xm = XMatching(input_tab)
-xm.match(xtabs = ['HAUCKE+19','FRASER+10'], xcols = ['TEFF','NABUN','MASS','LOGL','VMIC', 'LOGG'])
-xm.match(xtabs = ['vizier:I/347/gaia2dis'], xcols = ['DIST'], viz_col = 'rest')
-xm.match(xtabs = ['vizier:IV/39/tic82'], xcols = ['TIC'], viz_col = 'TIC', column_format = 'int')
-data = xm.matched
-#data.pprint(max_lines=-1)
+#### DATA
+try:
+	data = pickle.load(open(PICKLE_PATH+'input.pkl','rb'))
+	print 'Loaded pickle: input'
 
-#HRdiagram(data, lkey = 'LOGL', inter = True)
-	
-#### EXTRACT LIGHTCURVES (ALL)
-#ExtLCs(data['STAR'],data['RA'],data['DEC'],data['TIC'],4,pdf_name=args.filename+'_ExtLCs')
+except (OSError, IOError) as e:
+	# READING INPUT
+	inputf = ascii.read(args.filename, header_start=0, delimiter=",", data_start=args.from_line, data_end=args.to_line)
+	inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
+	input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 'TMAG' :  inputf['TMAG'] , 'SBTYPE' : inputf['SBTYPE'], 'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT'], 'RDMAG' : inputf['RDMAG'],})
 
-#### EXTRACT LIGHTCURVES (SELECTED)
-#ExtLCs(data['STAR'],data['RA'], data['DEC'], data['TIC'], 4, sspoc = data['SSPOC'], sffi = data['SFFI'],
-#		    thmask = data['MASK'], pdf_name=args.filename+'_ExtLCs')
+	# CROSS-MATCHING
+	xm = XMatching(input_tab)
+	xm.match(xtabs = ['HAUCKE+19','FRASER+10'], xcols = ['TEFF','NABUN','MASS','LOGL','VMIC', 'LOGG'])
+	xm.match(xtabs = ['vizier:I/347/gaia2dis'], xcols = ['DIST'], viz_col = 'rest')
+	xm.match(xtabs = ['vizier:IV/39/tic82'], xcols = ['TIC'], viz_col = 'TIC', column_format = 'int')
+	data = xm.matched
+	pickle.dump(data,open(PICKLE_PATH+'input.pkl','wb'))
+	print 'Task executed: input'
+
+#TT.TabSample(data)
+
+# For ALL_TYPES BREAK INTO 8 (BRIGHT) - 30 - 55 - end
+# For SELECTED TYPES BREAK INTO 8 (BRIGHT) - 38 - end
+#### EXTRACT LIGHTCURVES
+#ExtractLC(data, 4, all_type = False, output_format = 'pdf', save_files = False, inter=False, output_name = 'XLC_v2')
+
+#### EXTRACT PERIODOGRAMS AND RED NOISE MODELS - PERFORM PREWHITENING
+# For published prewhitening figure, plot data[24:25] in 'eps'
+# BREAK INTO 20 - 40 - end
+#ExtractLS(data,  prewhiten = True, output_format = None, output_name = 'XLS_v2', rows_page = 6, cols_page = 2, inter = False)
+
+#os.system('systemctl poweroff') 
+
+#### VISUALIZE LIGHTCURVES OR LOMB-SCARGLE - BUILD RED NOISE PARAMETER TABLE
+# For publishing, break into 24 - 48 - end
+#Visualize(data[48:], level='lc', rows_page = 8, cols_page = 3, 
+#			  output_name = 'LC', output_format = 'eps', inter = False)
+
+#Visualize(data[:10], level='ls', rows_page = 5, cols_page = 2, 
+#			  output_name = 'LS', output_format = 'eps', inter = False)
 
 
-#### VISUALIZE PERIODOGRAMS
-#ProcessLevel(level='ls',star_ids=fdata['STAR'], rows_page = 6, cols_page = 2, folder = 'EXTLC_R1',
-#		        output_name = args.filename+'_LC', output_format = None, inter = False)
 
 
-# Visualize light curves OR power spectra
-#LS = Visualize(level='ls',star_ids=fdata['STAR'], rows_page = 5, cols_page = 5, 
-#			  output_name = args.filename+'_LS', coll_x = True, coll_y = True, 
-#			  output_format = None, inter = False)
+try:
+	rn = pickle.load(open(PICKLE_PATH+'rn.pkl','rb'))
+	print 'Loaded pickle: red noise properties'
+except:	
+	# Visualize light curves OR power spectra
+	LS = Visualize(data, level='ls', rows_page = 5, cols_page = 2, 
+			  output_name = 'LS', output_format = None, inter = False)
+	rn = LS.rn_tab
+	pickle.dump(rn,open(PICKLE_PATH+'rn.pkl','wb'))	
+	print 'Task executed: input'
 
+print rn
+'''
 
-# COLLECT PHOTOMETRY FROM LITERATURE
-photo = PhotoCollector(data)
-photo_data = photo.photo_tab#; photo.save_tab()
+###### MATCH DATA TABLE WITH PHOTOMETRY
+try:
+	photo = pickle.load(open(PICKLE_PATH+'photo.pkl','rb'))
+except (OSError, IOError) as e:
+	# COLLECT PHOTOMETRY FROM LITERATURE
+	photo = PhotoCollector(data)
+	pickle.dump(photo,open(PICKLE_PATH+'photo.pkl','wb'))
+
+photo_data = photo.photo_tab #; photo.save_tab()
 filter_dict = photo.filt_dict
 
 
-# CREATE SED MODEL TABS (Kurucz & PoWR)
-synth_l = []
-for v in filter_dict.values(): synth_l += v['l']; synth_l = sorted(set(synth_l))
-KuruczTab = synthetic_fluxes(synth_l,model_type = 'kurucz')
-PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
-model_dict = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
+###### BUILD TABLE WITH SYNTHETIC SED FLUXES
+try:
+	model = pickle.load(open(PICKLE_PATH+'model.pkl','rb'))	
+except (OSError, IOError) as e:
+	# CREATE SED MODEL TABS (Kurucz & PoWR)
+	synth_l = []
+	for v in filter_dict.values(): synth_l += v['l']; synth_l = sorted(set(synth_l))
+	KuruczTab = synthetic_fluxes(synth_l,model_type = 'kurucz')
+	PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
+	model = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
+	pickle.dump(model,open(PICKLE_PATH+'model.pkl','wb'))
 
-# BUILD SPECTRAL ENERGY DISTRIBUTION - APPEND TO TABLE
-SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model_dict,
+
+###### FIT SEDS AND VISUALIZE - BUILD TABLE WITH SED PARAMETERS
+try:
+	sed = pickle.load(open(PICKLE_PATH+'sed.pkl','rb'))	
+except (OSError, IOError) as e:
+	# BUILD SPECTRAL ENERGY DISTRIBUTION - APPEND TO TABLE
+	SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model,
 		 rows_page = 4, cols_page = 5, output_name = args.filename+'_SED', 
 		 coll_x = True, output_format = None, inter = False)
-photo_data = hstack([photo_data,SED.fit_tab])
+	sed = hstack([photo_data,SED.fit_tab])
+	pickle.dump(sed,open(PICKLE_PATH+'sed.pkl','wb'))
 
+HRdiagram(sed, lkey = 'LUM', output_format = None, inter = True)
+
+#%%
+
+
+# STATISTICS
 ext_keys = ['STAR','TEFF','NABUN','LOGL','LUM','MASS','VMIC']
-
 # Correlation matrix for the studied parameters to enable feature selection
-autocorr_scatter(vector=photo_data[ext_keys], output_format = None, inter = True, coll_x = True, coll_y = True )
+#autocorr_scatter(vector=sed[ext_keys], output_format = None, inter = True, coll_x = True, coll_y = True )
+
 
 # Correlations between stellar parameters and red noise
-#corr_scatter(ext_x = LS.rn_tab, ext_y = fdata[ext_keys], match_keys = 'STAR', 
-#             coll_x = True, coll_y = True, output_format = 'pdf', inter = False)
+corr_scatter(ext_x = rn, ext_y = sed[ext_keys], match_keys = 'STAR', 
+             coll_x = True, coll_y = True, output_format = 'pdf', inter = False)
+
 
 #Correlations between stellar parameters and distribution of frequencies
 TH = tess_hist(ext_tab = photo_data[ext_keys], snr_show = 4, output_format = None, coll_x = True, inter = True)
 photo_data = hstack([photo_data,TH.hist_tab])
-
 HRdiagram(photo_data, lkey = 'LUM', tlines = TH.prop_thres['TEFF'], llines = TH.prop_thres['LUM'], inter = True)
 
+
+HRdiagram(photo_data, cbar_key = 'MASS', lkey = 'LUM', inter = True)
 
 
 ######## NOTES
@@ -95,7 +144,7 @@ HRdiagram(photo_data, lkey = 'LUM', tlines = TH.prop_thres['TEFF'], llines = TH.
 #ext_keys = ['EW3995','EW4129','EW4131','EW4553','EW4568','EW4575']
 
 
-
+'''
 
 
 

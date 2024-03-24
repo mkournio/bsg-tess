@@ -1,3 +1,10 @@
+TEX_SAMPLE_TAB=	{ 
+		'preamble': r'\centering',
+	        'tabletype': 'table*',
+		'data_end': r'\hline',
+		'header_end': r'\hline', 
+		'header_start': r'\hline\hline',
+		}
 
 TEX_FREQ_TAB = {
 		'PRE'  :  ("\\begin{table*}\n"

@@ -57,7 +57,7 @@ def sed_read(temp,logg,models,wave):
 
 class SEDBuilder(GridTemplate):
 
-	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, **kwargs):
+	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, params = PLOT_PARAMS['sed'], **kwargs):
 
 		super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
 					        fig_ylabel=PLOT_YLABEL['sed'],**kwargs)
@@ -89,7 +89,10 @@ class SEDBuilder(GridTemplate):
 		self._sed()
 		self.GridClose()
 
-		self.fit_tab = Table({'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad})
+		self.fit_tab = Table({'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad, 
+				      'RADMASS': radmass(self.photo_tab['LOGG'], self.rad),
+				      'SEDSCAL': sedscal(self.rad,self.photo_tab['DIST'])
+				     })
 
 		return
 
@@ -150,11 +153,17 @@ class SEDBuilder(GridTemplate):
 		self.logg = self.photo_tab['LOGG'][t_ind]
 		self.dist = self.photo_tab['DIST'][t_ind]
 
-		if any([x is np.ma.masked for x in [self.teff,self.logg,self.dist]]):
+		if any([x is np.ma.masked for x in [self.logg,self.dist]]):
 
 			print "%s: stellar parameter missing, aborting SED fit" % self.photo_tab['STAR'][t_ind]
 
 			return None
+
+		elif self.dist is np.ma.masked: 
+
+			self.dist = FIXED_DIST
+
+			print "%s: distance missing - set to fixed value" % self.photo_tab['STAR'][t_ind]
 
 		self.logg = int(10 * self.logg)
 		if self.teff > 15000. :
@@ -312,14 +321,18 @@ class SEDBuilder(GridTemplate):
 			pass
 
 		axis.plot(w,scaled_sed,'k')
-	
 
-		vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),True) + \
+		vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),False) + \
 			'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
-			'R [$R_{\odot}$] = ' + self._pr(int(round(rad)),False) + \
-			'D [pc] = ' + self._pr(int(dist),True) + \
-			'log(L/$L_{\odot}$) = ' + self._pr(round(logL,2),False) + \
+			'log(R/D [R$_{\odot}$/pc]) = ' + self._pr(round(np.log10(rad/dist),2), False) + \
 			'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
+
+		#vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),True) + \
+		#	'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
+		#	'R [$R_{\odot}$] = ' + self._pr(int(round(rad)),False) + \
+		#	'D [pc] = ' + self._pr(int(dist),True) + \
+		#	'log(L/$L_{\odot}$) = ' + self._pr(round(logL,2),False) + \
+		#	'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
 	
 		axis.text(0.02,0.005,vtext,size=7,transform=axis.transAxes)
 		axis.text(0.7,0.1,hdtext+wdtext,size=7,transform=axis.transAxes)
