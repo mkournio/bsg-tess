@@ -4,28 +4,36 @@ from functions import *
 import numpy as np
 import lightkurve as lk
 import os
+import pickle
 
 class Visualize(GridTemplate):
 	
-	def __init__(self, data, level, **kwargs):
+	def __init__(self, data, level, load_rn_pickle = False, **kwargs):
 
-		self._validate()
+		if load_rn_pickle and level == 'ls' :
 
-		self.stars = data['STAR']
-		self.level = level
+			self.rn_tab = pickle.load(open(PICKLE_PATH+'rn.pkl','rb'))
+			print 'Loaded pickle: red noise properties'
 
-		if level == 'ls': 
-			kwargs['coll_x'] = True
-			kwargs['coll_y'] = True
+			return
+		else:
+			self._validate()
+			self.stars = data['STAR']
+			self.level = level
 
-		super(Visualize,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
-					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
-		if self.level == 'ls':
-		 self.rn_tab = Table(names=('STAR','w','zero','tau','gamma','e_w','e_zero','e_tau','e_gamma'), 
+			if level == 'ls': 
+				kwargs['coll_x'] = True
+				kwargs['coll_y'] = True
+		 		self.rn_tab = Table(names=('STAR','w','zero','tau','gamma','e_w','e_zero','e_tau','e_gamma'), 
 				    dtype=('<U16','f4', 'f4', 'f4', 'f4','f4', 'f4','f4', 'f4'))
 
-		self._visual()
-		self.GridClose()
+			super(Visualize,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
+					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
+			self._visual()
+			self.GridClose()
+			if level == 'ls': pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))	
+
+			return
 
 	def _validate(self):
 		pass

@@ -35,7 +35,7 @@ except (OSError, IOError) as e:
 	pickle.dump(data,open(PICKLE_PATH+'input.pkl','wb'))
 	print 'Task executed: input'
 
-#TT.TabSample(data)
+TT.TabSample(data)
 
 # For ALL_TYPES BREAK INTO 8 (BRIGHT) - 30 - 55 - end
 # For SELECTED TYPES BREAK INTO 8 (BRIGHT) - 38 - end
@@ -58,58 +58,29 @@ except (OSError, IOError) as e:
 #			  output_name = 'LS', output_format = 'eps', inter = False)
 
 
+LS = Visualize(data, level='ls', rows_page = 5, cols_page = 2, 
+			  output_name = 'LS', output_format = None, inter = False, load_rn_pickle = False)
+rn = LS.rn_tab
 
-
-try:
-	rn = pickle.load(open(PICKLE_PATH+'rn.pkl','rb'))
-	print 'Loaded pickle: red noise properties'
-except:	
-	# Visualize light curves OR power spectra
-	LS = Visualize(data, level='ls', rows_page = 5, cols_page = 2, 
-			  output_name = 'LS', output_format = None, inter = False)
-	rn = LS.rn_tab
-	pickle.dump(rn,open(PICKLE_PATH+'rn.pkl','wb'))	
-	print 'Task executed: input'
-
-print rn
-'''
-
-###### MATCH DATA TABLE WITH PHOTOMETRY
-try:
-	photo = pickle.load(open(PICKLE_PATH+'photo.pkl','rb'))
-except (OSError, IOError) as e:
-	# COLLECT PHOTOMETRY FROM LITERATURE
-	photo = PhotoCollector(data)
-	pickle.dump(photo,open(PICKLE_PATH+'photo.pkl','wb'))
-
-photo_data = photo.photo_tab #; photo.save_tab()
+###### MATCH DATA TABLE WITH PHOTOMETRY.
+photo = PhotoCollector(data, load_pickle = True)
+photo_data = photo.photo_tab 
 filter_dict = photo.filt_dict
 
-
-###### BUILD TABLE WITH SYNTHETIC SED FLUXES
-try:
-	model = pickle.load(open(PICKLE_PATH+'model.pkl','rb'))	
-except (OSError, IOError) as e:
-	# CREATE SED MODEL TABS (Kurucz & PoWR)
-	synth_l = []
-	for v in filter_dict.values(): synth_l += v['l']; synth_l = sorted(set(synth_l))
-	KuruczTab = synthetic_fluxes(synth_l,model_type = 'kurucz')
-	PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
-	model = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
-	pickle.dump(model,open(PICKLE_PATH+'model.pkl','wb'))
+#TT.TabPhoto(photo_data)
 
 
-###### FIT SEDS AND VISUALIZE - BUILD TABLE WITH SED PARAMETERS
-try:
-	sed = pickle.load(open(PICKLE_PATH+'sed.pkl','rb'))	
-except (OSError, IOError) as e:
-	# BUILD SPECTRAL ENERGY DISTRIBUTION - APPEND TO TABLE
-	SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model,
-		 rows_page = 4, cols_page = 5, output_name = args.filename+'_SED', 
-		 coll_x = True, output_format = None, inter = False)
-	sed = hstack([photo_data,SED.fit_tab])
-	pickle.dump(sed,open(PICKLE_PATH+'sed.pkl','wb'))
+###### BUILD/LOAD TABLE WITH SYNTHETIC SED FLUXES
+model = model_dict(filter_dict, load_pickle = True)
 
+###### FIT SEDS AND VISUALIZE - BUILD/LOAD TABLE WITH SED PARAMETERS
+SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
+		 rows_page = 4, cols_page = 5, output_name = 'SED_v1', coll_x = True, output_format = 'pdf', 
+		 inter = False, load_pickle = True)
+
+TT.TabSED(hstack([rn,SED.sed_tab]))
+
+'''
 HRdiagram(sed, lkey = 'LUM', output_format = None, inter = True)
 
 #%%

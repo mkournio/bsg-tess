@@ -1,11 +1,31 @@
 from plot_methods import GridTemplate
-from astropy.table import Table, hstack, MaskedColumn
+from astropy.table import Table, hstack, MaskedColumn, Column
 from scipy.interpolate import interp1d
 from functions import *
 from constants import *
 import numpy as np
 from numpy.ma import MaskedArray
 import os 
+import pickle
+
+def model_dict(filter_dict, load_pickle = False):
+
+	if load_pickle :
+
+		model = pickle.load(open(PICKLE_PATH+'model.pkl','rb'))
+		print 'Loaded pickle: synth model dict'
+
+		return 	model	
+	else:
+		synth_l = []
+		for v in filter_dict.values(): synth_l += v['l']; synth_l = sorted(set(synth_l))
+		KuruczTab = synthetic_fluxes(synth_l,model_type = 'kurucz')
+		PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
+		model = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
+
+		pickle.dump(model,open(PICKLE_PATH+'model.pkl','wb'))
+
+		return model	
 
 def synthetic_fluxes(synth_l, model_type = 'kurucz'):
 
@@ -29,7 +49,6 @@ def synthetic_fluxes(synth_l, model_type = 'kurucz'):
 				pass
 
 	return model_tab
-
 
 def sed_read(temp,logg,models,wave):
 
@@ -57,26 +76,35 @@ def sed_read(temp,logg,models,wave):
 
 class SEDBuilder(GridTemplate):
 
-	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, params = PLOT_PARAMS['sed'], **kwargs):
+	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, params = PLOT_PARAMS['sed'], load_pickle = False, **kwargs):
+		if load_pickle :
+			self.sed_tab = pickle.load(open(PICKLE_PATH+'sed.pkl','rb'))
+			print 'Loaded pickle: sed fit properties'
 
-		super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
+			return
+		else:
+		 super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
 					        fig_ylabel=PLOT_YLABEL['sed'],**kwargs)
-		self.photo_tab = photo_tab
-		self.filt_dict = filt_dict
-		self.fit_sed = fit_sed
+		 self.photo_tab = photo_tab
+		 self.filt_dict = filt_dict
+		 self.fit_sed = fit_sed
 
-		len_ph = len(photo_tab)
+		 len_ph = len(photo_tab)
 
-		self.lum = self._masked_col(len_ph)
-		self.a_v = self._masked_col(len_ph)
-		self.rad = self._masked_col(len_ph)
+		 self.lum = self._masked_col(len_ph)
+		 self.a_v = self._masked_col(len_ph)
+		 self.rad = self._masked_col(len_ph)
 
-		if self.fit_sed: 
+		 if self.fit_sed: 
 
 			self.fit_model_dict = fit_model_dict
-			self.fit_bodies = self.photo_tab['SEDFIT'] if ('SEDFIT' in self.photo_tab.columns) \
-					  else self._masked_col(len_ph, dtype='str', 
-							fill_value = kwargs.get('fit_bodies',np.ma.masked)).filled()
+			#self.fit_bodies = self.photo_tab['SEDFIT'] if ('SEDFIT' in self.photo_tab.columns) \
+			#		  else self._masked_col(len_ph, dtype='str', 
+			#				fill_value = kwargs.get('fit_bodies',np.ma.masked)).filled()
+			fb = []
+			for l in range(len_ph):
+				fb.append(kwargs.get('fit_bodies',np.ma.masked))
+			self.fit_bodies = Column(fb, dtype='U4')
 
 			self.__validate_fit_request(**kwargs)
 
@@ -86,13 +114,14 @@ class SEDBuilder(GridTemplate):
 			self.minimize, self.Parameter, self.Parameters = minimize, Parameter, Parameters
 			self.bisect = bisect
 
-		self._sed()
-		self.GridClose()
-
-		self.fit_tab = Table({'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad, 
-				      'RADMASS': radmass(self.photo_tab['LOGG'], self.rad),
-				      'SEDSCAL': sedscal(self.rad,self.photo_tab['DIST'])
+		 self._sed()
+		 self.GridClose()
+		 self.sed_tab = Table({'STAR': photo_tab['STAR'], 'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad, 
+				      'RADMASS': radmass(self.photo_tab['LOGG'], self.rad), 'TEFF': self.photo_tab['TEFF'],
+				      'DIST': self.photo_tab['DIST'], 'SEDSCAL': sedscal(self.rad,self.photo_tab['DIST'])
 				     })
+
+		 pickle.dump(self.sed_tab,open(PICKLE_PATH+'sed.pkl','wb'))
 
 		return
 
@@ -112,7 +141,7 @@ class SEDBuilder(GridTemplate):
 	def _sed(self):
 
 	        for ind in range(len(self.photo_tab)): 
-			if not self.fit_bodies[ind] is np.ma.masked: self._sed_single(ind)			
+			if not self.fit_bodies[ind] is np.ma.masked:  self._sed_single(ind)			
 		return	
 
 	def _sed_single(self, t_ind):
@@ -151,19 +180,18 @@ class SEDBuilder(GridTemplate):
 
 		self.teff = self.photo_tab['TEFF'][t_ind]
 		self.logg = self.photo_tab['LOGG'][t_ind]
-		self.dist = self.photo_tab['DIST'][t_ind]
-
-		if any([x is np.ma.masked for x in [self.logg,self.dist]]):
+		if any([x is np.ma.masked for x in [self.logg,self.teff]]):
 
 			print "%s: stellar parameter missing, aborting SED fit" % self.photo_tab['STAR'][t_ind]
 
 			return None
 
-		elif self.dist is np.ma.masked: 
-
-			self.dist = FIXED_DIST
-
-			print "%s: distance missing - set to fixed value" % self.photo_tab['STAR'][t_ind]
+ 		if self.photo_tab['DIST'][t_ind] is np.ma.masked: 
+			 
+			self.photo_tab['DIST'][t_ind] = FIXED_DIST
+			print "%s: distance missing - set to fixed value %s" % (self.photo_tab['STAR'][t_ind],FIXED_DIST)
+		
+		self.dist = self.photo_tab['DIST'][t_ind]
 
 		self.logg = int(10 * self.logg)
 		if self.teff > 15000. :

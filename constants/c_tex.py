@@ -1,5 +1,4 @@
 TEX_SAMPLE_TAB=	{ 
-		'preamble': r'\centering',
 	        'tabletype': 'table*',
 		'data_end': r'\hline',
 		'header_end': r'\hline', 

@@ -11,3 +11,5 @@ other/
 test.py
 
 GridPlot*
+
+*.tex

@@ -7,6 +7,7 @@ from functions import *
 from tables import *
 import numpy as np
 import os
+import pickle
 
 class PhotoCollector(object):
 
@@ -14,14 +15,25 @@ class PhotoCollector(object):
 	# Data should be a Table containing columns named RA and DEC (in degrees)
 	# Attributes returned; photometric table (in mag) and filter dictionary.
 
-	def __init__(self, input_tab):
+	def __init__(self, input_tab, load_pickle = False):
 
-		self.filt_dict = {}
-		self.input_tab = input_tab
-		self.photo_cats = {k:v for k, v in PHOTO_CATS.items() if v['act'] > 0}
-		self._collect_phot()
+		if load_pickle :
 
-		return
+			loaded_tab = pickle.load(open(PICKLE_PATH+'photo.pkl','rb'))
+			self.__dict__ = loaded_tab.__dict__
+			
+			print 'Loaded pickle: photometry table'
+
+			return
+		else:
+			self.filt_dict = {}
+			self.input_tab = input_tab
+			self.photo_cats = {k:v for k, v in PHOTO_CATS.items() if v['act'] > 0}
+			self._collect_phot()
+
+			pickle.dump(self,open(PICKLE_PATH+'photo.pkl','wb'))
+
+			return
 
 	def _collect_phot(self):
 
