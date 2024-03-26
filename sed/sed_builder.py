@@ -94,6 +94,8 @@ class SEDBuilder(GridTemplate):
 		 self.lum = self._masked_col(len_ph)
 		 self.a_v = self._masked_col(len_ph)
 		 self.rad = self._masked_col(len_ph)
+		 self.logc = self._masked_col(len_ph)
+		 self.s_dist = self._masked_col(len_ph)
 
 		 if self.fit_sed: 
 
@@ -118,7 +120,7 @@ class SEDBuilder(GridTemplate):
 		 self.GridClose()
 		 self.sed_tab = Table({'STAR': photo_tab['STAR'], 'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad, 
 				      'RADMASS': radmass(self.photo_tab['LOGG'], self.rad), 'TEFF': self.photo_tab['TEFF'],
-				      'DIST': self.photo_tab['DIST'], 'SEDSCAL': sedscal(self.rad,self.photo_tab['DIST'])
+				      'S_DIST': self.s_dist, 'SEDSCAL': self.logc
 				     })
 
 		 pickle.dump(self.sed_tab,open(PICKLE_PATH+'sed.pkl','wb'))
@@ -180,18 +182,19 @@ class SEDBuilder(GridTemplate):
 
 		self.teff = self.photo_tab['TEFF'][t_ind]
 		self.logg = self.photo_tab['LOGG'][t_ind]
-		if any([x is np.ma.masked for x in [self.logg,self.teff]]):
 
+		if any([x is np.ma.masked for x in [self.logg,self.teff]]):
 			print "%s: stellar parameter missing, aborting SED fit" % self.photo_tab['STAR'][t_ind]
 
 			return None
 
- 		if self.photo_tab['DIST'][t_ind] is np.ma.masked: 
-			 
-			self.photo_tab['DIST'][t_ind] = FIXED_DIST
+ 		if not self.photo_tab['DIST'][t_ind] is np.ma.masked: 	
+			self.dist = self.photo_tab['DIST'][t_ind]			 
+		elif 'HDIST' in self.photo_tab.columns :
+			self.dist = self.photo_tab['HDIST'][t_ind]
+		else:
+			self.dist = FIXED_DIST
 			print "%s: distance missing - set to fixed value %s" % (self.photo_tab['STAR'][t_ind],FIXED_DIST)
-		
-		self.dist = self.photo_tab['DIST'][t_ind]
 
 		self.logg = int(10 * self.logg)
 		if self.teff > 15000. :
@@ -237,7 +240,9 @@ class SEDBuilder(GridTemplate):
 
 		self.rad[t_ind] = int(result.params['rad'].value) 
 		self.a_v[t_ind] = '%.2f' % float(result.params['ext'].value)
-		self.lum[t_ind] = '%.2f' % np.log10( (self.rad[t_ind]**2) * ((self.teff/5778.)**4) )		
+		self.lum[t_ind] = '%.2f' % np.log10( (self.rad[t_ind]**2) * ((self.teff/5778.)**4) )
+		self.logc[t_ind] = '%.2f' % np.log10(self.rad[t_ind]/self.dist)		
+		self.s_dist[t_ind] = self.dist
 
 		return result
 

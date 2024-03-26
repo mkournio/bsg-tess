@@ -9,7 +9,8 @@ class GridTemplate(object):
 
 	# Class for the creation and management of plotting grid
 
-	def __init__(self, rows_page = 3, cols_page = 1, output_format = 'pdf', params = PLOT_PARAMS['lc'], inter = False, **kwargs):
+	def __init__(self, rows_page = 3, cols_page = 1, output_format = 'pdf', params = PLOT_PARAMS['lc'], inter = False,
+			figsize = SIZE_GRID, **kwargs):
 
 		plt.rcParams.update(params)
 
@@ -18,6 +19,7 @@ class GridTemplate(object):
 		self.cols_page = cols_page
 		self.output_format = output_format
 		self.inter = inter
+		self.figsize = figsize
 
 		self.filename = kwargs.pop('output_name','GridPlot')
 		self.fig_xlabel  = kwargs.pop('fig_xlabel','X LABEL')
@@ -90,7 +92,7 @@ class GridTemplate(object):
 		
 		#Create grid on new page
 
-		self.fig = plt.figure(figsize=SIZE_GRID)
+		self.fig = plt.figure(figsize=self.figsize)
 		self.gs = GridSpec(self.rows_page, self.cols_page, figure=self.fig)
 
 		return

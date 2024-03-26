@@ -13,7 +13,7 @@ class Visualize(GridTemplate):
 		if load_rn_pickle and level == 'ls' :
 
 			self.rn_tab = pickle.load(open(PICKLE_PATH+'rn.pkl','rb'))
-			print 'Loaded pickle: red noise properties'
+			print 'Loaded pickle: red noise properties - no plot is generated'
 
 			return
 		else:
@@ -31,7 +31,8 @@ class Visualize(GridTemplate):
 					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
 			self._visual()
 			self.GridClose()
-			if level == 'ls': pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))	
+			if level == 'ls' and kwargs['output_format'] == None: 
+				pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))	
 
 			return
 

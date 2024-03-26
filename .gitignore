@@ -8,8 +8,15 @@ other/
 
 *.pyc
 
-test.py
+test*
 
 GridPlot*
 
 *.tex
+
+LS_*
+
+LC_*
+
+SED_*
+

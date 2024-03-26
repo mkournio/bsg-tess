@@ -10,9 +10,15 @@ class TexTab(object):
 
 	def TabSample(self, data):
 
-		data_tex = Table(data['STAR','RA','DEC', 'SBTYPE', 'DIST', 'TIC', 'RDMAG'], 
-		names = ('Star','RA', 'DEC', 'Spectral type','$D$', 'TIC', 'G$_{RP,*}$ - G$_{RP,2}$'))
-		data_tex['RA'].format = '2.6f'; data_tex['DEC'].format = '2.6f'; data_tex['$D$'].format = '%5d'
+		data_tex = Table(data['STAR','RA','DEC', 'SBTYPE', 'DIST', 'TIC', 'TMAG', 'RDMAG'], 
+		names = ('Star','RA', 'DEC', 'Spectral type','$D$', 'TIC', 'TESS mag','G$_{RP,*}$ - G$_{RP,2}$'))
+
+		data_tex['RA'].format = '2.6f'; data_tex['DEC'].format = '2.6f'; data_tex['TESS mag'].format = '.1f'
+
+		if 'HDIST' in data.columns:
+		 for d in range(len(data)):
+			if data_tex['$D$'][d] is np.ma.masked : data_tex['$D$'][d] = data['HDIST'][d]
+		data_tex['$D$'].format = '%.f'
 
 		sect_col = []
 		for i,j in zip(data['SSPOC'],data['SFFI']):
@@ -22,9 +28,9 @@ class TexTab(object):
 			sect_col.append(','.join([str(x) for x in sorted(sect)]))
 		data_tex['TESS sectors'] = np.array(sect_col)
 
-		TEX_SAMPLE_TAB['units'] = {'RA' : '(deg)', 'DEC' : '(deg)', '$D$' : '(pc)', 'G$_{RP,*}$ - G$_{RP,2}$' : '(mag)'}
-		TEX_SAMPLE_TAB['caption'] = r'\label{tab_sample} Sample of the studied BSGs.'
-		TEX_SAMPLE_TAB['col_align'] = 'lrrlc|ccr'
+		TEX_SAMPLE_TAB['units'] = {'RA' : '(deg)', 'DEC' : '(deg)', 'TESS mag': '(mag)', '$D$' : '(pc)', 'G$_{RP,*}$ - G$_{RP,2}$' : '(mag)'}
+		TEX_SAMPLE_TAB['caption'] = r'\label{tab_sample} Sample of the studied BSGs. Distances for indices 0.1,2,6,10 are taken from Hipparcos.'
+		TEX_SAMPLE_TAB['col_align'] = 'lrrlc|cccr'
 		TEX_SAMPLE_TAB['preamble'] = r'\small\centering'
  
 		ascii.write(data_tex, 'tab_sample.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
@@ -53,8 +59,8 @@ class TexTab(object):
 
 	def TabSED(self,data):
 
-		columns = ['STAR_1','w','zero','tau','gamma','A_V','SEDSCAL','LUM','TEFF','DIST']
-		names = ['Star','log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$','$A_{V}$', 'log(R/D)', 'logL/Lo','TEFF','DIST']
+		columns = ['STAR_1','w','zero','tau','gamma','A_V','SEDSCAL','LUM','TEFF']
+		names = ['Star','log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$','$A_{V}$', 'log(R/D)', 'logL/Lo','TEFF']
 		sed_tex = Table(data[columns],names=names)
 
 		for n in names[1:]:
@@ -64,7 +70,7 @@ class TexTab(object):
 		TEX_SAMPLE_TAB['caption'] = r'\label{tab_sed} Calculated parameters for modeling the red noise and the SEDs.'
 		TEX_SAMPLE_TAB['tabletype'] = 'table'
 		TEX_SAMPLE_TAB['units'] = {'$A_{V}$' : '(mag)'}
-		TEX_SAMPLE_TAB['col_align'] = 'lcccc|ccccc'
+		TEX_SAMPLE_TAB['col_align'] = 'lcccc|cccc'
 
 		ascii.write(sed_tex, 'tab_sed.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
 

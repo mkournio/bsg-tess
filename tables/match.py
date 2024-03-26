@@ -5,7 +5,7 @@ import numpy as np
 from astropy.io import ascii
 from constants import *
 from functions import *
-
+import pickle
 
 def coord_near_matches(tab1,tab2):
 
@@ -30,10 +30,26 @@ def coord_near_matches(tab1,tab2):
 
 class XMatching(object):
 
-	def __init__(self, data_tab):
+	def __init__(self, data_tab, xtabs, xcols, vizier = {}, xrad = 2, load_pickle = False):
 
-		self.matched = data_tab
-		self.coord = Table({'RA': data_tab['RA'] ,'DEC' : data_tab['DEC']})
+		if load_pickle:
+			self.matched = pickle.load(open(PICKLE_PATH+'input.pkl','rb'))
+			print 'Loaded pickle: input'
+		else:
+			self.matched = data_tab
+			self.coord = Table({'RA': data_tab['RA'] ,'DEC' : data_tab['DEC']})
+			self.xrad = xrad
+			self.match(xtabs = xtabs, xcols = xcols)
+
+			for k in vizier:
+				self.match(xtabs = [str(k)], xcols = [vizier[k]['xcols']], viz_col = vizier[k]['viz_col'])
+
+			if 'TIC' in self.matched.columns: self.matched['TIC'].format = '%10d'
+			if 'HDIST' in self.matched.columns:
+			 self.matched['HDIST'] = 1./(1e-3*self.matched['HDIST'])	
+			 self.matched['HDIST'].mask = self.matched['HDIST'] < 0.
+	
+			pickle.dump(self.matched,open(PICKLE_PATH+'input.pkl','wb'))
 
 
 	def match(self, xtabs, xcols, **kwargs):
@@ -54,7 +70,7 @@ class XMatching(object):
 
 			self.matched = hstack([self.matched,xmcol])
 
-		return self.matched
+		return
 
 
 	def _match_ext_tab(self, xtab_files):
@@ -78,10 +94,7 @@ class XMatching(object):
 	def _match_vizier_tab(self,xtabs,**kwargs):
 
 		xcat = xtabs[0]
-
-		xdist = kwargs.get('viz_dist', 2)
-
-		viz_query = XMatch.query(cat1 = self.coord, cat2 = xcat,  max_distance = xdist * u.arcsec, \
+		viz_query = XMatch.query(cat1 = self.coord, cat2 = xcat,  max_distance = self.xrad * u.arcsec, \
 				         colRA1 = 'RA', colDec1 = 'DEC')
 
 		if ('viz_col' not in kwargs) or (kwargs['viz_col'] not in viz_query.columns):
