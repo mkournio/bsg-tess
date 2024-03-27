@@ -37,7 +37,7 @@ class TexTab(object):
 
 		return
 
-	def TabPhoto(self, data):
+	def TabPhoto(self,data):
 
 		opt_columns = ['Umag','Bmag/Merm91','Vmag/Merm91','Bmag/NOMAD05','Vmag/NOMAD05','Rmag','BPmag','Gmag','RPmag']
 		ir_columns =['Jmag','Hmag','Kmag','S09','S18','B1','B2','A','C','D','E']
@@ -57,20 +57,38 @@ class TexTab(object):
 
 		return
 
-	def TabSED(self,data):
+	def TabRN(self,data):
 
-		columns = ['STAR_1','w','zero','tau','gamma','A_V','SEDSCAL','LUM','TEFF']
-		names = ['Star','log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$','$A_{V}$', 'log(R/D)', 'logL/Lo','TEFF']
+		columns = ['STAR','w','zero','tau','gamma']
+		names = ['Star','log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$']
 		sed_tex = Table(data[columns],names=names)
 
 		for n in names[1:]:
 			sed_tex[n].format = '.2f'
 
-		TEX_SAMPLE_TAB['preamble'] = r'\small'
-		TEX_SAMPLE_TAB['caption'] = r'\label{tab_sed} Calculated parameters for modeling the red noise and the SEDs.'
+		TEX_SAMPLE_TAB['preamble'] = r'\centering'
+		TEX_SAMPLE_TAB['caption'] = r'\label{tab_rn} Calculated parameters for the fitted red noise model.'
+		TEX_SAMPLE_TAB['tabletype'] = 'table'
+		TEX_SAMPLE_TAB['col_align'] = 'lcccc'
+
+		ascii.write(sed_tex, 'tab_rn.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
+
+		return	
+
+	def TabSED(self,data):
+
+		columns = ['STAR','A_V','LOGC','S_LOGL']
+		names = ['Star','$A_{V}$', 'log($R [R_{\odot}]/D [pc]$)', 'log($L/L_{\odot})_{Gaia}$']
+		sed_tex = Table(data[columns],names=names)
+
+		for n in names[1:]:
+			sed_tex[n].format = '.2f'
+
+		TEX_SAMPLE_TAB['preamble'] = r'\centering'
+		TEX_SAMPLE_TAB['caption'] = r'\label{tab_sed} Calculated parameters from the modeling of the SEDs.'
 		TEX_SAMPLE_TAB['tabletype'] = 'table'
 		TEX_SAMPLE_TAB['units'] = {'$A_{V}$' : '(mag)'}
-		TEX_SAMPLE_TAB['col_align'] = 'lcccc|cccc'
+		TEX_SAMPLE_TAB['col_align'] = 'lcc|c'
 
 		ascii.write(sed_tex, 'tab_sed.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
 

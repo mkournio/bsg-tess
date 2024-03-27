@@ -42,14 +42,14 @@ data = XMatching(input_tab, args.xmtabs, args.xmcols, vizier = args.xmviz, load_
 #			  output_name = 'LC', output_format = 'eps', inter = False)
 #Visualize(data[15:], level='lc', rows_page = 8, cols_page = 3, figsize = (18,18),
 #			  output_name = 'LC', output_format = 'eps', inter = False)
-#Visualize(data[:15], level='ls', rows_page = 5, cols_page = 3, figsize = (15,12),
+#Visualize(data[:14], level='ls', rows_page = 7, cols_page = 2, figsize = (10,18),
 #			  output_name = 'LS', output_format = 'eps', inter = False)
-#Visualize(data[15:], level='ls', rows_page = 8, cols_page = 3, figsize = (18,20),
+#Visualize(data[14:], level='ls', rows_page = 8, cols_page = 3, figsize = (13,16),
 #			  output_name = 'LS', output_format = 'eps', inter = False)
 
-#### LOAD RED NOISE PARAMETER TABLE
+#### SAVE OR LOAD RED NOISE PARAMETER TABLE
 LS = Visualize(data, level='ls', output_format = None, load_rn_pickle = True)
-
+#TT.TabRN(LS.rn_tab)
 
 ###### MATCH DATA TABLE WITH PHOTOMETRY.
 photo = PhotoCollector(data, load_pickle = True)
@@ -63,11 +63,17 @@ filter_dict = photo.filt_dict
 model = model_dict(filter_dict, load_pickle = True)
 
 ###### FIT SEDS AND VISUALIZE - BUILD/LOAD TABLE WITH SED PARAMETERS
-SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
-		 rows_page = 4, cols_page = 5, output_name = 'SED_v1', coll_x = True, output_format = 'pdf', 
-		 inter = False, load_pickle = False)
+SEDBuilder(photo_data[:14], filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
+		 rows_page = 7, cols_page = 2, output_name = 'SED2', coll_x = True, coll_y = True, output_format = 'eps', 
+		 figsize = (10,18), inter = False, load_pickle = False)
+#SEDBuilder(photo_data[14:], filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
+#		 rows_page = 8, cols_page = 3, output_name = 'SED', coll_x = True, coll_y = True, output_format = 'eps', 
+#		 figsize = (13,16), inter = False, load_pickle = False)
 
-TT.TabSED(hstack([LS.rn_tab,SED.sed_tab]))
+#### SAVE OR LOAD SED PARAMETER TABLE
+SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
+		 output_format = None, load_pickle = True)
+#TT.TabSED(SED.sed_tab)
 
 
 #HRdiagram(sed, lkey = 'LUM', output_format = None, inter = True)

@@ -76,24 +76,23 @@ def sed_read(temp,logg,models,wave):
 
 class SEDBuilder(GridTemplate):
 
-	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, params = PLOT_PARAMS['sed'], load_pickle = False, **kwargs):
+	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, load_pickle = False, **kwargs):
 		if load_pickle :
 			self.sed_tab = pickle.load(open(PICKLE_PATH+'sed.pkl','rb'))
-			print 'Loaded pickle: sed fit properties'
+			print 'Loaded pickle: sed fit properties - no plot is generated'
 
 			return
 		else:
-		 super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'],
-					        fig_ylabel=PLOT_YLABEL['sed'],**kwargs)
+		 super(SEDBuilder,self).__init__(fig_xlabel=PLOT_XLABEL['sed'], fig_ylabel=PLOT_YLABEL['sed'], params = PLOT_PARAMS['sed'],**kwargs)
 		 self.photo_tab = photo_tab
 		 self.filt_dict = filt_dict
 		 self.fit_sed = fit_sed
 
 		 len_ph = len(photo_tab)
 
-		 self.lum = self._masked_col(len_ph)
+		 self.s_logl = self._masked_col(len_ph)
 		 self.a_v = self._masked_col(len_ph)
-		 self.rad = self._masked_col(len_ph)
+		 self.s_rad = self._masked_col(len_ph)
 		 self.logc = self._masked_col(len_ph)
 		 self.s_dist = self._masked_col(len_ph)
 
@@ -118,12 +117,13 @@ class SEDBuilder(GridTemplate):
 
 		 self._sed()
 		 self.GridClose()
-		 self.sed_tab = Table({'STAR': photo_tab['STAR'], 'A_V': self.a_v, 'LUM': self.lum, 'RAD': self.rad, 
-				      'RADMASS': radmass(self.photo_tab['LOGG'], self.rad), 'TEFF': self.photo_tab['TEFF'],
-				      'S_DIST': self.s_dist, 'SEDSCAL': self.logc
+		 self.sed_tab = Table({'STAR': photo_tab['STAR'], 'A_V': self.a_v, 'S_LOGL': self.s_logl, 'S_RAD': self.s_rad, 
+				      'TEFF': self.photo_tab['TEFF'], 'S_DIST': self.s_dist, 'LOGC': self.logc
 				     })
 
-		 pickle.dump(self.sed_tab,open(PICKLE_PATH+'sed.pkl','wb'))
+		if kwargs['output_format'] == None: 
+		 	pickle.dump(self.sed_tab,open(PICKLE_PATH+'sed.pkl','wb'))
+			print 'Saved pickle: sed fit properties' 
 
 		return
 
@@ -160,6 +160,7 @@ class SEDBuilder(GridTemplate):
 
 			filter_flx, filter_eflx = mg2flux(filter_phot,filter_ephot,filter_zeros,filter_lambdas,k)
 
+
 			ax.plot(filter_lambdas,filter_flx,v['mrk']['m'],c=v['mrk']['c'],markersize=v['mrk']['s'],label=k)
 			ax.errorbar(filter_lambdas,filter_flx,filter_eflx,ecolor=v['mrk']['c'],elinewidth=1, capsize=0, ls='none')
 
@@ -172,9 +173,9 @@ class SEDBuilder(GridTemplate):
 			fit_prop = self._fit(t_ind)
 			self._plot_fit(ax,fit_prop)
 
-		#ax.legend(loc='upper right')
-		ax.set_xscale('log'); ax.set_yscale('log')
-		ax.text(0.6,0.8,self.photo_tab['STAR'][t_ind],transform=ax.transAxes)
+		ax.set_ylim(8e-18,4e-8); ax.set_yscale('log')#; ax.set_yticks([1e-14,1e-11,1e-8]) 
+		ax.set_xlim(7e+2,4e+5); ax.set_xscale('log')
+		ax.text(0.05,0.05,self.photo_tab['STAR'][t_ind],size = 14, transform=ax.transAxes)
 
 		return
 
@@ -238,10 +239,10 @@ class SEDBuilder(GridTemplate):
 				params[k].set(max = 1.2 * val)
 
 
-		self.rad[t_ind] = int(result.params['rad'].value) 
+		self.s_rad[t_ind] = int(result.params['rad'].value) 
 		self.a_v[t_ind] = '%.2f' % float(result.params['ext'].value)
-		self.lum[t_ind] = '%.2f' % np.log10( (self.rad[t_ind]**2) * ((self.teff/5778.)**4) )
-		self.logc[t_ind] = '%.2f' % np.log10(self.rad[t_ind]/self.dist)		
+		self.s_logl[t_ind] = '%.2f' % np.log10( (self.s_rad[t_ind]**2) * ((self.teff/5778.)**4) )
+		self.logc[t_ind] = '%.2f' % np.log10(self.s_rad[t_ind]/self.dist)		
 		self.s_dist[t_ind] = self.dist
 
 		return result
@@ -356,9 +357,10 @@ class SEDBuilder(GridTemplate):
 		axis.plot(w,scaled_sed,'k')
 
 		vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),False) + \
-			'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
-			'log(R/D [R$_{\odot}$/pc]) = ' + self._pr(round(np.log10(rad/dist),2), False) + \
+			'logg [dex] = ' + self._pr(1e-1*logg_gr,False) + \
 			'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
+
+			#'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
 
 		#vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),True) + \
 		#	'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
@@ -367,10 +369,10 @@ class SEDBuilder(GridTemplate):
 		#	'log(L/$L_{\odot}$) = ' + self._pr(round(logL,2),False) + \
 		#	'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
 	
-		axis.text(0.02,0.005,vtext,size=7,transform=axis.transAxes)
-		axis.text(0.7,0.1,hdtext+wdtext,size=7,transform=axis.transAxes)
+		axis.text(0.62,0.55,vtext,transform=axis.transAxes)
+		axis.text(0.7,0.1,hdtext+wdtext,transform=axis.transAxes)
 		
-		return
+	      return
 
 	def _pr(self,value,fixed,note=''):
 		if fixed:

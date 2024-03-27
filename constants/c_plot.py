@@ -31,11 +31,11 @@ PLOT_PARAMS =	{
          	'ytick.labelsize': SIZE_YLABEL_SUB+5},
 'sed'		:
 		{'legend.fontsize': 8,
-	 	'font.size':  SIZE_FONT_SUB,
+	 	'font.size':  10,
          	'axes.labelsize': 14,
          	'axes.titlesize': 13,
-         	'xtick.labelsize': 10,
-         	'ytick.labelsize': 7},
+         	'xtick.labelsize': 18,
+         	'ytick.labelsize': 11},
 'panel'		:
 		{'legend.fontsize': 8,
 	 	'font.size':  11,

@@ -32,7 +32,8 @@ class Visualize(GridTemplate):
 			self._visual()
 			self.GridClose()
 			if level == 'ls' and kwargs['output_format'] == None: 
-				pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))	
+				pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))
+				print 'Saved pickle: red noise properties'	
 
 			return
 
@@ -75,8 +76,8 @@ class Visualize(GridTemplate):
 			for l in harm : ax.axvline(l,color='g',ls='--',lw=2,ymin=0.84,ymax=1)
 			for l in comb : ax.axvline(l,color='k',ls=':',lw=1.5,ymin=0.87,ymax=1)
 
-			ax.set_ylim(1.1e-6,3e-1) ;  ax.set_yscale('log')  
-			ax.set_xlim(3e-3,25); ax.set_xscale('log') 
+			ax.set_ylim(9e-7,2e-1) ;  ax.set_yscale('log')  
+			ax.set_xlim(2e-2,25); ax.set_xscale('log') 
 
 			ax.text(0.05,0.05,'%s (%s)' % (star,vis_sect),color='k',transform=ax.transAxes)
 
