@@ -79,7 +79,7 @@ STY_LB = 	{
 		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'LUM': r'log(L/L$_{\odot})_{\rm SED}$', 
 		'w' : r'$W$', 'zero' : r'$R_{0}$', 'tau' : r'$\tau$', 'gamma' : r'$\gamma$' ,
 		'LTEFF' :  r'log(T$_{\rm eff}$ [K])', 'TESS_time' : r'Time $-$ 2457000 [BTJD d]',
-		'TESS_freq' : r'Frequency [d$^{-1}$]'
+		'TESS_freq' : r'Frequency [d$^{-1}$]','S_LOGL' : r'log($L$/L$_{\odot})_{Gaia}$',
 		}
 
 FMT_PR = 	{
@@ -105,7 +105,7 @@ BIN_PROP =	{
 CBAR_TICK_SIZE = 17
 CBAR_TITLE_SIZE = 18
 
-HR_YLIM = [4.51, 6.45]
+HR_YLIM = [4.21, 6.45]
 
 HR_XLIM = [4.78,3.51]
 

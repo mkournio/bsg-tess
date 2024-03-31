@@ -8,9 +8,9 @@ import os
 class PanelTemplate(object):
 
 	# Class for the creation and management of plotting grid
-	def __init__(self, output_format = None,  params = PLOT_PARAMS['panel'], inter = False, **kwargs):
+	def __init__(self, output_format = None, params = PLOT_PARAMS['panel'],  inter = False, **kwargs):
 
-		plt.rcParams.update(panel_params)
+		plt.rcParams.update(params)
 
         	self.__dict__.update(kwargs)
 		self.output_format = output_format

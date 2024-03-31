@@ -67,14 +67,14 @@ class HRdiagram(PanelTemplate):
 		self.cbar_key = cbar_key
 		self.tlines = tlines
 		self.llines = llines
-		super(HRdiagram,self).__init__(inv_x = True, x_label = 'LTEFF', y_label = lkey, **kwargs)
+		super(HRdiagram,self).__init__(inv_x = True, x_label = 'LTEFF', y_label = lkey, params = PLOT_PARAMS['panel'], **kwargs)
 		self.ax = self.PanelAx()
 
 		self.ax.set_ylim(HR_YLIM)
 		self.ax.set_xlim(HR_XLIM)		
 
-		#self.cmap, self.norm = colorbar(self.fig, vmin=1, vmax=59, label=r'M [M$_{\odot}$]')
-		self.cmap, self.norm = colorbar(self.fig, vmin=0, vmax=15, label=r't [Myr]')
+		self.cmap, self.norm = colorbar(self.fig, vmin=1, vmax=60, label=r'M [M$_{\odot}$]')
+		#self.cmap, self.norm = colorbar(self.fig, vmin=0, vmax=15, label=r't [Myr]')
 
 		self._plot_tracks()
 
@@ -97,7 +97,7 @@ class HRdiagram(PanelTemplate):
 	def _plot_hr(self):
 
 		msizes = 60 #np.array([x**2 for x in self.data['NFFREQ']])
-		colors = 'k' #np.array([self.cmap(self.norm(k)) for k in self.data[self.cbar_key]])
+		colors = np.array([self.cmap(self.norm(k)) for k in self.data[self.cbar_key]])
 		self.ax.scatter(self.data[self.tkey], self.data[self.lkey], s = msizes, c = colors, edgecolor='k')		
 
 		return
@@ -111,8 +111,8 @@ class HRdiagram(PanelTemplate):
 		MW_tr = getTracks().MW
 		for m in MW_tr:
 		     if float(m) > 12 :	
- 			#z = np.asarray(MW_tr[m]['M_ACT']) 
- 			z = np.asarray(MW_tr[m]['TIME']/1e+6) 
+ 			z = np.asarray(MW_tr[m]['M_ACT']) 
+ 			#z = np.asarray(MW_tr[m]['TIME']/1e+6) 
 
     			segments = make_segments(MW_tr[m]['LTEFF'],MW_tr[m]['LOGL'])
     			lc = LineCollection(segments, array=z, cmap=self.cmap, norm=self.norm, 

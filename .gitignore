@@ -1,5 +1,7 @@
 #Ignored from git
 
+*.pkl
+
 input/
 
 output/
@@ -19,4 +21,5 @@ LS_*
 LC_*
 
 SED_*
+
 

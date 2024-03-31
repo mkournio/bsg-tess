@@ -12,6 +12,8 @@ from constants import *
 from evolution import *
 import pickle
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 TT = TexTab()
 
@@ -63,21 +65,40 @@ filter_dict = photo.filt_dict
 model = model_dict(filter_dict, load_pickle = True)
 
 ###### FIT SEDS AND VISUALIZE - BUILD/LOAD TABLE WITH SED PARAMETERS
-SEDBuilder(photo_data[:14], filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
-		 rows_page = 7, cols_page = 2, output_name = 'SED2', coll_x = True, coll_y = True, output_format = 'eps', 
-		 figsize = (10,18), inter = False, load_pickle = False)
+#SEDBuilder(photo_data[:14], filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
+#		 rows_page = 7, cols_page = 2, output_name = 'SED', coll_x = True, coll_y = True, output_format = 'eps', 
+#		 figsize = (10,18))
 #SEDBuilder(photo_data[14:], filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
 #		 rows_page = 8, cols_page = 3, output_name = 'SED', coll_x = True, coll_y = True, output_format = 'eps', 
-#		 figsize = (13,16), inter = False, load_pickle = False)
+#		 figsize = (13,16))
 
 #### SAVE OR LOAD SED PARAMETER TABLE
 SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
 		 output_format = None, load_pickle = True)
 #TT.TabSED(SED.sed_tab)
 
+SED.sed_tab['RADMASS'] = radmass(data['LOGG'],SED.sed_tab['S_RAD'])
 
-#HRdiagram(sed, lkey = 'LUM', output_format = None, inter = True)
 
+
+#HRdiagram(hstack([data['STAR','MASS'],SED.sed_tab]), lkey = 'S_LOGL', cbar_key = 'RADMASS', output_format = None, inter = True)
+
+
+#SED.sed_tab['STAR','S_LOGLM'].pprint(max_lines=-1)
+
+
+
+gamma = 1
+const = (4 * PI * Ccm * G_ACC * MSUN_TO_GR * gamma) / (KAPPA * LSUN)
+const = np.log10(const)
+
+
+print 10**(SED.sed_tab['S_LOGL'] - np.log10(SED.sed_tab['RADMASS']) - const)
+plt.plot(np.log10(SED.sed_tab['RADMASS']),SED.sed_tab['S_LOGL'],'o')
+#plt.plot([0,3], [const,3+const])
+
+
+plt.show()
 #%%
 
 

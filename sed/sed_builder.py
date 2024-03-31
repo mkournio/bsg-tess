@@ -160,9 +160,17 @@ class SEDBuilder(GridTemplate):
 
 			filter_flx, filter_eflx = mg2flux(filter_phot,filter_ephot,filter_zeros,filter_lambdas,k)
 
-
 			ax.plot(filter_lambdas,filter_flx,v['mrk']['m'],c=v['mrk']['c'],markersize=v['mrk']['s'],label=k)
 			ax.errorbar(filter_lambdas,filter_flx,filter_eflx,ecolor=v['mrk']['c'],elinewidth=1, capsize=0, ls='none')
+
+			if k == 'WISE':
+			 try:
+				up_mask = []
+				for char in self.photo_tab['WISEFL'][t_ind]:
+					up_mask.append(char == 'U')
+				ax.errorbar(filter_lambdas[up_mask],filter_flx[up_mask],yerr = 9e-1*filter_flx[up_mask], ecolor=v['mrk']['c'],ls='none',uplims=True)
+			 except:
+				pass
 
 			if self.fit_sed and v['fit'] == 1:
 				self.fit_l.extend(filter_lambdas)

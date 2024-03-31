@@ -42,7 +42,7 @@ class XMatching(object):
 			self.match(xtabs = xtabs, xcols = xcols)
 
 			for k in vizier:
-				self.match(xtabs = [str(k)], xcols = [vizier[k]['xcols']], viz_col = vizier[k]['viz_col'])
+				self.match(xtabs = [str(k)], xcols = [vizier[k]['xcols']], viz_col = vizier[k]['viz_col'], **{key:val for key,val in vizier[k].items() if key not in ['xcols','viz_col']})
 
 			if 'TIC' in self.matched.columns: self.matched['TIC'].format = '%10d'
 			if 'HDIST' in self.matched.columns:
@@ -102,6 +102,8 @@ class XMatching(object):
 
 		viz_col = kwargs['viz_col']
 		viz_query = viz_query[['RA','DEC','angDist',viz_col]]
+		kwargs['dtype'] = viz_query[viz_col].dtype
+
 		viz_query.rename_column(viz_col, self.xcol)
 		viz_tab = hstack([self.coord,coord_near_matches(self.coord,viz_query)])
 		viz_tab['f_'+self.xcol] = -1 * np.ones(len(viz_tab))
@@ -111,8 +113,8 @@ class XMatching(object):
 
 	def _matching(self,mtab,**kwargs):
 
-		column_format = kwargs.get('column_format','f8')
-		xmcol = Table(names=[self.xcol,'f_'+self.xcol],dtype=(column_format, 'i2')) 
+		column_format = kwargs.get('dtype','f8')
+		xmcol = Table(names=[self.xcol,'f_'+self.xcol],dtype=(column_format,'i2')) 
 
 		for line1 in self.coord:		
 			matched = False
