@@ -15,7 +15,7 @@ class PreWhitening(GridTemplate):
 		self.sect = sect
 		self.save_files = save_files
 		self.plot_rn = plot_rn
-		super(PreWhitening,self).__init__(fig_xlabel='',fig_ylabel='Power', coll_x = True, params = PLOT_PARAMS['prew'], output_name= TESS_LS_PATH + '%s_%s_LSPRW' % (self.star,self.sect), col_labels = ['TESS_freq', 'TESS_time'], **kwargs)
+		super(PreWhitening,self).__init__(fig_xlabel='', fig_ylabel=PLOT_YLABEL['ls'], coll_x = True, params = PLOT_PARAMS['prew'], output_name= TESS_LS_PATH + '%s_%s_LSPRW' % (self.star,self.sect), col_labels = ['TESS_freq', 'TESS_time'], **kwargs)
 
 		self.prw()	
 		self.GridClose()
@@ -60,8 +60,8 @@ class PreWhitening(GridTemplate):
 			pow_ax.text(0.05,0.05,'F%s %.3f' % (ind,peak_freq),color='k', transform=pow_ax.transAxes)
 			#pow_ax.hlines(max_glob,xmin=peak_freq,xmax=peak_freq+rayl,color='k')
 			#pow_ax.axvline(2. / TESS_WINDOW_D,ls='-',lw=0.5)
-			pow_ax.set_ylim(1.1e-6,3e-2) ;  pow_ax.set_yscale('log')  
-			pow_ax.set_xlim(3e-3,25); pow_ax.set_xscale('log') 
+			pow_ax.set_ylim(1.1e-6,3e-2) ; pow_ax.set_yscale('log')  
+			pow_ax.set_xlim(2./TESS_WINDOW_D,25); pow_ax.set_xscale('log') 
 
 			# Red-noise model fit
 			nan_ind = np.isnan(pg.power)

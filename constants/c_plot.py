@@ -36,6 +36,13 @@ PLOT_PARAMS =	{
          	'axes.titlesize': 13,
          	'xtick.labelsize': 18,
          	'ytick.labelsize': 11},
+'cr'		:
+		{'legend.fontsize': 11,
+	 	'font.size':  13,
+         	'axes.labelsize': 16,
+         	'axes.titlesize': 13,
+         	'xtick.labelsize': 15,
+         	'ytick.labelsize': 15},
 'panel'		:
 		{'legend.fontsize': 8,
 	 	'font.size':  11,
@@ -55,7 +62,7 @@ PLOT_XLABEL =   {
 
 PLOT_YLABEL =   { 
 		'lc' : r'$\Delta$m (mag)',
-		'ls' : r'Power',
+		'ls' : r'Amplitude (mag)',
 		'sed': r'$F_{\lambda}$ (erg/s/cm$^2$/A)'
 		}
 
@@ -73,13 +80,16 @@ AX_FMARK =	{
 		}
 
 STY_LB = 	{
-		'TEFF' : r'T$_{\rm eff}$','VSINI' : r'$v$sin $i$','MDOT' : r'$\dot{M}$',
+		'VSINI' : r'$v$sin $i$','MDOT' : r'$\dot{M}$',
 		'LOGLM': r'log(L/M)', 'LOGL' : r'log(L/L$_{\odot}$)', 'LOGQ' : r'log$Q$',
-		'LOGG' : r'log$g$', 'MASS' : 'M', 'VMAC': r'$v_{mac}$', 'VMIC' : r'$v_{mic}$',
-		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'LUM': r'log(L/L$_{\odot})_{\rm SED}$', 
-		'w' : r'$W$', 'zero' : r'$R_{0}$', 'tau' : r'$\tau$', 'gamma' : r'$\gamma$' ,
-		'LTEFF' :  r'log(T$_{\rm eff}$ [K])', 'TESS_time' : r'Time $-$ 2457000 [BTJD d]',
+		'LOGG' : r'log$g$', 'MASS' : '$M_{evol}$', 'VMAC': r'$v_{mac}$', 'VMIC' : r'$v_{mic}$',
+		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'S_MASS' : r'$M_{Rg}$',
+		'w' : r'log($W$ [mag])', 'zero' : r'log($R_{0}$ [mag])', 'tau' : r'log($\tau$ [d])', 'gamma' : r'$\gamma$' ,
+		'TEFF' :  r'log(T$_{\rm eff}$ [K])', 'TESS_time' : r'Time $-$ 2457000 [BTJD d]',
 		'TESS_freq' : r'Frequency [d$^{-1}$]','S_LOGL' : r'log($L$/L$_{\odot})_{Gaia}$',
+		'MAD' : r'MAD', 'SVAR': r'$\sigma$', 'ZCROSS' : r'$D_{0}$', 'PSI': r'$\psi^2$',
+		'ETA' : r'log($\eta$)', 'SKEW': r'skw', 'A_V' : r'$A_{V}$', 'EDD' : r'$\Gamma_{e}$',
+		'GABS' : r'$M_{G}$ [mag]', 'VCHAR' : r'log($\nu_{char}$ [d$^{-1}$])',
 		}
 
 FMT_PR = 	{

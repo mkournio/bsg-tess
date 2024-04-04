@@ -1,7 +1,7 @@
 filename = 'LaPlata_input'
 
 xmtabs = ['HAUCKE+19','FRASER+10']
-xmcols = ['TEFF','NABUN','MASS','LOGL','VMIC', 'LOGG','LOGLM']
+xmcols = ['TEFF','NABUN','MASS','LOGL','VMIC', 'LOGG','VMAC','MDOT']
 
 # CURRENTLY VIZIER TABLES HAVE TO ME IMPORTED ONE BY ONE
 xmviz = {

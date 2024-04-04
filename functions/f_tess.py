@@ -105,6 +105,7 @@ def find_harmon(v,e):
 	'''
 	Calculates the harmonics/combinations from a vector of frequencies
 	'''
+
 	v = np.array(v)
 	ident_v = np.zeros(len(v),dtype=np.dtype('U100'))
 
@@ -138,12 +139,24 @@ def find_harmon(v,e):
 		# Repeated frequencies and harmonics (multiples)
  		for i in f[:ind_k] :
 			ratio = v[k] / v[i]
+			intratio = round(ratio)
 			if abs(v[k] - v[i]) < e :
 				text = '(U) F%d' % i
 				break
-			elif v[i] * abs(ratio - round(ratio)) <= e :
-				text = '(H) %dF%d' % (round(ratio),i)
-				break
+			elif v[i] * abs(ratio - intratio) <= e :
+				if '(F)' in ident_v[i]: 
+					text = '(H) %dF%d' % (intratio,i)
+					break
+				elif '(U)' in ident_v[i]: 
+					text = '(UH) %dF%d' % (intratio,i)
+					break
+				elif '(C)' in ident_v[i]: 
+					text = '(C) %dF%d' % (intratio,i)
+					break
+				elif '(H)' in ident_v[i]: 
+					text = '(HH) %dF%d' % (intratio,i)
+					break
+				
 
 		# Combinations among previously detected
 		if text ==  None :
@@ -207,6 +220,46 @@ def read_prg(file_name):
 	x, y = np.loadtxt(file_name, delimiter=' ', usecols=(0, 1), unpack=True)
 
 	return x, y
+
+def k_crossing(time,flux,kappa):
+
+	i = 0 
+	d_k = []
+	nflux = np.copy(flux)
+	while i < kappa :
+
+		nflux = nflux - np.mean(nflux)
+
+		clipped = np.copy(nflux)
+		clipped[clipped >= 0] = 1
+		clipped[clipped < 0] = 0
+
+		d_k.append( np.sum(np.diff(clipped)**2)/len(clipped) )
+
+		nflux = np.diff(nflux)
+
+		i += 1
+
+	return np.array(d_k)
+
+def psi_sq(time,flux,kappa):
+
+	d_star = k_crossing(time,flux,kappa)
+
+	delta_star = np.append(d_star[0], np.diff(d_star))
+
+	wn = np.random.normal(0, 1, size=len(flux))
+	d_gauss = k_crossing(time,wn,kappa)
+
+	delta_gauss = np.append(d_gauss[0], np.diff(d_gauss))	
+
+	return np.sum( ( (delta_star - delta_gauss)**2 ) / delta_gauss)	
+
+def eta_e(time,flux):
+
+	succd = np.sum(np.diff(flux)**2) / (len(flux) - 1) 
+
+	return succd / np.var(flux)
 	
 
 def getmask(tpf, star_row, star_col, thres = 0.1):

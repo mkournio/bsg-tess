@@ -5,10 +5,11 @@ import numpy as np
 import lightkurve as lk
 import os
 import pickle
+from scipy import stats
 
-class Visualize(GridTemplate):
+class Processing(GridTemplate):
 	
-	def __init__(self, data, level, load_rn_pickle = False, **kwargs):
+	def __init__(self, data, level, load_rn_pickle = False, load_mt_pickle = False, **kwargs):
 
 		if load_rn_pickle and level == 'ls' :
 
@@ -16,43 +17,59 @@ class Visualize(GridTemplate):
 			print 'Loaded pickle: red noise properties - no plot is generated'
 
 			return
+
+		elif load_mt_pickle and level == 'lc' :
+
+			self.mt_tab = pickle.load(open(PICKLE_PATH+'mt.pkl','rb'))
+			print 'Loaded pickle: light curve metrics - no plot is generated'
+
+			return
+
 		else:
 			self._validate()
 			self.stars = data['STAR']
 			self.level = level
 
+			if level == 'lc':
+				self.mt_tab = Table(names=('STAR','MAD','e_MAD', 'SVAR','e_SVAR','ZCROSS','e_ZCROSS','PSI','e_PSI','ETA','e_ETA','SKEW','e_SKEW'), dtype=('<U16','f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4'))
+
 			if level == 'ls': 
 				kwargs['coll_x'] = True
 				kwargs['coll_y'] = True
 		 		self.rn_tab = Table(names=('STAR','w','zero','tau','gamma','e_w','e_zero','e_tau','e_gamma'), 
-				    dtype=('<U16','f4', 'f4', 'f4', 'f4','f4', 'f4','f4', 'f4'))
+				    dtype=('<U16','f4','f4', 'f4', 'f4','f4', 'f4','f4', 'f4'))
 
-			super(Visualize,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
+			super(Processing,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
 					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
-			self._visual()
+			self._process()
 			self.GridClose()
 			if level == 'ls' and kwargs['output_format'] == None: 
 				pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))
 				print 'Saved pickle: red noise properties'	
+
+			if level == 'lc' and kwargs['output_format'] == None: 
+				pickle.dump(self.mt_tab,open(PICKLE_PATH+'mt.pkl','wb'))
+				print 'Saved pickle: light curve metrics'
 
 			return
 
 	def _validate(self):
 		pass
 
-	def _visual(self):
+	def _process(self):
 
 	        for star in self.stars :
 			if self.level == 'lc':
 				lc_files = [j for j in os.listdir(TESS_LC_PATH) if (star in j)]
-				self._visual_lc(star,lc_files)
+				mt = self._process_lc(star,lc_files)
+				self.mt_tab.add_row(np.append(star,mt))
 
 			elif self.level == 'ls':				
-				rnopt = self._visual_ls(star)
+				rnopt = self._process_ls(star)
 				self.rn_tab.add_row(np.append(star,rnopt))			
 		return	
 
-	def _visual_ls(self, star):
+	def _process_ls(self, star):
 
 			freq_files = [j for j in os.listdir(TESS_LS_PATH) if (star in j and 'FREQS' in j) ]
 
@@ -69,17 +86,16 @@ class Visualize(GridTemplate):
 			ax = self.GridAx()
 			ax.plot(ls_v, ls_ini,'c'); ax.plot(ls_v, ls_end,'r')
 			ax.plot(ls_v, self._redn(ls_v,*rnopt),'k-')
-			ax.axvline(2. / TESS_WINDOW_D,color='k',ls='-',lw=0.5,ymin=0.5,ymax=1)
 
 			fund, harm, comb = self._get_freqs(TESS_LS_PATH + freq_files[np.argmin(rn_chi2s)])
 			for l in fund : ax.axvline(l,color='b',ls='-',lw=2.5,ymin=0.80,ymax=1)
 			for l in harm : ax.axvline(l,color='g',ls='--',lw=2,ymin=0.84,ymax=1)
 			for l in comb : ax.axvline(l,color='k',ls=':',lw=1.5,ymin=0.87,ymax=1)
 
-			ax.set_ylim(9e-7,2e-1) ;  ax.set_yscale('log')  
-			ax.set_xlim(2e-2,25); ax.set_xscale('log') 
+			ax.set_ylim(7e-7,2e-1) ;  ax.set_yscale('log')  
+			ax.set_xlim(2. / TESS_WINDOW_D,25); ax.set_xscale('log') 
 
-			ax.text(0.05,0.05,'%s (%s)' % (star,vis_sect),color='k',transform=ax.transAxes)
+			ax.text(0.03,0.05,'%s (%s)' % (star,vis_sect),color='k',transform=ax.transAxes)
 
 			rnerr[0] = rnerr[0]/(np.log(10)*rnopt[0])
 			rnerr[1] = rnerr[1]/(np.log(10)*rnopt[1])
@@ -87,29 +103,29 @@ class Visualize(GridTemplate):
 
 			return rnopt, rnerr
 
-	def _visual_lc(self, star, lc_files):
-
-		if len(lc_files) > 0 :
+	def _process_lc(self, star, lc_files):
 
 			ax = self.GridAx()
 			divider = make_axes_locatable(ax)
 
-			ymin, ymax = self._lcs_glob_stats(lc_files)
+			ymin, ymax = self._lcs_glob_minmax(lc_files)
 			ym = 1.1 * max(abs(ymax),abs(ymin))
 
 			g_lc_files = group_consec_lcs(lc_files)	
 			len_gls = len(g_lc_files)
 
 			k = 0
+			mad = []; zcross = []; psi = []; eta = []; svar = []; skew = []
 			for gl in g_lc_files:
 
 				g_times = np.empty(0); g_fluxes = np.empty(0); g_sects = []
 				for l in gl:
 					time, flux = lc_read(TESS_LC_PATH + l)
-					g_sects.append(sect_from_lc(l))	
 					offset = np.nanmedian(flux)
+					g_sects.append(sect_from_lc(l))	
 					g_times = np.append(g_times,time)
-					g_fluxes = np.append(g_fluxes,flux - offset)
+					g_fluxes = np.append(g_fluxes,flux - offset)				
+
 				g_sect_tx = '+'.join([str(x) for x in g_sects])
 
 				ax.plot(g_times, g_fluxes,'k'); ax.invert_yaxis(); ax.set_ylim(ym,-ym)
@@ -136,9 +152,21 @@ class Visualize(GridTemplate):
 					ax.plot((0,0),(1-d,1+d), **kwargs) 
 					ax.spines['left'].set_visible(False)
 					ax.tick_params(labelleft = False) 
+
+				nan_mask = np.isnan(g_fluxes)
+				g_fluxes = g_fluxes[~nan_mask]
+				
+				mad.append( np.median(np.absolute(g_fluxes - np.median(g_fluxes))) )
+				svar.append( np.std(g_fluxes) )
+
+				zcross.append( k_crossing(g_times, g_fluxes, 1)[0] )
+				psi.append( psi_sq(g_times, g_fluxes, 5) )
+                                eta.append( eta_e(g_times, g_fluxes) )	
+				skew.append( stats.skew(g_fluxes) )
+
 				k += 1
 
-		return	
+			return [np.mean(mad), np.std(mad), np.mean(svar), np.std(svar), np.mean(zcross), np.std(zcross),  np.mean(psi), np.std(psi), np.mean(eta), np.std(eta), np.mean(skew), np.std(skew)]
 
 	def _get_chi2(self,path_freq):
 
@@ -159,7 +187,7 @@ class Visualize(GridTemplate):
 				freq = float(line.split()[1])
 				if '(F)' in line :
 					fund.append(freq)
-				elif '(H)' in line:
+				elif ('(H)' in line) or ('(HH)' in line):
 					harm.append(freq)
 				elif '(C)' in line:
 					comb.append(freq)
@@ -171,7 +199,7 @@ class Visualize(GridTemplate):
 		x = np.array(x)
 		return w + ( zero / ( 1 + (2 * 3.14 * tau * x)**gamma))
 
-	def _lcs_glob_stats(self,lc_files):
+	def _lcs_glob_minmax(self,lc_files):
 
 		minfs=[]; maxfs=[]	
 		for l in lc_files:

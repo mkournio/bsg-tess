@@ -161,7 +161,7 @@ Rp70
 tp72
 tp73
 baa(lp74
-S'TEFF'
+S'S_TEFF'
 p75
 ag9
 (g10

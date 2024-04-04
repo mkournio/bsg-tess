@@ -1,7 +1,5 @@
 #Ignored from git
 
-*.pkl
-
 input/
 
 output/
@@ -15,6 +13,8 @@ test*
 GridPlot*
 
 *.tex
+
+*.eps
 
 LS_*
 

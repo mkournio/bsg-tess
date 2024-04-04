@@ -118,7 +118,7 @@ class SEDBuilder(GridTemplate):
 		 self._sed()
 		 self.GridClose()
 		 self.sed_tab = Table({'STAR': photo_tab['STAR'], 'A_V': self.a_v, 'S_LOGL': self.s_logl, 'S_RAD': self.s_rad, 
-				      'TEFF': self.photo_tab['TEFF'], 'S_DIST': self.s_dist, 'LOGC': self.logc
+				      'S_TEFF': self.photo_tab['TEFF'], 'S_DIST': self.s_dist, 'LOGC': self.logc
 				     })
 
 		if kwargs['output_format'] == None: 

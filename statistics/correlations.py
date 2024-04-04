@@ -9,63 +9,104 @@ from scipy.stats.mstats import pearsonr, spearmanr, describe
 
 class corr_scatter(GridTemplate):
 
-	def __init__(self, ext_x, ext_y, match_keys = 'STAR', auto = False, **kwargs):
+	def __init__(self, data, x, y, mode = 'matrix', hold = False, **kwargs):
 
-		self.ext_x = ext_x
-		self.ext_y = ext_y
-		self.match_keys = match_keys
-		self.auto = auto
+		jtab = data.copy()
+		self.x = x
+		self.y = y
+		self.hold = hold
+		self.mode = mode
+		self._validate()
 
-		self.cols_x = [c for c in self.ext_x.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
-		self.cols_y = [c for c in self.ext_y.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
+		mode_grid = {}
+		if self.mode == 'matrix':
+			mode_grid = {'rows_page' : len(self.x), 'cols_page' : len(self.y), 'coll_x' : True, 'coll_y' : True,
+				     'row_labels' : self.x, 'col_labels' : self.y} 
+		super(corr_scatter,self).__init__(fig_xlabel='', fig_ylabel='', params = PLOT_PARAMS['cr'], **dict(kwargs,**mode_grid))
 
-		super(corr_scatter,self).__init__(rows_page = len(self.cols_x), cols_page = len(self.cols_y),
-						 row_labels = self.cols_x, col_labels = self.cols_y, **kwargs)
-		self._scatter_panel()
-		self.GridClose()	
+		self._plotting(jtab)
 
-	def _scatter_panel(self):
+		if not hold : 
+			self.GridClose()
 
-		if self.auto:
-			jtab = self.ext_x
-		else:
-			jtab = join(self.ext_x, self.ext_y, keys=self.match_keys)
+	def _validate(self):
 
-		if 'TEFF' in jtab.columns: jtab['TEFF'] = np.log10(jtab['TEFF'])
+		if self.mode == 'zip' and len(self.x) != len(self.y):
+			raise IndexError('Zip mode is activated but key vectors have not same size.')
+		pass
 
-		for c1 in self.cols_x :
+	def _plotting(self, jtab):
 
-			nx = mask_outliers(jtab[c1], m = 4)
+		if self.mode == 'zip':
 
-			for c2 in self.cols_y :
+			for c1, c2 in zip(self.x, self.y) :
+				ax = self.GridAx()
+				self._plot_panel(ax,jtab,c1,c2)
+
+				ax.set_xlabel(STY_LB[c2])
+				ax.set_ylabel(STY_LB[c1])
+
+		elif self.mode == 'matrix':
+
+			for c1 in self.x :
+
+			 prl_y = np.nanmax(jtab[c1]) - np.nanmin(jtab[c1])
+			 prm_y = 0.5*(np.nanmax(jtab[c1])+np.nanmin(jtab[c1]))
+			 min_yaxis = prm_y - 0.6*prl_y 
+			 max_yaxis = prm_y + 0.6*prl_y
+
+			 for c2 in self.y :
+
+			 	prl_x = np.nanmax(jtab[c2]) - np.nanmin(jtab[c2])
+			 	prm_x = 0.5*(np.nanmax(jtab[c2])+np.nanmin(jtab[c2]))
+			 	min_xaxis = prm_x - 0.6*prl_x 
+			 	max_xaxis = prm_x + 0.6*prl_x
 
 				ax = self.GridAx()
-				ax.plot(jtab[c2],jtab[c1],'ko')	
+				self._plot_panel(ax,jtab,c1,c2)
 
-				try:
-				 flag_fraser = jtab['f_'+c2] == 2
-				 ax.plot(jtab[c2][flag_fraser],jtab[c1][flag_fraser],'^',color='limegreen')
+				ax.set_xlim(min_xaxis,max_xaxis)
+				ax.set_ylim(min_yaxis,max_yaxis)
+                return
 
-				 flag_haucke = jtab['f_'+c2] == 1
-				 ax.plot(jtab[c2][flag_haucke],jtab[c1][flag_haucke],'ro')
-				except:
-				 pass
+	def _plot_panel(self, axis, tab, k1, k2):
+
+		e_kwargs = {'elinewidth' : 0.5, 'capsize' : 0, 'ls' : 'none'}
+
+		try:
+		 flag_fraser = tab['f_'+k1] == 2
+		 axis.plot(tab[k2][flag_fraser],tab[k1][flag_fraser],'g^')
+		 axis.errorbar(tab[k2][flag_fraser],tab[k1][flag_fraser],xerr=tab['e_'+k2][flag_fraser],ecolor='g',**e_kwargs)
+	
+		 flag_haucke = tab['f_'+k1] == 1
+		 axis.plot(tab[k2][flag_haucke],tab[k1][flag_haucke],'bs')
+		 axis.errorbar(tab[k2][flag_haucke],tab[k1][flag_haucke],xerr=tab['e_'+k2][flag_haucke],ecolor='r',**e_kwargs)	
+		except:
+		 axis.plot(tab[k2],tab[k1],'ko')
+		 try:
+		  axis.errorbar(tab[k2],tab[k1],xerr=tab['e_'+k2],ecolor='k',**e_kwargs)	
+		 except:
+		  pass
+	
+		mx = mask_outliers(tab[k1], m = 4)
+		my = mask_outliers(tab[k2], m = 4)
+
+		if not (mx.mask.all() or my.mask.all()):
+			spear_val = spearmanr(x=mx,y=my)[0]
+			axis.text(0.70,0.05,'%.2f' % spear_val,color='r',transform=axis.transAxes)
 			
-				ny = mask_outliers(jtab[c2], m = 4)
+		return
 
-				if not (nx.mask.all() or ny.mask.all()):
-					pears_val = pearsonr(x=nx,y=ny)[0]
-					spear_val = spearmanr(x=nx,y=ny)[0]
-					ax.text(0.05,0.30,'%.2f' % pears_val,size = 6,color='c',transform=ax.transAxes)
-					ax.text(0.05,0.15,'%.2f' % spear_val,size = 6,color='b',transform=ax.transAxes)
+	def get_ax(self,row,col):
 
-
-			
-class autocorr_scatter(corr_scatter):
-
-	def __init__(self, vector, **kwargs):
-
-		super(autocorr_scatter,self).__init__(ext_x = vector, ext_y = vector, auto = True, **kwargs)
+		if self.hold:
+			if self.mode == 'matrix':
+				return self.fig.axes[row*len(self.y)+col]
+			elif self.mode == 'zip':
+				return self.fig.axes[row*self.cols_page+col]
+		else:
+			print 'Warning: Figure has closed. Use hold = True'
+			pass
 		return
 
 
