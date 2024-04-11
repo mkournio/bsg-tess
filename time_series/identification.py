@@ -4,6 +4,68 @@ import numpy as np
 from functools import reduce
 import itertools
 import re
+from astropy.table import Table
+
+class FrequencyManager(object):
+
+	def __init__(self, data, **kwargs):
+
+		self.data = data
+		self._freq_tab()	
+
+		return 
+
+	def _freq_tab(self):
+
+	 	fr_tab = [['STAR','SECTORS','FF','A_FF','SNR_FF','FFR','A_FFR','HF']]
+
+		# Collects, classifies all TESS stored frequencies
+
+		for star in self.data['STAR']:
+
+			star_files = [f for f in os.listdir(TESS_LS_PATH) if 'FREQ' in f and star in f]				
+			
+			st_sects = []
+			st_ff = []
+			st_ff_ampl = []
+			st_ff_snr = []
+			st_ffr = []
+			st_ffr_ampl = []
+			st_hf = []
+			
+			for sf in star_files:
+
+				st_sects.append(sf.split('_')[1])
+
+				sect_ff = []
+				sect_ff_ampl = []
+				sect_ff_snr = []
+				sect_hf = []
+
+				with open(TESS_LS_PATH+sf) as file_:
+					first_line = file_.readline()
+					for line in file_:
+						fr, ampl, snr, ident = map(line.split().__getitem__,[1,2,5,6])
+						if ident == '(F)':
+							sect_ff.append(float(fr))
+							sect_ff_ampl.append(float(ampl))
+							sect_ff_snr.append(float(snr))
+						elif ident == '(H)' or ident == '(HH)':
+							sect_hf.append(float(fr))
+				file_.close()
+
+				st_ff.append(sect_ff)
+				st_ff_ampl.append(sect_ff_ampl)
+				st_ff_snr.append(sect_ff_snr)
+				st_ffr.append([sect_ff[0]/sect_ff[1] if len(sect_ff) > 1 else np.nan])
+				st_ffr_ampl.append([sect_ff_ampl[0]/sect_ff_ampl[1] if len(sect_ff) > 1 else np.nan])
+				st_hf.append(sect_hf)
+
+			fr_tab.append([star,st_sects,st_ff,st_ff_ampl,st_ff_snr,st_ffr,st_ffr_ampl,st_hf])
+
+		self.freq_tab = Table(rows=fr_tab[1:], names=fr_tab[0])
+
+		return 
 
 class FrequencyIdentifier(object):
 

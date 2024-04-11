@@ -27,7 +27,7 @@ class Processing(GridTemplate):
 
 		else:
 			self._validate()
-			self.stars = data['STAR']
+			self.data = data
 			self.level = level
 
 			if level == 'lc':
@@ -58,7 +58,7 @@ class Processing(GridTemplate):
 
 	def _process(self):
 
-	        for star in self.stars :
+	        for star in self.data['STAR'] :
 			if self.level == 'lc':
 				lc_files = [j for j in os.listdir(TESS_LC_PATH) if (star in j)]
 				mt = self._process_lc(star,lc_files)
@@ -87,10 +87,23 @@ class Processing(GridTemplate):
 			ax.plot(ls_v, ls_ini,'c'); ax.plot(ls_v, ls_end,'r')
 			ax.plot(ls_v, self._redn(ls_v,*rnopt),'k-')
 
+			star_mask = self.data['STAR'] == star
+			vcrit = self.data['VCRIT'][star_mask]
+			vsini = self.data['VSINI'][star_mask]
+			radius = self.data['S_RAD'][star_mask]
+
 			fund, harm, comb = self._get_freqs(TESS_LS_PATH + freq_files[np.argmin(rn_chi2s)])
 			for l in fund : ax.axvline(l,color='b',ls='-',lw=2.5,ymin=0.80,ymax=1)
 			for l in harm : ax.axvline(l,color='g',ls='--',lw=2,ymin=0.84,ymax=1)
 			for l in comb : ax.axvline(l,color='k',ls=':',lw=1.5,ymin=0.87,ymax=1)
+
+			rconst = 1. / (2 * PI * RSUNKM * S_TO_D)
+			ax.axvspan(rconst * vsini / radius, rconst * vcrit / radius, color='0.85')
+			try: 
+			  tx = '$v$sin$i$ = %d kms$^{-1}$\n$R$ = %d R$_{\odot}$' % (vsini,radius)
+			except:
+			  tx = ''
+			ax.text(0.65,0.65,tx,color='k',size=9, transform=ax.transAxes)
 
 			ax.set_ylim(7e-7,2e-1) ;  ax.set_yscale('log')  
 			ax.set_xlim(2. / TESS_WINDOW_D,25); ax.set_xscale('log') 
@@ -99,7 +112,7 @@ class Processing(GridTemplate):
 
 			rnerr[0] = rnerr[0]/(np.log(10)*rnopt[0])
 			rnerr[1] = rnerr[1]/(np.log(10)*rnopt[1])
-			rnopt[:2] = np.log10(rnopt[:2])
+			rnopt[:2] = np.ma.log10(rnopt[:2])
 
 			return rnopt, rnerr
 
@@ -161,7 +174,7 @@ class Processing(GridTemplate):
 
 				zcross.append( k_crossing(g_times, g_fluxes, 1)[0] )
 				psi.append( psi_sq(g_times, g_fluxes, 5) )
-                                eta.append( eta_e(g_times, g_fluxes) )	
+                                eta.append( np.ma.log10(eta_e(g_times, g_fluxes)) )	
 				skew.append( stats.skew(g_fluxes) )
 
 				k += 1

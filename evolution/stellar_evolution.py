@@ -4,6 +4,10 @@ from matplotlib.collections import LineCollection
 from constants import *
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+from astroquery.vizier import Vizier
+import pickle
+from scipy.interpolate import griddata
 
 def make_segments(x, y):
     '''
@@ -16,11 +20,104 @@ def make_segments(x, y):
     
     return segments
 
+class EvolutionaryModels(object):
+
+	def __init__(self, group = 'Geneva', gal = 'MW', rotation = True, load_tr_pickle = False):
+
+		if load_tr_pickle :
+
+			self.tr_tab = pickle.load(open(PICKLE_PATH+'tr.pkl','rb'))
+			print 'Loaded pickle: evolutionary models'
+
+		else :
+			self.validate()
+			catalog = EVOLUTION[group][gal]
+			query =	Vizier(columns=['**'], row_limit = -1).get_catalogs(catalog=catalog)
+			
+			self.tr_tab = query[0]
+			if rotation : 
+				self.tr_tab = self.tr_tab[self.tr_tab['Rot'] == 'r']
+
+			pickle.dump(self.tr_tab,open(PICKLE_PATH+'tr.pkl','wb'))
+			print 'Saved pickle: evolutionary models'
+
+		if group == 'Geneva' :
+			self.tr_tab['logg'] = 4 * self.tr_tab['logTe'] - np.log10(self.tr_tab['Gedd'] * Ccm / (KAPPA * SBOLTZ))
+
+		#self.tr_tab['Mini'].format = '%d'
+
+		return
+
+	def validate(self):
+		pass
+
+	def interp2d(self, key1, key2, key_interp, x, y, **kwargs):
+
+		return griddata((self.tr_tab[key1],self.tr_tab[key2]),self.tr_tab[key_interp],(x,y),**kwargs)
+
+	def plot_spectroHR(self, data, xkey = 'TEFF', ykey = 'LOGG', post_rsg = False, hold = False, **kwargs):	
+
+		shr_tab = self.tr_tab.copy()
+		pl_shr = PanelTemplate(inv_x = True, inv_y = True, x_label = xkey, y_label = ykey, **kwargs)
+		ax_shr = pl_shr.PanelAx()
+
+		if not post_rsg:
+			mask = shr_tab['Time'] < np.array([PRSG_AGE.get('%s' % int(x), 1e+12) for x in shr_tab['Mini'] ])
+			shr_tab = shr_tab[mask]	
+
+		for l in shr_tab:
+			if l['Line'] == 1 and l['Mini'] > 2.4:
+				ax_shr.text(l['logTe']+0.01, l['logg']+0.1, int(l['Mini']), size = 10, rotation=90, weight = 'bold')
+				
+		shr_tab = self._mask_tab(shr_tab, 'Line', 1)
+		ax_shr.plot(shr_tab['logTe'],shr_tab['logg'],'k')
+		ax_shr.plot(data[xkey],data[ykey],'o', markersize = 12)
+
+		ax_shr.set_ylim(4.53,0.8)
+		ax_shr.set_xlim(4.77,3.97)
+
+		if not hold :
+			pl_shr.PanelClose()
+
+			return
+		else: 
+			self.ax = ax_shr
+			self.panel = pl_shr
+
+			return 
+
+
+	def plot(self, key1, key2, key3, **kwargs):
+
+		fig, ax = plt.subplots()
+		cntr = plt.tricontourf(self.tr_tab[key1],self.tr_tab[key2],self.tr_tab[key3], **kwargs)
+		fig.colorbar(cntr)
+		plt.gca().invert_xaxis()
+
+		plt.show()
+
+		return
+
+	def _mask_tab(self, tab, key, val):
+
+		mtab = tab.copy()
+		r = 0
+		while r < len(mtab):
+			if mtab[r][key] == val :
+				for c in mtab.columns :
+					mtab[r][c] = np.ma.masked
+			r += 1
+
+		return mtab
+
 
 class getTracks(object):
 
-	def __init__(self):
-		pass
+	def __init__(self, prsg = True):
+
+		self.prsg = prsg
+
+		return
 
 	@property
 	def SMC(self):
@@ -36,54 +133,40 @@ class getTracks(object):
 		_tracks = [x for x in os.listdir(EVOL_TRACKS_PATH) if gal in x]
 
 		for tr in _tracks:
-
 			m_ini = tr.split('_')[0][1:]
+			n, m_0, time, mass, logl, logt, vcrit, veq, edd = np.loadtxt(EVOL_TRACKS_PATH + tr, comments='#', unpack = True)
 
-			time, m_act, logl, lteff, veq = [], [], [], [], []
-			with open(EVOL_TRACKS_PATH + tr) as file_:
-				for line in file_:
-				    if not line.startswith('#'):
-				      line = line.split()	
-				      time.append(line[1])
-				      m_act.append(line[2])
-				      logl.append(line[3])
-				      lteff.append(line[4])
-				      veq.append(line[5])				
-			file_.close()
+			if not self.prsg:
+				mask = time < PRSG_AGE.get(m_ini, 1e+12)
+				time = time[mask]; mass = mass[mask]; logl = logl[mask]; logt = logt[mask]; vcrit = vcrit[mask]; veq = veq[mask]
 
-			dict_tr[m_ini] = Table({'TIME' : time, 'M_ACT' : m_act, 'LOGL' : logl, 
-					       'LTEFF' : lteff, 'V_EQ' : veq}, dtype=('f8','f8','f8','f8','f8')) 
+			dict_tr[m_ini] = Table({'TIME' : time, 'M_ACT' : mass, 'LOGL' : logl, 'LOGT' : logt, 'VCRIT' : vcrit, 
+						'V_EQ' : veq}, dtype=('f8','f8','f8','f8','f8','f8')) 
 
   		return dict_tr 	
+
 		
 class HRdiagram(PanelTemplate):
 
-	def __init__(self, data = None, tkey = 'TEFF', cbar_key = 'MASS', lkey = 'LOGL', tlines = [], llines = [], 
+	def __init__(self, data = None, tkey = 'TEFF', cbar = False, lkey = 'LOGL', 
 				hold = False, **kwargs):
 
 
 		self.tkey = tkey
 		self.lkey = lkey
-		self.cbar_key = cbar_key
-		self.tlines = tlines
-		self.llines = llines
-		super(HRdiagram,self).__init__(inv_x = True, x_label = 'LTEFF', y_label = lkey, params = PLOT_PARAMS['panel'], **kwargs)
+		self.cbar = cbar
+		super(HRdiagram,self).__init__(inv_x = True, x_label = tkey, y_label = lkey, params = PLOT_PARAMS['panel'], **kwargs)
 		self.ax = self.PanelAx()
-
 		self.ax.set_ylim(HR_YLIM)
-		self.ax.set_xlim(HR_XLIM)		
-
-		self.cmap, self.norm = colorbar(self.fig, vmin=1, vmax=60, label=r'M [M$_{\odot}$]')
-		#self.cmap, self.norm = colorbar(self.fig, vmin=0, vmax=15, label=r't [Myr]')
-
-		self._plot_tracks()
+		self.ax.set_xlim(HR_XLIM)
 
 		if isinstance(data,Table):
 
 			self.data = data
 			self._validate_hr()
-			self.data[self.tkey] = np.log10(self.data[self.tkey])
 			self._plot_hr()
+
+		self._plot_tracks()
 
 		if not hold : 
 			self.PanelClose()
@@ -95,10 +178,24 @@ class HRdiagram(PanelTemplate):
 		return
 
 	def _plot_hr(self):
+		
+		if not self.cbar :
+			colors = 'k'
+		else:
+			self.cmap, self.norm = colorbar(self.fig, 
+				vmin=np.nanmin(data[self.cbar]), vmax=np.nanmax(data[self.cbar]), label=STY_LB[cbar])
+			colors = np.array([self.cmap(self.norm(k)) for k in self.data[self.cbar]])
 
-		msizes = 60 #np.array([x**2 for x in self.data['NFFREQ']])
-		colors = np.array([self.cmap(self.norm(k)) for k in self.data[self.cbar_key]])
-		self.ax.scatter(self.data[self.tkey], self.data[self.lkey], s = msizes, c = colors, edgecolor='k')		
+		mask_pval = (self.data['PVTEFF'] <= 0.05) | (self.data['PVS_LOGL'] <= 0.05)
+		mask_rest = ~ mask_pval
+
+		mask_ot = (self.data['OTTEFF'] == 1) | (self.data['OTS_LOGL'] == 1)
+
+		p_pval, = self.ax.plot(self.data[self.tkey][mask_pval], self.data[self.lkey][mask_pval], '*', ms = HR_MS, c = 'r')
+		self.ax.plot(self.data[self.tkey][mask_rest], self.data[self.lkey][mask_rest], 'o', ms = HR_MS-3, c = 'k')
+		p_ot, = self.ax.plot(self.data[self.tkey][mask_ot], self.data[self.lkey][mask_ot], 'ko', mew = 1.5, ms = HR_MS+5, mfc = 'none')
+
+		self.ax.legend([p_pval,p_ot],[r'p-value $\leq$ 0.05',r'$f_{j}$ > Q3 + 1.5 $\times$ IQR'])	
 
 		return
 
@@ -110,19 +207,7 @@ class HRdiagram(PanelTemplate):
 		# EVOL TRACKS
 		MW_tr = getTracks().MW
 		for m in MW_tr:
-		     if float(m) > 12 :	
- 			z = np.asarray(MW_tr[m]['M_ACT']) 
- 			#z = np.asarray(MW_tr[m]['TIME']/1e+6) 
-
-    			segments = make_segments(MW_tr[m]['LTEFF'],MW_tr[m]['LOGL'])
-    			lc = LineCollection(segments, array=z, cmap=self.cmap, norm=self.norm, 
-						linewidth=3, alpha=1.0)
-    			self.ax.add_collection(lc)
-			if float(m) > 15: self.ax.text(MW_tr[m]['LTEFF'][0]+0.05,MW_tr[m]['LOGL'][0]-0.01,'%s M$_{\odot}$' % int(m), 
-					size = 13, weight= 'bold')
-
-		# LINES - THRESHOLDS
-		#for l in self.llines: self.ax.axhline(y=l, color='k', ls=':')
-		#for t in self.tlines: self.ax.axvline(x=np.log10(t), color='k', ls=':')
+			self.ax.plot(MW_tr[m]['LOGT'],MW_tr[m]['LOGL'],'k',linewidth=0.6)
+			if int(m) > 10: self.ax.text(MW_tr[m]['LOGT'][0]+0.05,MW_tr[m]['LOGL'][0]-0.02,'%s M$_{\odot}$' % int(m), weight= 'bold')
 
 		return

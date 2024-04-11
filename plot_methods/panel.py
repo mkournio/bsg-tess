@@ -17,6 +17,7 @@ class PanelTemplate(object):
 		self.inter = inter
 
 		self.inv_x = kwargs.pop('inv_x',False)
+		self.inv_y = kwargs.pop('inv_y',False)
 
 		self.filename = kwargs.pop('output_name','PanelPlot')
 
@@ -32,6 +33,7 @@ class PanelTemplate(object):
 		if 'y_label' in self.__dict__: ax.set_ylabel(STY_LB[self.y_label])
 		
 		if self.inv_x : ax.invert_xaxis()
+		if self.inv_y : ax.invert_yaxis()
 
 		return ax
 
@@ -56,7 +58,7 @@ class PanelTemplate(object):
 		if self.output_format == 'pdf':
 			self.pdf.savefig(self.fig)
 		elif self.output_format == 'eps':
-			self.fig.savefig('%s' % self._get_filename(), format = 'eps')	
+			self.fig.savefig('%s.%s' % (self._get_filename(),self.output_format), format = 'eps', bbox_inches='tight')	
 
 		return					
 

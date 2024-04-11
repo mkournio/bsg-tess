@@ -1,11 +1,13 @@
-from plot_methods import GridTemplate
+from plot_methods import *
 from functions import *
 from constants import *
 from time_series import FrequencyIdentifier
 from astropy.table import join, Table, MaskedColumn
 import numpy as np
-from scipy.stats import norm, gamma 
+from scipy.stats import norm, gamma, kstest
 from scipy.stats.mstats import pearsonr, spearmanr, describe
+from itertools import chain
+import pandas as pd
 
 class corr_scatter(GridTemplate):
 
@@ -19,7 +21,7 @@ class corr_scatter(GridTemplate):
 		self._validate()
 
 		mode_grid = {}
-		if self.mode == 'matrix':
+		if self.mode != 'zip':
 			mode_grid = {'rows_page' : len(self.x), 'cols_page' : len(self.y), 'coll_x' : True, 'coll_y' : True,
 				     'row_labels' : self.x, 'col_labels' : self.y} 
 		super(corr_scatter,self).__init__(fig_xlabel='', fig_ylabel='', params = PLOT_PARAMS['cr'], **dict(kwargs,**mode_grid))
@@ -67,6 +69,23 @@ class corr_scatter(GridTemplate):
 
 				ax.set_xlim(min_xaxis,max_xaxis)
 				ax.set_ylim(min_yaxis,max_yaxis)
+
+		elif self.mode == 'frequency':
+
+			for c1 in self.x :
+			 for c2 in self.y :
+
+				ax = self.GridAx()
+		       	        cmap, norm = colorbar(self.fig, vmin=1, vmax=50, label=r'S/N',extend='max')
+				for s, p, snr in zip(jtab[c1],jtab[c2], jtab['SNR_FF']):
+
+				    flat_p = list(chain(*p))
+				    flat_snr = list(chain(*snr))
+				    colors = np.array([cmap(norm(k)) for k in flat_snr])
+				    ax.scatter(np.array(flat_p), np.array([s] * len(flat_p)),c=colors)
+                                ax.set_xscale('log')		
+				
+
                 return
 
 	def _plot_panel(self, axis, tab, k1, k2):
@@ -110,170 +129,90 @@ class corr_scatter(GridTemplate):
 		return
 
 
-class tess_hist(GridTemplate):
+class freq_hist(GridTemplate):
 
-	def __init__(self, ext_tab, snr_show = 5, **kwargs):
+	def __init__(self, data, x, y, snr_thres = 5, ngroups = 3, **kwargs):
 
-		self.ext_tab = ext_tab
-		self.snr_show = snr_show	
+		self.data = data
+		self.x = x
+		self.y = y
+		self.snr_thres = snr_thres	
 		self.freqs = []
 		self.snrs = []
-		self.ident = []
+
+		self.gperc = np.linspace(0,100,ngroups+1)[1:-1]
+
+		self.pval_tab = Table()
+		for c in self.x :
+			self.pval_tab['PV'+c] = self._masked_col(len(data))
+			self.pval_tab['OT'+c] = self._masked_col(len(data))
+		self.pval_tab['STAR'] = data['STAR_1']
 
 		self.bins=np.arange(BIN_PROP['LOW'], BIN_PROP['UP'], BIN_PROP['RES'])
 
 
-		len_ph = len(ext_tab)
-		self.nffreq = self._masked_col(len_ph)
+		self.thres_group = {}
 
-		self._dict_freq_tess()
+		super(freq_hist,self).__init__(rows_page = len(self.x), cols_page = len(self.y), col_labels = self.y, coll_x = True, fig_xlabel='', fig_ylabel='#stars', params = PLOT_PARAMS['ls'], **kwargs)
 
-		self.cols_y = [c for c in self.ext_tab.columns if not c.startswith(('STAR','e_','RA','DEC','f_'))]
+		self._hist_freq()
 
-		self.prop_thres = {}
-		super(tess_hist,self).__init__(rows_page = len(self.cols_y), cols_page = 3, row_labels = self.cols_y, 
-					       fig_xlabel = PLOT_XLABEL['ls'], 
-						sup_xlabels = ['Fundamental (S/N > %s)' % self.snr_show,'Fundamental', 'Harmonics'],
-					       **kwargs)
-		self._hist_freq_tess()
 		self.GridClose()		
 
-		self.hist_tab = Table({'NFFREQ': self.nffreq})
-
 		return
 
-	def _dict_freq_tess(self):
-
-		# Collects, classifies all TESS stored frequencies
-		# Creates dictionary of stars
-
-		self.funds = {}
-		self.harms = {}
-		self.combs = {}
-
-		for s in range(len(self.ext_tab['STAR'])):
-
-			star = self.ext_tab['STAR'][s]
-
-			star_files = [f for f in os.listdir(TESS_LS_PATH) if 'FREQ' in f and star in f]				
-			
-			self.funds[star] = {}
-			self.harms[star] = {}
-			self.combs[star] = {}
-
-			sectors = []
-			sfunds = []; sfunds_snr = []; sfunds_ids = []
-			sharms = []; sharms_snr = []; sharms_ids = []
-			scombs = []; scombs_snr = []; scombs_ids = []
-
-			for sf in star_files:
-
-				sect_freq = []
-				sect_snr = []
-
-				sectors.append(sf.split('_')[1])
-
-				with open(TESS_LS_PATH+sf) as file_:
-					first_line = file_.readline()
-					rayleigh = float(first_line.split()[1])
-					for line in file_:
-				     		if float(line.split()[1]) > 2 * rayleigh:
-							fr, snr = map(line.split().__getitem__,[1,5])
-							sect_freq.append(float(fr))
-							sect_snr.append(float(snr))					
-				file_.close()
-
-				sect_freq = np.array(sect_freq)
-				sect_snr = np.array(sect_snr)
-
-				m_ind = np.argmin(sect_freq[:2])
-				sect_freq[0], sect_freq[m_ind] = sect_freq[m_ind], sect_freq[0]
-				sect_snr[0], sect_snr[m_ind] = sect_snr[m_ind], sect_snr[0]
-
-				sect_fid = FrequencyIdentifier(sect_freq, resolution = rayleigh)
-
-				sfunds.append(sect_freq[sect_fid.ff_mask & sect_fid.indiv_mask])
-				sfunds_snr.append(sect_snr[sect_fid.ff_mask & sect_fid.indiv_mask])
-				sfunds_ids.append(sect_fid.ids[sect_fid.ff_mask & sect_fid.indiv_mask])
-				sharms.append(sect_freq[sect_fid.hf_mask & sect_fid.indiv_mask])
-				sharms_snr.append(sect_snr[sect_fid.hf_mask & sect_fid.indiv_mask])
-				sharms_ids.append(sect_fid.ids[sect_fid.hf_mask & sect_fid.indiv_mask])
-				scombs.append(sect_freq[sect_fid.cf_mask & sect_fid.indiv_mask])
-				scombs_snr.append(sect_snr[sect_fid.cf_mask & sect_fid.indiv_mask])
-				scombs_ids.append(sect_fid.ids[sect_fid.cf_mask & sect_fid.indiv_mask])
-
-			self.funds[star].update({'FREQ': sfunds, 'SNR': sfunds_snr, 'IDS': sfunds_ids, 'SECT': sectors})
-			self.harms[star].update({'FREQ': sharms, 'SNR': sharms_snr, 'IDS': sharms_ids, 'SECT': sectors})
-			self.combs[star].update({'FREQ': scombs, 'SNR': scombs_snr, 'IDS': scombs_ids, 'SECT': sectors})
-
-			self.nffreq[s] = len(self._convert_to_bin_averaged(np.hstack(sfunds), self.bins))
-			
-		freqs_to_tex_tab(d_fund = self.funds,d_harm = self.harms, d_comb = self.combs, file_='FUND_test_NEW.tex')
-
-		return
 
 	def _masked_col(self,len_,**mask_kwargs):
 		return MaskedColumn(np.zeros(len_),mask=np.ones(len_),**mask_kwargs)
 
-	def _hist_freq_tess(self):	
+	def _hist_freq(self):	
 
-		for prop in self.cols_y:
+		for row in self.x:
 
-			ax_hsn = self.GridAx()
-			ax_all = self.GridAx()
-			ax_harm = self.GridAx()
+			nanprop = self.data[row].filled(np.nan)
+			
+			stb_thres = [np.nanpercentile(nanprop, x) for x in self.gperc]
+			self.thres_group[row] = stb_thres
 
-			nanprop = self.ext_tab[prop].filled(np.nan)
-			stb_thres = [np.nanpercentile(nanprop, 33.33),np.nanpercentile(nanprop, 66.66)] 
+			tb = [0.9*np.nanmin(nanprop)] + sorted(stb_thres) + [1.1*np.nanmax(nanprop)]
 
-			self.prop_thres[prop] = stb_thres
+			for col in self.y :
 
-			# round TEFF in nearest 100 K
-			if prop == 'TEFF' : stb_thres = [round(x,-2) for x in stb_thres]
+				ax = self.GridAx()
 
-			tb = [-np.inf] + sorted(stb_thres) + [+np.inf]
+				i = 0
+				while i < len(tb) - 1 :
 
-			for i in range(len(tb)-1):
+					grouped_freqs = []
+					bin_mask = (tb[i] < self.data[row]) & (self.data[row] <= tb[i+1])
 
-				bin_mask = np.logical_and(tb[i] < self.ext_tab[prop],self.ext_tab[prop] < tb[i+1])
-				bin_mask = np.logical_and(bin_mask,self.ext_tab[prop].mask == False)
+					for freqs, snrs in zip(self.data[col][bin_mask],self.data['SNR_FF'][bin_mask]) :
+						
+				    		flat_freqs = np.array(list(chain(*freqs)))
+				    		flat_snrs = np.array(list(chain(*snrs)))
 
-				binned_stars = self.ext_tab['STAR'][bin_mask]
+						mask = flat_snrs > self.snr_thres
+						bin_ave_freq = self._convert_to_bin_averaged(flat_freqs[mask],self.bins)
+						grouped_freqs.append(bin_ave_freq)
 
-				binned_funds = []
-				binned_funds_hsn = []
-				binned_harms = []
-				
-				for star in binned_stars:
+					h_kwargs = {'histtype' : 'step', 'lw' : 2, 'color' : HIST_COLORS[i], 
+				       'label' : self._hist_legend(tb[i],tb[i+1],FMT_PR[row]) }	
+					model_args = self._hist_single(ax, list(chain(*grouped_freqs)), self.bins, model = 'gamma', **h_kwargs)
+					q3 = gamma(*model_args).ppf(0.75)
+					q1 = gamma(*model_args).ppf(0.25) 
+					iqr = q3 - q1
 
-					# Flatten all sector data per star
-					sfunds = np.hstack(self.funds[star]['FREQ'])
-					sharms = np.hstack(self.harms[star]['FREQ'])
-					sfunds_snr = np.hstack(self.funds[star]['SNR'])
+					for star, freqs in zip(self.data['STAR_1'][bin_mask],self.data[col][bin_mask]) :
+				    		flat_freqs = np.array(list(chain(*freqs)))
+						bin_ave_freq = self._convert_to_bin_averaged(flat_freqs,self.bins)
 
-					snr_mask = sfunds_snr > self.snr_show
-					sfunds_hsn = sfunds[snr_mask]
+						ks = kstest(bin_ave_freq, 'gamma', model_args)
+						self.pval_tab['PV'+row][self.pval_tab['STAR'] == star] = ks[1]
+						self.pval_tab['OT'+row][self.pval_tab['STAR'] == star] = any(bin_ave_freq > q3 + 1.5 * iqr)
 
-					# Convert sector data to bin-averaged data 
-					# to account max one occurence per bin per star
-					binned_funds.append(self._convert_to_bin_averaged(sfunds,self.bins))
-					binned_funds_hsn.append(self._convert_to_bin_averaged(sfunds_hsn,self.bins))
-					binned_harms.append(self._convert_to_bin_averaged(sharms,self.bins))
+					i += 1
 
-				# Flatten to allow hist plotting	
-				binned_funds = np.hstack(binned_funds)
-				binned_funds_hsn = np.hstack(binned_funds_hsn)
-				binned_harms = np.hstack(binned_harms)
-
-				h_kwargs = {'histtype' : 'step', 'lw' : 2, 'color' : HIST_COLORS[i], 
-					       'label' : self._hist_legend(i,STY_LB[prop],tb[i],tb[i+1],FMT_PR[prop]) }	
-
-				for ax, freq_cat in zip([ax_hsn,ax_all,ax_harm],[binned_funds_hsn,binned_funds,binned_harms]):			
-					self._hist_single(ax, freq_cat, self.bins, model = 'gamma', **h_kwargs)
-
-			ax_hsn.text(0.5,0.7,'stbin_size %s' % len(binned_stars), transform=ax_hsn.transAxes)
-			ax_all.legend(loc="upper right")	
-
+				ax.legend(title=STY_LB[row], loc="upper right")	
 		return
 
 	def _convert_to_bin_averaged(self, data, bins):
@@ -287,29 +226,27 @@ class tess_hist(GridTemplate):
 		return bin_averaged
 		
 
-	def _hist_single(self, ax, data, bins, model = None, **h_kwargs):
-
-		bd,_,_ = ax.hist(data, bins, **h_kwargs)
+	def _hist_single(self, ax, vals, bins, model = None, **h_kwargs):
 
 		if model != None :
 
 			x_fit = np.linspace(bins[0], bins[-1], 100)
-			data_fit = [x for x in data if abs(x - np.mean(data)) < 2 * np.std(data)]
+			data_fit = [x for x in vals if abs(x - np.mean(vals)) < 3 * np.std(vals)]
 			area = sum(np.diff(bins) * np.histogram(data_fit, bins)[0])
 
 			if model == 'gamma':
-				gparam = gamma.fit(data_fit, floc=0)
+				gparam = gamma.fit(data_fit, floc=0.06)
 				ax.plot(x_fit,gamma.pdf(x_fit,*gparam)*area, lw=2.5, color = h_kwargs.get('color','k'))
 
-			return area
+			h_kwargs['label'] += r'$\alpha$ = %.1f, $\beta$ = %.1f' % (gparam[0],1./gparam[2])
 
-		return
+		bd,_,_ = ax.hist(vals, bins, **h_kwargs)
+		ax.set_xlim(BIN_PROP['LOW']-0.03,BIN_PROP['UP']-0.03)
+
+		return gparam
 		
-	def _hist_legend(self,i,prop,low,high,frm):
+	def _hist_legend(self,low,high,frm):
 
-		if i == 0:
-			return '%s < ' % prop + frm % high
-		elif i == 1:
-			return frm % low + ' < %s < ' % prop + frm % high
-		elif i == 2:
-			return '%s > ' % prop + frm % low
+		return r'[%s, %s]; ' % (frm % low, frm % high)
+
+
