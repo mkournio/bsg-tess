@@ -44,37 +44,52 @@ class EvolutionaryModels(object):
 		if group == 'Geneva' :
 			self.tr_tab['logg'] = 4 * self.tr_tab['logTe'] - np.log10(self.tr_tab['Gedd'] * Ccm / (KAPPA * SBOLTZ))
 
-		#self.tr_tab['Mini'].format = '%d'
+
 
 		return
 
 	def validate(self):
 		pass
 
-	def interp2d(self, key1, key2, key_interp, x, y, **kwargs):
+	def interp2d(self, key1, key2, key_interp, x, y, post_rsg = False, **kwargs):
 
-		return griddata((self.tr_tab[key1],self.tr_tab[key2]),self.tr_tab[key_interp],(x,y),**kwargs)
+		shr_tab = self.tr_tab.copy()
+		if not post_rsg:
+			mask = shr_tab['Time'] < np.array([PRSG_AGE.get('%s' % int(j), 1e+13) for j in shr_tab['Mini'] ])
+			shr_tab = shr_tab[mask]	
+
+		##print shr_tab[key1,key2,key_interp].pprint(max_lines=-1)
+
+		return griddata((shr_tab[key1],shr_tab[key2]),shr_tab[key_interp],(x,y),**kwargs)
+
 
 	def plot_spectroHR(self, data, xkey = 'TEFF', ykey = 'LOGG', post_rsg = False, hold = False, **kwargs):	
 
-		shr_tab = self.tr_tab.copy()
 		pl_shr = PanelTemplate(inv_x = True, inv_y = True, x_label = xkey, y_label = ykey, **kwargs)
 		ax_shr = pl_shr.PanelAx()
 
+		shr_tab = self.tr_tab.copy()
 		if not post_rsg:
 			mask = shr_tab['Time'] < np.array([PRSG_AGE.get('%s' % int(x), 1e+12) for x in shr_tab['Mini'] ])
 			shr_tab = shr_tab[mask]	
-
 		for l in shr_tab:
 			if l['Line'] == 1 and l['Mini'] > 2.4:
 				ax_shr.text(l['logTe']+0.01, l['logg']+0.1, int(l['Mini']), size = 10, rotation=90, weight = 'bold')
-				
+
+		flag_fraser = data['f_'+xkey] == 2
+		flag_haucke = data['f_'+xkey] == 1
+			
 		shr_tab = self._mask_tab(shr_tab, 'Line', 1)
 		ax_shr.plot(shr_tab['logTe'],shr_tab['logg'],'k')
-		ax_shr.plot(data[xkey],data[ykey],'o', markersize = 12)
 
-		ax_shr.set_ylim(4.53,0.8)
-		ax_shr.set_xlim(4.77,3.97)
+		ax_shr.plot(data[xkey][flag_fraser],data[ykey][flag_fraser],'g^', ms = SHR_MS)
+		ax_shr.plot(data[xkey][flag_haucke],data[ykey][flag_haucke],'bs', ms = SHR_MS)
+
+		#axis.errorbar(tab[k2][flag_haucke],tab[k1][flag_haucke],xerr=tab['e_'+k2][flag_haucke],ecolor='r',**e_kwargs)	
+		#axis.errorbar(tab[k2][flag_fraser],tab[k1][flag_fraser],xerr=tab['e_'+k2][flag_fraser],ecolor='g',**e_kwargs)
+		
+		ax_shr.set_ylim(SHR_YLIM)
+		ax_shr.set_xlim(SHR_XLIM)
 
 		if not hold :
 			pl_shr.PanelClose()
@@ -89,8 +104,13 @@ class EvolutionaryModels(object):
 
 	def plot(self, key1, key2, key3, **kwargs):
 
+		tr_tab = self.tr_tab.copy()
+
+		mask = tr_tab['Time'] < np.array([PRSG_AGE.get('%s' % int(x), 1e+12) for x in tr_tab['Mini'] ])
+		tr_tab = tr_tab[mask]
+
 		fig, ax = plt.subplots()
-		cntr = plt.tricontourf(self.tr_tab[key1],self.tr_tab[key2],self.tr_tab[key3], **kwargs)
+		cntr = plt.tricontourf(tr_tab[key1],tr_tab[key2],tr_tab[key3], **kwargs)
 		fig.colorbar(cntr)
 		plt.gca().invert_xaxis()
 

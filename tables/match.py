@@ -42,7 +42,7 @@ class XMatching(object):
 			self.match(xtabs = xtabs, xcols = xcols)
 
 			for k in vizier:
-				self.match(xtabs = [str(k)], xcols = [vizier[k]['xcols']], viz_col = vizier[k]['viz_col'], **{key:val for key,val in vizier[k].items() if key not in ['xcols','viz_col']})
+				self.match(xtabs = [vizier[k]['cat']], xcols = [vizier[k]['xcols']], viz_col = vizier[k]['viz_col'], **{key:val for key,val in vizier[k].items() if key not in ['cat','xcols','viz_col']})
 
 			if 'TIC' in self.matched.columns: self.matched['TIC'].format = '%10d'
 			if 'HDIST' in self.matched.columns:

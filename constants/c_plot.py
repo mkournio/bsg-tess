@@ -84,7 +84,7 @@ STY_LB = 	{
 		'LOGLM': r'log(L/M)', 'LOGL' : r'log(L/L$_{\odot}$)', 'LOGQ' : r'log$Q$',
 		'LOGG' : r'log$g$', 'MASS' : '$M_{evol}$', 'VMAC': r'$v_{mac}$', 'VMIC' : r'$v_{mic}$',
 		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'S_MASS' : r'$M_{Rg}$',
-		'w' : r'log($W$ [mag])', 'zero' : r'log($R_{0}$ [mag])', 'tau' : r'$\tau$ [d]', 'gamma' : r'$\gamma$' ,
+		'LOGW' : r'log($W$ [mag])', 'LOGR0' : r'log($R_{0}$ [mag])', 'TAU' : r'$\tau$ [d]', 'GAMMA' : r'$\gamma$' ,
 		'TEFF' :  r'log(T$_{\rm eff}$ [K])', 'TESS_time' : r'Time $-$ 2457000 [BTJD d]',
 		'TESS_freq' : r'Frequency [d$^{-1}$]','S_LOGL' : r'log($L$/L$_{\odot})_{Gaia}$',
 		'MAD' : r'MAD', 'SVAR': r'$\sigma$', 'ZCROSS' : r'$D_{0}$', 'PSI': r'$\psi^2$',
@@ -121,6 +121,10 @@ CBAR_TITLE_SIZE = 18
 HR_MS = 14
 HR_YLIM = [4.21, 6.45]
 HR_XLIM = [4.78,3.51]
+
+SHR_MS = 14
+SHR_YLIM = [4.55,0.8]
+SHR_XLIM = [4.77,3.97]
 
 HD_LMT = 	{ 
 		'TEFF' : [3.4,3.8,4.62],

@@ -34,10 +34,9 @@ class Processing(GridTemplate):
 				self.mt_tab = Table(names=('STAR','MAD','e_MAD', 'SVAR','e_SVAR','ZCROSS','e_ZCROSS','PSI','e_PSI','ETA','e_ETA','SKEW','e_SKEW'), dtype=('<U16','f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4'))
 
 			if level == 'ls': 
-				kwargs['coll_x'] = True
-				kwargs['coll_y'] = True
-		 		self.rn_tab = Table(names=('STAR','w','zero','tau','gamma','e_w','e_zero','e_tau','e_gamma'), 
-				    dtype=('<U16','f4','f4', 'f4', 'f4','f4', 'f4','f4', 'f4'))
+			 kwargs['coll_x'] = True
+			 kwargs['coll_y'] = True
+		 	 self.rn_tab = Table(names=('STAR','LOGW','LOGR0','TAU','GAMMA','E_LOGW','E_LOGR0','E_TAU', 'E_GAMMA'), dtype=('<U16','f4','f4', 'f4','f4','f4','f4','f4','f4'))
 
 			super(Processing,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
 					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)

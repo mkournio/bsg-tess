@@ -12,33 +12,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 TT = TexTab()
+EM = EvolutionaryModels(load_tr_pickle = True)
 
 #### DATA
 inputf = ascii.read(args.filename, header_start=0, delimiter=",")
 inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
 input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 'SBTYPE' : inputf['SBTYPE'], 'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT'], 'RDMAG' : inputf['RDMAG']})
 
-# CROSS-MATCHING AND DATA PREPARATION
+###### CROSS-MATCHING AND DATA PREPARATION
 data = XMatching(input_tab, args.xmtabs, args.xmcols, vizier = args.xmviz, load_pickle = True).matched
 data['EDD'] = (KAPPA * SBOLTZ / Ccm) * (data['TEFF']**4) / 10**data['LOGG']
-data['EDD'][data['STAR'] == 'HD152236'] = np.nan
 data['MDOT'] = np.log10(1e-6*data['MDOT'])
 data['TEFF'] = np.ma.log10(data['TEFF'])
 #TT.TabSample(data)
 
-
-EM = EvolutionaryModels(load_tr_pickle = True)
-EM.plot_spectroHR(data, hold = True, inter = True)
-
+data['MEVOL'] = EM.interp2d('logTe', 'logg', 'Mass', data['TEFF'], data['LOGG'], post_rsg = False, method='linear')
+EM.plot_spectroHR(data, output_format = 'eps', output_name = 's_hrdiag', hold = True, inter = False)
 x_range = np.arange(3.6,4.9,0.1)
-f = lambda x, gamma : 4 * x - np.log10(gamma / (KAPPA * SBOLTZ / Ccm))
+f = lambda x, gamma : 4 * x - np.ma.log10(gamma / (KAPPA * SBOLTZ / Ccm))
 g1, = EM.ax.plot(x_range,f(x_range, 1),'r-', lw = 2)
 g06, = EM.ax.plot(x_range,f(x_range, 0.6),'r:', lw = 2)
 EM.ax.legend([g1, g06], [ r'$\Gamma = 1$',r'$\Gamma = 0.6$'])
 EM.panel.PanelClose()
 
-
-'''
 
 ###### EXTRACTION
 
@@ -52,7 +48,8 @@ EM.panel.PanelClose()
 
 FM = FrequencyManager(data)
 
-data['LOGG'][data['STAR'] == HD152236] = 1.5
+
+data['LOGG'][data['STAR'] == 'HD152236'] = 1.5
 ###### COLLECT PHOTOMETRIC AND SYNTHETIC DATA
 photo = PhotoCollector(data, load_pickle = True)
 photo_data = photo.photo_tab 
@@ -75,10 +72,9 @@ data['GABS'] = photo_data['Gmag'] - 5*np.ma.log10(SED.sed_tab['S_DIST']) + 5 - S
 data['S_RAD'] = SED.sed_tab['S_RAD']
 #TT.TabSED(SED.sed_tab)
 
-intr = InterpolateTracks()
-data['VCRIT'] = intr.interp2d('LOGT', 'LOGL', 'VCRIT', data['TEFF'], SED.sed_tab['S_LOGL'],method='linear')
-data['VCRIT'].format = '.1f'
 
+data['VCRIT'] = EM.interp2d('logTe', 'logL', 'vcrit1', data['TEFF'], SED.sed_tab['S_LOGL'],method='linear')
+data['VCRIT'].format = '.1f'  #;  EM.plot('logTe', 'logL', 'vcrit1', levels = 30)
 
 ###### PROCESSING/VISUALIZING LIGHTCURVES/PERIODOGRAMS
 
@@ -87,8 +83,9 @@ LC = Processing(data, level='lc', output_format = None, load_mt_pickle = True)
 
 # RN - CALCULATE/LOAD METRICS
 LS = Processing(data, level='ls', output_format = None, load_rn_pickle = True)
-LS.rn_tab['VCHAR'] = np.log10( 1 / (2 * PI * LS.rn_tab['tau']) )
-#TT.TabRN(LS.rn_tab)
+LS.rn_tab['VCHAR'] = np.log10( 1 / (2 * PI * LS.rn_tab['TAU']) )
+ 
+
 
 # FOR VISUALIZING
 #Processing(data[:15], level='lc', rows_page = 5, cols_page = 3, figsize = (16,10),
@@ -100,7 +97,10 @@ LS.rn_tab['VCHAR'] = np.log10( 1 / (2 * PI * LS.rn_tab['tau']) )
 #Processing(data[14:], level='ls', rows_page = 8, cols_page = 3, figsize = (13,16),
 #			  output_name = 'LS', output_format = 'eps', inter = False)
 
-print LC.mt_tab['STAR','SKEW'].pprint(max_lines = -1)
+
+TT.TabCalcProp(hstack([SED.sed_tab['STAR','A_V','LOGC','S_LOGL'], LC.mt_tab['SVAR','ETA','PSI','SKEW'],
+	LS.rn_tab['LOGW','LOGR0','TAU','GAMMA']]))
+'''
 ###### STATISTICS
 corr_tab = hstack([data,LC.mt_tab,SED.sed_tab,LS.rn_tab,FM.freq_tab])
 

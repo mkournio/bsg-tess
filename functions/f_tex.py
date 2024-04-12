@@ -57,21 +57,23 @@ class TexTab(object):
 
 		return
 
-	def TabRN(self,data):
+	def TabCalcProp(self,data):
 
-		columns = ['STAR','w','zero','tau','gamma']
-		names = ['Star','log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$']
+		columns = ['STAR','A_V','LOGC','S_LOGL','LOGW','LOGR0','TAU','GAMMA', 'SVAR','ETA','PSI','SKEW']
+		names = ['Star','$A_{V}$', 'log$C$', 'log($L/L_{\odot})_{G}$', 'log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$', r'$\sigma$',r'log($\eta$)',r'$\psi^2$',r'skw']
 		sed_tex = Table(data[columns],names=names)
+
+		sed_tex['Note'] = np.zeros(len(data))
 
 		for n in names[1:]:
 			sed_tex[n].format = '.2f'
 
-		TEX_SAMPLE_TAB['preamble'] = r'\centering'
-		TEX_SAMPLE_TAB['caption'] = r'\label{tab_rn} Calculated parameters for the fitted red noise model.'
-		TEX_SAMPLE_TAB['tabletype'] = 'table'
-		TEX_SAMPLE_TAB['col_align'] = 'lcccc'
+		TEX_SAMPLE_TAB['preamble'] = r'\scriptsize'
+		TEX_SAMPLE_TAB['caption'] = r'\label{tab_cprop} Calculated parameters.'
+		TEX_SAMPLE_TAB['tabletype'] = 'table*'
+		TEX_SAMPLE_TAB['col_align'] = 'lccc|cccc|cccc|c'
 
-		ascii.write(sed_tex, 'tab_rn.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
+		ascii.write(sed_tex, 'tab_cprop.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
 
 		return	
 
