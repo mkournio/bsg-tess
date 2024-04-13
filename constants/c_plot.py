@@ -92,7 +92,7 @@ STY_LB = 	{
 		'GABS' : r'$M_{G}$ [mag]', 'VCHAR' : r'log($\nu_{char}$ [d$^{-1}$])',
 		'FF' : r'$f$ [d$^{-1}$]', 'A_FF' : r'$A_{f}$ [mag]', 'HF' : r'$jf$', 'FFR' : r'$f_{1}/f_{2}$', 
 		'A_FFR' : r'$A_{f_{1}}/A_{f_{2}}$', 'BETA' : r'$\beta$', 'VINF' : r'$v_{inf}$ [km~s$^{-1}$]',
-		}
+		'INDFF' : r'#$f_{i}$'}
 
 FMT_PR = 	{
 		'TEFF' : '%.2f','VSINI' : '%d','MDOT' : '%.2f',

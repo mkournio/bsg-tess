@@ -409,6 +409,17 @@ def save_three_col(x,y,z,filename):
 
 	return
 
+def convert_to_bin_averaged(data, bins):
+
+	data_binning = np.digitize(data,bins)
+
+	bin_averaged = []
+	for k in set(data_binning):
+		bin_averaged.append(np.mean([x for x,y in zip(data, data_binning) if y==k]))
+
+	return bin_averaged
+
+
 def frequencies(tpf, mask, bk_mask, pca = 1, peak_thres = 3):
 
 	print '..global peaks..'

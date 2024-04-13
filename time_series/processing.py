@@ -6,10 +6,14 @@ import lightkurve as lk
 import os
 import pickle
 from scipy import stats
+from itertools import chain
 
 class Processing(GridTemplate):
 	
 	def __init__(self, data, level, load_rn_pickle = False, load_mt_pickle = False, **kwargs):
+
+		self.data = data
+		self._validate()
 
 		if load_rn_pickle and level == 'ls' :
 
@@ -26,8 +30,6 @@ class Processing(GridTemplate):
 			return
 
 		else:
-			self._validate()
-			self.data = data
 			self.level = level
 
 			if level == 'lc':
@@ -96,8 +98,7 @@ class Processing(GridTemplate):
 			for l in harm : ax.axvline(l,color='g',ls='--',lw=2,ymin=0.84,ymax=1)
 			for l in comb : ax.axvline(l,color='k',ls=':',lw=1.5,ymin=0.87,ymax=1)
 
-			rconst = 1. / (2 * PI * RSUNKM * S_TO_D)
-			ax.axvspan(rconst * vsini / radius, rconst * vcrit / radius, color='0.85')
+			ax.axvspan(RCONST * vsini / radius, RCONST * vcrit / radius, color='0.85')
 			try: 
 			  tx = '$v$sin$i$ = %d kms$^{-1}$\n$R$ = %d R$_{\odot}$' % (vsini,radius)
 			except:
@@ -179,6 +180,37 @@ class Processing(GridTemplate):
 				k += 1
 
 			return [np.mean(mad), np.std(mad), np.mean(svar), np.std(svar), np.mean(zcross), np.std(zcross),  np.mean(psi), np.std(psi), np.mean(eta), np.std(eta), np.mean(skew), np.std(skew)]
+
+	@property
+	def rot_stat(self):
+		return self._get_rot_status()
+
+	@property
+	def indep_freq(self):
+		return self._get_indep_freq_num()
+
+	def _get_indep_freq_num(self):
+
+		indep_freq=[]
+
+		for j in range(len(self.data)) :
+			flat_ff = np.array(list(chain(*self.data['FF'][j])))
+			binned_ff = convert_to_bin_averaged(flat_ff,np.arange(BIN_PROP['LOW'], BIN_PROP['UP'], BIN_PROP['RES']))
+			indep_freq.append(len(binned_ff))
+
+		return np.array(indep_freq)		
+
+	def _get_rot_status(self):
+
+		rot_stat=[]
+
+		for j in range(len(self.data)) :
+			flat_ff = np.array(list(chain(*self.data['FF'][j])))	
+			status = any(	((RCONST * self.data['VSINI'][j] / self.data['S_RAD'][j]) < flat_ff) & 
+					((flat_ff < RCONST * self.data['VCRIT'][j] / self.data['S_RAD'][j])) )
+			rot_stat.append(status)
+
+		return rot_stat
 
 	def _get_chi2(self,path_freq):
 

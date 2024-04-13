@@ -76,15 +76,14 @@ class corr_scatter(GridTemplate):
 			 for c2 in self.y :
 
 				ax = self.GridAx()
-		       	        cmap, norm = colorbar(self.fig, vmin=1, vmax=50, label=r'S/N',extend='max')
+		       	        cmap, norm = colorbar(self.fig, vmin=1, vmax=40, label=r'S/N',extend='max')
 				for s, p, snr in zip(jtab[c1],jtab[c2], jtab['SNR_FF']):
-
 				    flat_p = list(chain(*p))
 				    flat_snr = list(chain(*snr))
 				    colors = np.array([cmap(norm(k)) for k in flat_snr])
 				    ax.scatter(np.array(flat_p), np.array([s] * len(flat_p)),c=colors)
-                                ax.set_xscale('log')		
-				
+			        if c2 == 'A_FF': ax.set_xlim(3E-4,5E-2)
+			        ax.set_xscale('log')
 
                 return
 
@@ -92,7 +91,17 @@ class corr_scatter(GridTemplate):
 
 		e_kwargs = {'elinewidth' : 0.5, 'capsize' : 0, 'ls' : 'none'}
 
+		mask_rot = tab['F_ROT'] == True
+		axis.plot(tab[k2][mask_rot],tab[k1][mask_rot],'ro')
+		axis.plot(tab[k2][~mask_rot],tab[k1][~mask_rot],'ko')
+
 		try:
+		 axis.errorbar(tab[k2][mask_rot],tab[k1][mask_rot],xerr=tab['e_'+k2][mask_rot],ecolor='r',**e_kwargs)
+		 axis.errorbar(tab[k2][~mask_rot],tab[k1][~mask_rot],xerr=tab['e_'+k2][~mask_rot],ecolor='k',**e_kwargs)	
+		except:
+		 pass	
+
+		'''try:
 		 flag_fraser = tab['f_'+k1] == 2
 		 axis.plot(tab[k2][flag_fraser],tab[k1][flag_fraser],'g^')
 		 axis.errorbar(tab[k2][flag_fraser],tab[k1][flag_fraser],xerr=tab['e_'+k2][flag_fraser],ecolor='g',**e_kwargs)
@@ -101,25 +110,21 @@ class corr_scatter(GridTemplate):
 		 axis.plot(tab[k2][flag_haucke],tab[k1][flag_haucke],'bs')
 		 axis.errorbar(tab[k2][flag_haucke],tab[k1][flag_haucke],xerr=tab['e_'+k2][flag_haucke],ecolor='r',**e_kwargs)	
 		except:
-		 axis.plot(tab[k2],tab[k1],'ko')
-		 try:
-		  axis.errorbar(tab[k2],tab[k1],xerr=tab['e_'+k2],ecolor='k',**e_kwargs)	
-		 except:
-		  pass
+		  pass'''
 	
-		mx = mask_outliers(tab[k1], m = 4)
-		my = mask_outliers(tab[k2], m = 4)
+		mx = mask_outliers(tab[k1], m = 3)
+		my = mask_outliers(tab[k2], m = 3)
 
 		if not (mx.mask.all() or my.mask.all()):
 			spear_val = spearmanr(x=mx,y=my)[0]
-			axis.text(0.70,0.05,'%.2f' % spear_val,color='r',transform=axis.transAxes)
+			axis.text(0.70,0.90,'%.2f' % spear_val,color='b',weight='bold',transform=axis.transAxes)
 			
 		return
 
 	def get_ax(self,row,col):
 
 		if self.hold:
-			if self.mode == 'matrix':
+			if self.mode == 'matrix' or self.mode == 'frequency':
 				return self.fig.axes[row*len(self.y)+col]
 			elif self.mode == 'zip':
 				return self.fig.axes[row*self.cols_page+col]
@@ -192,7 +197,7 @@ class freq_hist(GridTemplate):
 				    		flat_snrs = np.array(list(chain(*snrs)))
 
 						mask = flat_snrs > self.snr_thres
-						bin_ave_freq = self._convert_to_bin_averaged(flat_freqs[mask],self.bins)
+						bin_ave_freq = convert_to_bin_averaged(flat_freqs[mask],self.bins)
 						grouped_freqs.append(bin_ave_freq)
 
 					h_kwargs = {'histtype' : 'step', 'lw' : 2, 'color' : HIST_COLORS[i], 
@@ -204,7 +209,7 @@ class freq_hist(GridTemplate):
 
 					for star, freqs in zip(self.data['STAR_1'][bin_mask],self.data[col][bin_mask]) :
 				    		flat_freqs = np.array(list(chain(*freqs)))
-						bin_ave_freq = self._convert_to_bin_averaged(flat_freqs,self.bins)
+						bin_ave_freq = convert_to_bin_averaged(flat_freqs,self.bins)
 
 						ks = kstest(bin_ave_freq, 'gamma', model_args)
 						self.pval_tab['PV'+row][self.pval_tab['STAR'] == star] = ks[1]
@@ -214,17 +219,6 @@ class freq_hist(GridTemplate):
 
 				ax.legend(title=STY_LB[row], loc="upper right")	
 		return
-
-	def _convert_to_bin_averaged(self, data, bins):
-
-		data_binning = np.digitize(data,bins)
-
-		bin_averaged = []
-		for k in set(data_binning):
-			bin_averaged.append(np.mean([x for x,y in zip(data, data_binning) if y==k]))
-
-		return bin_averaged
-		
 
 	def _hist_single(self, ax, vals, bins, model = None, **h_kwargs):
 
