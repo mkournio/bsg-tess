@@ -82,17 +82,17 @@ AX_FMARK =	{
 STY_LB = 	{
 		'VSINI' : r'$v$sin $i$','MDOT' : r'$\dot{M}$',
 		'LOGLM': r'log(L/M)', 'LOGL' : r'log(L/L$_{\odot}$)', 'LOGQ' : r'log$Q$',
-		'LOGG' : r'log$g$', 'MASS' : '$M_{evol}$', 'VMAC': r'$v_{mac}$', 'VMIC' : r'$v_{mic}$',
+		'LOGG' : r'log$g$', 'MASS' : '$M_{evol}$', 'VMAC': r'$v_{mac}$ [km s$^{-1}$]', 'VMIC' : r'$v_{mic}$ [km s$^{-1}$]',
 		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'S_MASS' : r'$M_{Rg}$',
 		'LOGW' : r'log($W$ [mag])', 'LOGR0' : r'log($R_{0}$ [mag])', 'TAU' : r'$\tau$ [d]', 'GAMMA' : r'$\gamma$' ,
 		'TEFF' :  r'log(T$_{\rm eff}$ [K])', 'TESS_time' : r'Time $-$ 2457000 [BTJD d]',
 		'TESS_freq' : r'Frequency [d$^{-1}$]','S_LOGL' : r'log($L$/L$_{\odot})_{Gaia}$',
-		'MAD' : r'MAD', 'SVAR': r'$\sigma$', 'ZCROSS' : r'$D_{0}$', 'PSI': r'$\psi^2$',
+		'MAD' : r'MAD', 'SVAR': r'$\sigma$ [mag]', 'ZCROSS' : r'$D_{0}$', 'PSI': r'$\psi^2$',
 		'ETA' : r'log($\eta$)', 'SKEW': r'skw', 'A_V' : r'$A_{V}$', 'EDD' : r'$\Gamma_{e}$',
 		'GABS' : r'$M_{G}$ [mag]', 'VCHAR' : r'log($\nu_{char}$ [d$^{-1}$])',
 		'FF' : r'$f$ [d$^{-1}$]', 'A_FF' : r'$A_{f}$ [mag]', 'HF' : r'$jf$', 'FFR' : r'$f_{1}/f_{2}$', 
-		'A_FFR' : r'$A_{f_{1}}/A_{f_{2}}$', 'BETA' : r'$\beta$', 'VINF' : r'$v_{inf}$ [km~s$^{-1}$]',
-		'INDFF' : r'#$f_{i}$'}
+		'A_FFR' : r'$A_{f_{1}}/A_{f_{2}}$', 'BETA' : r'$\beta$', 'VINF' : r'$v_{inf}$ [km s$^{-1}$]',
+		'INDFF' : r'#$f_{i}$','INDFFS' : r'#$f_{i,sec}$'}
 
 FMT_PR = 	{
 		'TEFF' : '%.2f','VSINI' : '%d','MDOT' : '%.2f',

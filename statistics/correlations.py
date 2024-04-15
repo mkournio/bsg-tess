@@ -92,11 +92,27 @@ class corr_scatter(GridTemplate):
 		e_kwargs = {'elinewidth' : 0.5, 'capsize' : 0, 'ls' : 'none'}
 
 		mask_rot = tab['F_ROT'] == True
+		mask_bright = tab['TMAG'] <= 3
+		mask_contam = tab['RDMAG'] <= 2
+
+		mask_acyg = tab['VART'] == 'ACYG'
+		mask_acygq = tab['VART'] == 'ACYG?'
+		mask_sdor = tab['VART'] == 'SDOR/L'
+
 		axis.plot(tab[k2][mask_rot],tab[k1][mask_rot],'ro')
 		axis.plot(tab[k2][~mask_rot],tab[k1][~mask_rot],'ko')
 
+		axis.plot(tab[k2][mask_bright],tab[k1][mask_bright],'cx',ms=11, mew=0.7)
+		axis.plot(tab[k2][mask_contam],tab[k1][mask_contam],'co',mfc='none', mew=0.7)
+
+		axis.plot(tab[k2][mask_acyg],tab[k1][mask_acyg],'bo', ms = 15, mfc='none')
+		#axis.plot(tab[k2][mask_acygq],tab[k1][mask_acygq],'go', ms = 15, mfc='none')
+		axis.plot(tab[k2][mask_sdor],tab[k1][mask_sdor],'gs', ms = 15, mfc='none')
+
+
 		try:
 		 axis.errorbar(tab[k2][mask_rot],tab[k1][mask_rot],xerr=tab['e_'+k2][mask_rot],ecolor='r',**e_kwargs)
+		 axis.errorbar(tab[k2][~mask_rot],tab[k1][~mask_rot],xerr=tab['e_'+k2][~mask_rot],ecolor='k',**e_kwargs)	
 		 axis.errorbar(tab[k2][~mask_rot],tab[k1][~mask_rot],xerr=tab['e_'+k2][~mask_rot],ecolor='k',**e_kwargs)	
 		except:
 		 pass	

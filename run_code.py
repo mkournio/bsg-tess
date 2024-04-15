@@ -17,7 +17,7 @@ EM = EvolutionaryModels(load_tr_pickle = True)
 #### DATA
 inputf = ascii.read(args.filename, header_start=0, delimiter=",")
 inputf['RA'], inputf['DEC'] = to_deg(inputf['RA'],inputf['DEC'])
-input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 'SBTYPE' : inputf['SBTYPE'], 'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT'], 'RDMAG' : inputf['RDMAG']})
+input_tab = Table({'STAR' : inputf['STAR'], 'RA' : inputf['RA'], 'DEC' : inputf['DEC'], 'SBTYPE' : inputf['SBTYPE'], 'SSPOC': inputf['SSPOC'], 'SFFI' : inputf['SFFI'], 'MASK' : inputf['MASK'], 'SEDFIT' : inputf['SEDFIT'], 'RDMAG' : inputf['RDMAG'], 'VART' : inputf['VART']})
 
 ###### CROSS-MATCHING AND DATA PREPARATION
 data = XMatching(input_tab, args.xmtabs, args.xmcols, vizier = args.xmviz, load_pickle = True).matched
@@ -26,14 +26,14 @@ data['MDOT'] = np.log10(1e-6*data['MDOT'])
 data['TEFF'] = np.ma.log10(data['TEFF'])
 #TT.TabSample(data)
 
-data['MEVOL'] = EM.interp2d('logTe', 'logg', 'Mass', data['TEFF'], data['LOGG'], post_rsg = False, method='linear')
+'''data['MEVOL'] = EM.interp2d('logTe', 'logg', 'Mass', data['TEFF'], data['LOGG'], post_rsg = False, method='linear')
 EM.plot_spectroHR(data, output_format = 'eps', output_name = 's_hrdiag', hold = True, inter = False)
 x_range = np.arange(3.6,4.9,0.1)
 f = lambda x, gamma : 4 * x - np.ma.log10(gamma / (KAPPA * SBOLTZ / Ccm))
 g1, = EM.ax.plot(x_range,f(x_range, 1),'r-', lw = 2)
 g06, = EM.ax.plot(x_range,f(x_range, 0.6),'r:', lw = 2)
 EM.ax.legend([g1, g06], [ r'$\Gamma = 1$',r'$\Gamma = 0.6$'])
-EM.panel.PanelClose()
+EM.panel.PanelClose()'''
 
 
 ###### EXTRACTION
@@ -85,8 +85,9 @@ LS = Processing(hstack([data,FM.freq_tab['FF','A_FF']]), level='ls', output_form
 LS.rn_tab['VCHAR'] = np.log10( 1 / (2 * PI * LS.rn_tab['TAU']) )
 data['F_ROT'] = LS.rot_stat
 data['INDFF'] = LS.indep_freq
+data['INDFFS'] = LS.indep_freq_sec
 
-
+ 
 # FOR VISUALIZING
 #Processing(data[:15], level='lc', rows_page = 5, cols_page = 3, figsize = (16,10),
 #			  output_name = 'LC', output_format = 'eps', inter = False)
@@ -105,17 +106,20 @@ data['INDFF'] = LS.indep_freq
 ###### STATISTICS
 corr_tab = hstack([data,LC.mt_tab,SED.sed_tab,LS.rn_tab,FM.freq_tab])
 
+#print corr_tab['STAR_1','SVAR','ETA','S_LOGL','SKEW','PSI','e_PSI','INDFF','INDFFS'].pprint(max_lines=-1)
+
 # CORRELATION BETWEEN STELLAR PARAMETERS AND METRICS
-#corr_scatter(corr_tab,x = ['TEFF','S_LOGL','EDD'], y = ['SVAR','ETA','PSI','SKEW'],
-#	     mode = 'matrix', rows_page = 2, cols_page = 2, output_format = None, figsize = (11,10), inter = True)
-#corr_scatter(corr_tab,x = ['NABUN','VMIC','VMAC','VINF','BETA'], y = ['SVAR','ETA','PSI','SKEW'],
-#	     mode = 'matrix', output_format = None, figsize = (11,10), inter = True)
+corr_scatter(corr_tab,x = ['TEFF','S_LOGL','EDD'], y = ['SVAR','ETA','PSI','SKEW'],
+	     mode = 'matrix', output_name = 'scatter_par', output_format = 'eps', figsize = (11,10), inter = False)
+corr_scatter(corr_tab,x = ['NABUN','VMIC','VMAC','VINF','BETA'], y = ['SVAR','ETA','PSI','SKEW'],
+	     mode = 'matrix', output_name = 'scatter_par', output_format = 'eps', figsize = (11,12), inter = False)
 
 # CORRELATION BETWEEN STELLAR AND RED NOISE PARAMETERS
 
-#print corr_tab['STAR_1','LOGR0'].pprint(max_lines = -1)
-#cr = corr_scatter(corr_tab, x = ['TEFF','S_LOGL','EDD'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
-#	    figsize = (11,10), output_format = None, inter = True)
+cr = corr_scatter(corr_tab, x = ['TEFF','S_LOGL','EDD'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
+	    figsize = (11,10), output_name = 'scatter_rn', output_format = 'eps', inter = False)
+cr = corr_scatter(corr_tab, x = ['NABUN','VMIC','VMAC','VINF','BETA'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
+	    figsize = (11,12), output_name = 'scatter_rn', output_format = 'eps', inter = False)
 
 '''
 # COMPARISON TO BOWMAN+19
@@ -142,10 +146,10 @@ cr.GridClose()
 '''
 
 # CORRELATION BETWEEN STELLAR PARAMETERS AND FREQUENCIES
-corr_scatter(corr_tab,x = ['TEFF','S_LOGL'], y = ['FF','A_FF'],
-	     mode = 'frequency', output_format = None, output_name = 'freq_scatter', figsize = (9,11), inter = True)
+#corr_scatter(corr_tab,x = ['TEFF','S_LOGL'], y = ['FF','A_FF'],
+#	     mode = 'frequency', output_format = None, output_name = 'freq_scatter', figsize = (9,11), inter = True)
 
-FH = freq_hist(corr_tab, x = ['TEFF','S_LOGL'], y = ['FF'], snr_thres = 0,  figsize = (9,11), output_format = None, output_name = 'freq_hist', ngroups = 3, inter = False)
+#FH = freq_hist(corr_tab, x = ['TEFF','S_LOGL'], y = ['FF'], snr_thres = 0,  figsize = (9,11), output_format = None, output_name = #'freq_hist', ngroups = 3, inter = False)
 
 
 '''###### STELLAR EVOLUTION

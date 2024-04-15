@@ -189,6 +189,21 @@ class Processing(GridTemplate):
 	def indep_freq(self):
 		return self._get_indep_freq_num()
 
+	@property
+	def indep_freq_sec(self):
+		return self._get_indep_freq_num_sec()
+
+	def _get_indep_freq_num_sec(self):
+
+		indep_freq_sec=[]
+
+		for j in range(len(self.data)) :
+			maxf = max([len(x) for x in self.data['FF'][j]])
+			indep_freq_sec.append(maxf)
+
+		return np.array(indep_freq_sec)		
+
+
 	def _get_indep_freq_num(self):
 
 		indep_freq=[]
