@@ -22,4 +22,6 @@ LC_*
 
 SED_*
 
+*.pdf
 
+pickles/*.pkl

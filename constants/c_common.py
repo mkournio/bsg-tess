@@ -13,6 +13,7 @@ RSUN_TO_CM = 6.957E+10
 RSUN_TO_PC = 2.25461E-8
 MSUN_TO_GR = 1.989E+33
 S_TO_D = 1.15741e-5
+D_TO_MIN = 1440
 G_ACC = 6.6743E-8 # cgs units cm^3 g^-1 s^-2
 KAPPA = 0.4 # cm^2 g^-1 - fully ionized gas scattering of photons by free electrons (Thompson)
 LSUN = 3.846E+33 # ergs s^-1  (erg = g cm^2 s^-2)

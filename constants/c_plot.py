@@ -44,7 +44,7 @@ PLOT_PARAMS =	{
          	'xtick.labelsize': 15,
          	'ytick.labelsize': 15},
 'panel'		:
-		{'legend.fontsize': 14,
+		{'legend.fontsize': 12,
 	 	'font.size':  14,
          	'axes.labelsize': 22,
          	'axes.titlesize': 13,

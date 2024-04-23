@@ -172,7 +172,7 @@ Rp82
 tp84
 tp85
 baa(lp86
-S'E_LOGW'
+S'e_LOGW'
 p87
 ag9
 (g10
@@ -197,7 +197,7 @@ Rp95
 tp97
 tp98
 baa(lp99
-S'E_LOGR0'
+S'e_LOGR0'
 p100
 ag9
 (g10
@@ -222,7 +222,7 @@ Rp108
 tp110
 tp111
 baa(lp112
-S'E_TAU'
+S'e_TAU'
 p113
 ag9
 (g10
@@ -247,7 +247,7 @@ Rp121
 tp123
 tp124
 baa(lp125
-S'E_GAMMA'
+S'e_GAMMA'
 p126
 ag9
 (g10

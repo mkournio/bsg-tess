@@ -209,7 +209,7 @@ class ExtractLS(GridTemplate):
 
 			# Pre-whitening
 			if self.prewhiten :
-				obj_prw = PreWhitening(lc, star, g_sect_tx, save_files = False, plot_rn = False, rows_page = 6, cols_page = 2, output_format = 'pdf')
+				obj_prw = PreWhitening(lc, star, g_sect_tx, save_files = False, plot_rn = True, rows_page = 6, cols_page = 2, output_format = 'pdf')
 
 			pg = lc.to_periodogram()
 			x = np.log10(np.array(pg.frequency))

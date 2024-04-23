@@ -95,6 +95,7 @@ class SEDBuilder(GridTemplate):
 		 self.s_rad = self._masked_col(len_ph)
 		 self.logc = self._masked_col(len_ph)
 		 self.s_dist = self._masked_col(len_ph)
+		 self.irx = self._masked_col(len_ph)
 
 		 if self.fit_sed: 
 
@@ -118,7 +119,7 @@ class SEDBuilder(GridTemplate):
 		 self._sed()
 		 self.GridClose()
 		 self.sed_tab = Table({'STAR': photo_tab['STAR'], 'A_V': self.a_v, 'S_LOGL': self.s_logl, 'S_RAD': self.s_rad, 
-				      'S_TEFF': self.photo_tab['TEFF'], 'S_DIST': self.s_dist, 'LOGC': self.logc
+				      'S_TEFF': self.photo_tab['TEFF'], 'S_DIST': self.s_dist, 'LOGC': self.logc, 'IRX' : self.irx
 				     })
 
 		if kwargs['output_format'] == None: 
@@ -179,7 +180,7 @@ class SEDBuilder(GridTemplate):
 
 		if self.fit_sed: 
 			fit_prop = self._fit(t_ind)
-			self._plot_fit(ax,fit_prop)
+			self._plot_fit(ax,fit_prop,t_ind)
 
 		ax.set_ylim(8e-18,4e-8); ax.set_yscale('log')#; ax.set_yticks([1e-14,1e-11,1e-8]) 
 		ax.set_xlim(7e+2,4e+5); ax.set_xscale('log')
@@ -318,7 +319,7 @@ class SEDBuilder(GridTemplate):
 		return (radius * RSUNM / (float(dist) * PC_TO_M))**2
 
 
-	def _plot_fit(self,axis,fit_prop):
+	def _plot_fit(self,axis,fit_prop,t_ind):
 
 	      if fit_prop != None :
 
@@ -341,6 +342,26 @@ class SEDBuilder(GridTemplate):
 		scaled_sed = scalar * sed_interp * (10**(-0.4*red_coeff(w_mu,ext,3.1)))
 		scaled_sed_unr = scalar * sed_interp 
 		axis.plot(w,scaled_sed_unr,'k:')
+
+		#### CALCULATE MEDIAN INFRARED EXCESS
+		if teff < 15000:
+			mask_1 = map(lambda x: 2e+4 < x < 1e+5, self.fit_l)
+		else:
+			mask_1 = map(lambda x: 2e+4 < x < 2.3e+5, self.fit_l)			
+		mask_2 = ~np.isnan(self.fit_ef)
+	        mask_irx = mask_1 & mask_2
+		tr_l_irx = np.array(self.fit_l)[mask_irx]
+		tr_f_irx = np.array(self.fit_f)[mask_irx]
+		sed_low_irx = sed_read(t_low,logg_gr,self.models_key,tr_l_irx)
+		sed_up_irx = sed_read(t_up,logg_gr,self.models_key,tr_l_irx)
+		sed_interpx = (1-q) * sed_low_irx + q * sed_up_irx
+		scaled_f_irx = scalar * sed_interpx
+	
+		self.irx[t_ind] = max(np.nanmedian(np.true_divide(tr_f_irx,scaled_f_irx))-1.,0)
+
+		#axis.plot(tr_l_irx,scaled_f_irx,'co')
+		#axis.plot(tr_l_irx,tr_f_irx,'c.')		
+		######################################	
 
 		hdtext, wdtext = '',''
 		try:

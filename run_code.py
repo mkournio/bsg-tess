@@ -26,6 +26,7 @@ data['MDOT'] = np.log10(1e-6*data['MDOT'])
 data['TEFF'] = np.ma.log10(data['TEFF'])
 #TT.TabSample(data)
 
+#print data['STAR','RA','DEC','TIC','SSPOC','SFFI'].pprint(max_lines = -1, max_width = -1)
 '''data['MEVOL'] = EM.interp2d('logTe', 'logg', 'Mass', data['TEFF'], data['LOGG'], post_rsg = False, method='linear')
 EM.plot_spectroHR(data, output_format = 'eps', output_name = 's_hrdiag', hold = True, inter = False)
 x_range = np.arange(3.6,4.9,0.1)
@@ -39,7 +40,7 @@ EM.panel.PanelClose()'''
 ###### EXTRACTION
 
 # LIGHTCURVES FROM TPF - BREAK INTO 3 OR 4 PARTS DEPENDING ON THE TYPES
-#ExtractLC(data, 4, all_type = False, output_format = 'pdf', save_files = False, inter=False, output_name = 'XLC_v2')
+#ExtractLC(data[:20], 5, all_type = False, output_format = None, save_files = False, inter=False, output_name = 'XLC_v2')
 
 # PERIODOGRAMS AND RED NOISE MODELS - PREWHITENING - ORGANIZING FREQUENCIES - BREAK INTO 3 PARTS
 # For published prewhitening figure, plot data[24:25] in 'eps'
@@ -66,7 +67,7 @@ model = model_dict(filter_dict, load_pickle = True)
 #		 figsize = (13,16))
 
 SED = SEDBuilder(photo_data, filter_dict, fit_sed = True, fit_model_dict = model, fit_bodies = 'p',
-		 output_format = None, load_pickle = True)
+		output_format = None, load_pickle = True)
 data['S_MASS'] = np.ma.log10(radmass(data['LOGG'],SED.sed_tab['S_RAD']))
 data['GABS'] = photo_data['Gmag'] - 5*np.ma.log10(SED.sed_tab['S_DIST']) + 5 - SED.sed_tab['A_V'] 
 data['S_RAD'] = SED.sed_tab['S_RAD']
@@ -105,23 +106,23 @@ data['INDFFS'] = LS.indep_freq_sec
 
 ###### STATISTICS
 corr_tab = hstack([data,LC.mt_tab,SED.sed_tab,LS.rn_tab,FM.freq_tab])
-
-#print corr_tab['STAR_1','SVAR','ETA','S_LOGL','SKEW','PSI','e_PSI','INDFF','INDFFS'].pprint(max_lines=-1)
+print corr_tab['STAR_1','SVAR','ETA','S_LOGL','SKEW','PSI','INDFF','INDFFS','VART','F_ROT'][corr_tab['F_ROT']==False].pprint(max_lines=-1)
 
 # CORRELATION BETWEEN STELLAR PARAMETERS AND METRICS
-corr_scatter(corr_tab,x = ['TEFF','S_LOGL','EDD'], y = ['SVAR','ETA','PSI','SKEW'],
-	     mode = 'matrix', output_name = 'scatter_par', output_format = 'eps', figsize = (11,10), inter = False)
-corr_scatter(corr_tab,x = ['NABUN','VMIC','VMAC','VINF','BETA'], y = ['SVAR','ETA','PSI','SKEW'],
-	     mode = 'matrix', output_name = 'scatter_par', output_format = 'eps', figsize = (11,12), inter = False)
+#corr_scatter(corr_tab,x = ['TEFF','S_LOGL','EDD'], y = ['SVAR','ETA','PSI','SKEW'],
+#	     mode = 'matrix', output_name = 'scatter_par', output_format = 'eps', figsize = (11,10), inter = False)
+#corr_scatter(corr_tab,x = ['NABUN','VMIC','VMAC','VINF','BETA'], y = ['SVAR','ETA','PSI','SKEW'],
+#	     mode = 'matrix', output_name = 'scatter_par', output_format = 'eps', figsize = (11,12), inter = False)
 
 # CORRELATION BETWEEN STELLAR AND RED NOISE PARAMETERS
-
-cr = corr_scatter(corr_tab, x = ['TEFF','S_LOGL','EDD'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
+'''
+corr_scatter(corr_tab, x = ['TEFF','S_LOGL','EDD'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
 	    figsize = (11,10), output_name = 'scatter_rn', output_format = 'eps', inter = False)
-cr = corr_scatter(corr_tab, x = ['NABUN','VMIC','VMAC','VINF','BETA'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
+corr_scatter(corr_tab, x = ['NABUN','VMIC','VMAC','VINF','BETA'],y = ['LOGW','LOGR0','TAU','GAMMA'], 
 	    figsize = (11,12), output_name = 'scatter_rn', output_format = 'eps', inter = False)
 
-'''
+
+
 # COMPARISON TO BOWMAN+19
 cr = corr_scatter(corr_tab,x = ['zero','VCHAR'], y = ['GABS'],
 	     mode = 'matrix', rows_page = 2, cols_page = 1, output_format = None, output_name = 'rn_gmag', figsize = (7,11), hold=True, inter = False)
@@ -144,16 +145,16 @@ p2.set_ylim(-0.39,0.9)
 p2.legend([fit_line, b19B_line], [r'%.2fx+%.2f' % tuple(par2), r'0.16x+0.06 (+const.) (Bowman et al. 2019)'])#,loc=3)
 cr.GridClose()
 '''
-
+'''
 # CORRELATION BETWEEN STELLAR PARAMETERS AND FREQUENCIES
 #corr_scatter(corr_tab,x = ['TEFF','S_LOGL'], y = ['FF','A_FF'],
-#	     mode = 'frequency', output_format = None, output_name = 'freq_scatter', figsize = (9,11), inter = True)
+#	     mode = 'frequency', output_format = 'eps', output_name = 'freq_scatter', figsize = (9,11), inter = False)
 
-#FH = freq_hist(corr_tab, x = ['TEFF','S_LOGL'], y = ['FF'], snr_thres = 0,  figsize = (9,11), output_format = None, output_name = #'freq_hist', ngroups = 3, inter = False)
+FH = freq_hist(corr_tab, x = ['TEFF','S_LOGL'], y = ['FF'], snr_thres = 0,  figsize = (9,11), output_format = None, output_name = 'freq_hist', ngroups = 3, inter = False)
 
 
-'''###### STELLAR EVOLUTION
-HR = HRdiagram(hstack([data,SED.sed_tab,FH.pval_tab]), tkey = 'TEFF', lkey = 'S_LOGL', figsize = (9,12), output_format = None, output_name = 'hrdiag', hold = True, inter = False)
+###### STELLAR EVOLUTION
+HR = HRdiagram(hstack([data,SED.sed_tab,FH.outl_tab]), tkey = 'TEFF', lkey = 'S_LOGL', figsize = (9,12), output_format = 'eps', output_name = 'hrdiag', hold = True, inter = False)
 #for i,j in zip(FH.thres_group['TEFF'],FH.thres_group['S_LOGL']) :
 #		HR.ax.axhline(y=j, color='c', ls='-')
 #		HR.ax.axvline(x=i, color='c', ls='-')

@@ -96,23 +96,20 @@ class corr_scatter(GridTemplate):
 		mask_contam = tab['RDMAG'] <= 2
 
 		mask_acyg = tab['VART'] == 'ACYG'
-		mask_acygq = tab['VART'] == 'ACYG?'
 		mask_sdor = tab['VART'] == 'SDOR/L'
 
-		axis.plot(tab[k2][mask_rot],tab[k1][mask_rot],'ro')
-		axis.plot(tab[k2][~mask_rot],tab[k1][~mask_rot],'ko')
+		axis.scatter(tab[k2][mask_rot],tab[k1][mask_rot],color='r',s=12*(7**tab['IRX'][mask_rot]))
+		axis.scatter(tab[k2][~mask_rot],tab[k1][~mask_rot],color='k',s=12*(7**tab['IRX'][~mask_rot]))
 
 		axis.plot(tab[k2][mask_bright],tab[k1][mask_bright],'cx',ms=11, mew=0.7)
 		axis.plot(tab[k2][mask_contam],tab[k1][mask_contam],'co',mfc='none', mew=0.7)
 
 		axis.plot(tab[k2][mask_acyg],tab[k1][mask_acyg],'bo', ms = 15, mfc='none')
-		#axis.plot(tab[k2][mask_acygq],tab[k1][mask_acygq],'go', ms = 15, mfc='none')
 		axis.plot(tab[k2][mask_sdor],tab[k1][mask_sdor],'gs', ms = 15, mfc='none')
 
 
 		try:
 		 axis.errorbar(tab[k2][mask_rot],tab[k1][mask_rot],xerr=tab['e_'+k2][mask_rot],ecolor='r',**e_kwargs)
-		 axis.errorbar(tab[k2][~mask_rot],tab[k1][~mask_rot],xerr=tab['e_'+k2][~mask_rot],ecolor='k',**e_kwargs)	
 		 axis.errorbar(tab[k2][~mask_rot],tab[k1][~mask_rot],xerr=tab['e_'+k2][~mask_rot],ecolor='k',**e_kwargs)	
 		except:
 		 pass	
@@ -163,11 +160,10 @@ class freq_hist(GridTemplate):
 
 		self.gperc = np.linspace(0,100,ngroups+1)[1:-1]
 
-		self.pval_tab = Table()
+		self.outl_tab = Table()
 		for c in self.x :
-			self.pval_tab['PV'+c] = self._masked_col(len(data))
-			self.pval_tab['OT'+c] = self._masked_col(len(data))
-		self.pval_tab['STAR'] = data['STAR_1']
+			self.outl_tab['OT'+c] = self._masked_col(len(data))
+		self.outl_tab['STAR'] = data['STAR_1']
 
 		self.bins=np.arange(BIN_PROP['LOW'], BIN_PROP['UP'], BIN_PROP['RES'])
 
@@ -205,20 +201,40 @@ class freq_hist(GridTemplate):
 				while i < len(tb) - 1 :
 
 					grouped_freqs = []
-					bin_mask = (tb[i] < self.data[row]) & (self.data[row] <= tb[i+1])
+					grouped_acyg_freqs = []
+					grouped_binary_freqs = []
+					bin_mask = (tb[i] < self.data[row]) & (self.data[row] <= tb[i+1])					
 
-					for freqs, snrs in zip(self.data[col][bin_mask],self.data['SNR_FF'][bin_mask]) :
+					for freqs, snrs, status in zip(self.data[col][bin_mask],self.data['SNR_FF'][bin_mask], self.data['VART'][bin_mask]) :
 						
 				    		flat_freqs = np.array(list(chain(*freqs)))
 				    		flat_snrs = np.array(list(chain(*snrs)))
 
 						mask = flat_snrs > self.snr_thres
 						bin_ave_freq = convert_to_bin_averaged(flat_freqs[mask],self.bins)
-						grouped_freqs.append(bin_ave_freq)
 
-					h_kwargs = {'histtype' : 'step', 'lw' : 2, 'color' : HIST_COLORS[i], 
+						if status == 'ACYG' : 
+							grouped_acyg_freqs.append(bin_ave_freq)
+						elif ('EB' in status) or ('SB' in status) : 
+							grouped_binary_freqs.append(bin_ave_freq)
+						else:
+							grouped_freqs.append(bin_ave_freq)
+
+					h_kwargs = {'histtype' : 'step', 'lw' : 1.5, 'color' : HIST_COLORS[i], 
 				       'label' : self._hist_legend(tb[i],tb[i+1],FMT_PR[row]) }	
-					model_args = self._hist_single(ax, list(chain(*grouped_freqs)), self.bins, model = 'gamma', **h_kwargs)
+
+					grouped_freqs = list(chain(*grouped_freqs))
+					model_args = self._hist_single(ax, grouped_freqs, self.bins, model = 'gamma', **h_kwargs)			
+					grouped_binary_freqs = list(chain(*grouped_binary_freqs))
+					if len(grouped_binary_freqs) > 0:
+					 h_kwargs.update({'hatch' : '.', 'label' : None})
+					 self._hist_single(ax, grouped_binary_freqs, self.bins, **h_kwargs)
+
+					grouped_acyg_freqs = list(chain(*grouped_acyg_freqs))
+					if len(grouped_acyg_freqs) > 0:
+					 h_kwargs.update({'hatch' : '//', 'alpha': 0.99, 'label' : None})
+					 self._hist_single(ax, grouped_acyg_freqs, self.bins, **h_kwargs)
+
 					q3 = gamma(*model_args).ppf(0.75)
 					q1 = gamma(*model_args).ppf(0.25) 
 					iqr = q3 - q1
@@ -227,10 +243,9 @@ class freq_hist(GridTemplate):
 				    		flat_freqs = np.array(list(chain(*freqs)))
 						bin_ave_freq = convert_to_bin_averaged(flat_freqs,self.bins)
 
-						ks = kstest(bin_ave_freq, 'gamma', model_args)
-						self.pval_tab['PV'+row][self.pval_tab['STAR'] == star] = ks[1]
-						self.pval_tab['OT'+row][self.pval_tab['STAR'] == star] = any(bin_ave_freq > q3 + 1.5 * iqr)
-
+						#ks = kstest(bin_ave_freq, 'gamma', model_args)
+						#self.pval_tab['PV'+row][self.pval_tab['STAR'] == star] = ks[1]
+						self.outl_tab['OT'+row][self.outl_tab['STAR'] == star] = any(bin_ave_freq > q3 + 1.5 * iqr)
 					i += 1
 
 				ax.legend(title=STY_LB[row], loc="upper right")	
@@ -238,15 +253,16 @@ class freq_hist(GridTemplate):
 
 	def _hist_single(self, ax, vals, bins, model = None, **h_kwargs):
 
+		gparam = ()
 		if model != None :
 
 			x_fit = np.linspace(bins[0], bins[-1], 100)
-			data_fit = [x for x in vals if abs(x - np.mean(vals)) < 3 * np.std(vals)]
+			data_fit = vals # [x for x in vals if abs(x - np.mean(vals)) < 4 * np.std(vals)]
 			area = sum(np.diff(bins) * np.histogram(data_fit, bins)[0])
 
 			if model == 'gamma':
-				gparam = gamma.fit(data_fit, floc=0.06)
-				ax.plot(x_fit,gamma.pdf(x_fit,*gparam)*area, lw=2.5, color = h_kwargs.get('color','k'))
+				gparam = gamma.fit(data_fit, floc=0.05)
+				ax.plot(x_fit,gamma.pdf(x_fit,*gparam)*area, lw=3, color = h_kwargs.get('color','k'))
 
 			h_kwargs['label'] += r'$\alpha$ = %.1f, $\beta$ = %.1f' % (gparam[0],1./gparam[2])
 

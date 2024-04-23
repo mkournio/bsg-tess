@@ -66,13 +66,15 @@ class PreWhitening(GridTemplate):
 			# Red-noise model fit
 			nan_ind = np.isnan(pg.power)
 			x = pg.frequency[~nan_ind] ; y = pg.power[~nan_ind]
-			popt, pcov = curve_fit(self.redn,x,y)
+
+			mask = (np.array(x) > 2./TESS_WINDOW_D) & (np.array(x) < 25.)
+			popt, pcov = curve_fit(self.redn,x[mask],y[mask])
 			perr = np.sqrt(np.diag(pcov))
 			SNR_pre.append(peak_power / self.redn(peak_freq,*popt))
 
 			if self.plot_rn : pow_ax.plot(x,self.redn(x,*popt))
 
-			CHI2 =  np.sum( ((self.redn(x,*popt)-y)**2 ) / self.redn(x,*popt))
+			CHI2 =  np.sum( ((self.redn(x[mask],*popt)-y[mask])**2 ) / self.redn(x[mask],*popt))
 			CHI2_vect.append(CHI2);
 			try:
 				rel_change = abs(CHI2_old - CHI2) / CHI2_old

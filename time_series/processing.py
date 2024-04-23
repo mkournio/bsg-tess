@@ -38,7 +38,7 @@ class Processing(GridTemplate):
 			if level == 'ls': 
 			 kwargs['coll_x'] = True
 			 kwargs['coll_y'] = True
-		 	 self.rn_tab = Table(names=('STAR','LOGW','LOGR0','TAU','GAMMA','E_LOGW','E_LOGR0','E_TAU', 'E_GAMMA'), dtype=('<U16','f4','f4', 'f4','f4','f4','f4','f4','f4'))
+		 	 self.rn_tab = Table(names=('STAR','LOGW','LOGR0','TAU','GAMMA','e_LOGW','e_LOGR0','e_TAU', 'e_GAMMA'), dtype=('<U16','f4','f4', 'f4','f4','f4','f4','f4','f4'))
 
 			super(Processing,self).__init__(params = PLOT_PARAMS[level], fig_xlabel=PLOT_XLABEL[self.level],
 					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
@@ -73,6 +73,7 @@ class Processing(GridTemplate):
 	def _process_ls(self, star):
 
 			freq_files = [j for j in os.listdir(TESS_LS_PATH) if (star in j and 'FREQS' in j) ]
+			rn_files = [j for j in os.listdir(TESS_MODEL_PATH) if (star in j and 'REDNOISE' in j) ]
 
 			rn_chi2s = [self._get_chi2(TESS_LS_PATH+j) for j in freq_files]
 			vis_sect = freq_files[np.argmin(rn_chi2s)].split('_')[1]
@@ -110,11 +111,31 @@ class Processing(GridTemplate):
 
 			ax.text(0.03,0.05,'%s (%s)' % (star,vis_sect),color='k',transform=ax.transAxes)
 
+			#if len(rn_files) == 1:
 			rnerr[0] = rnerr[0]/(np.log(10)*rnopt[0])
 			rnerr[1] = rnerr[1]/(np.log(10)*rnopt[1])
 			rnopt[:2] = np.ma.log10(rnopt[:2])
 
 			return rnopt, rnerr
+				
+			'''else:
+				
+
+				stat_rn = []
+				stat_rn_w = []
+				for rn_f in rn_files:
+				   rn_opt_s = np.loadtxt(TESS_MODEL_PATH + rn_f, delimiter=',', skiprows = 1, usecols=(-1), unpack=True)	
+				   stat_rn.append(rn_opt_s[:4])
+				   stat_rn_w.append(1./(rn_opt_s[4:]**2))
+
+				stat_mean = np.average(stat_rn, weights = stat_rn_w,  axis = 0)
+				stat_std = np.std(stat_rn, axis = 0)
+
+				stat_std[0] = stat_std[0]/(np.log(10)*stat_mean[0])
+				stat_std[1] = stat_std[1]/(np.log(10)*stat_mean[1])
+				stat_mean[:2] = np.ma.log10(stat_mean[:2])
+
+				return stat_mean, stat_std'''
 
 	def _process_lc(self, star, lc_files):
 
@@ -137,7 +158,7 @@ class Processing(GridTemplate):
 					offset = np.nanmedian(flux)
 					g_sects.append(sect_from_lc(l))	
 					g_times = np.append(g_times,time)
-					g_fluxes = np.append(g_fluxes,flux - offset)				
+                                        g_fluxes = np.append(g_fluxes,flux - offset)
 
 				g_sect_tx = '+'.join([str(x) for x in g_sects])
 

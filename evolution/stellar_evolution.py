@@ -206,16 +206,14 @@ class HRdiagram(PanelTemplate):
 				vmin=np.nanmin(data[self.cbar]), vmax=np.nanmax(data[self.cbar]), label=STY_LB[cbar])
 			colors = np.array([self.cmap(self.norm(k)) for k in self.data[self.cbar]])
 
-		mask_pval = (self.data['PVTEFF'] <= 0.05) | (self.data['PVS_LOGL'] <= 0.05)
-		mask_rest = ~ mask_pval
 
+		mask_acyg = (self.data['VART'] == 'ACYG')
 		mask_ot = (self.data['OTTEFF'] == 1) | (self.data['OTS_LOGL'] == 1)
-
-		p_pval, = self.ax.plot(self.data[self.tkey][mask_pval], self.data[self.lkey][mask_pval], '*', ms = HR_MS, c = 'r')
-		self.ax.plot(self.data[self.tkey][mask_rest], self.data[self.lkey][mask_rest], 'o', ms = HR_MS-3, c = 'k')
-		p_ot, = self.ax.plot(self.data[self.tkey][mask_ot], self.data[self.lkey][mask_ot], 'ko', mew = 1.5, ms = HR_MS+5, mfc = 'none')
-
-		self.ax.legend([p_pval,p_ot],[r'p-value $\leq$ 0.05',r'$f_{j}$ > Q3 + 1.5 $\times$ IQR'])	
+		
+		p_ot, = self.ax.plot(self.data[self.tkey][mask_ot], self.data[self.lkey][mask_ot], 'g*', ms = HR_MS-1)
+		self.ax.plot(self.data[self.tkey][~mask_ot], self.data[self.lkey][~mask_ot], 'ko', ms = HR_MS-3)
+		p_acyg, = self.ax.plot(self.data[self.tkey][mask_acyg], self.data[self.lkey][mask_acyg], 'bo', mew = 1.5, ms = HR_MS+5, mfc = 'none')
+		self.ax.legend([p_acyg,p_ot],[r'$\alpha$ Cygni variables', r'$f_{j}$ > Q3 + 1.5 $\times$ IQR'])	
 
 		return
 
