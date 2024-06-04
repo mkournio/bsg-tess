@@ -166,6 +166,16 @@ Studies of luminous stars in nearby galaxies. I. Supergiants and O stars in the 
 Abstract
 In this paper the fundamental properties of the brightest known stars in our Galaxy are determined for future comparison with results for the most luminous stars in other galaxies. The H-R diagrams (Mv versus spectral type and Mbol versus log Te), the luminosities of the brightest stars, and the ratios of blue to red supergiants are all discussed, and a catalog of over 1000 super- giants and 0 stars in associations and clusters is included at the end of the paper. Tile "theoretical" H-R diagram (Mbol versus log Te) reveals a group of superluminous 0 stars with Mbol between -10 and -12 mag, a lack of evolved supergiants at these very high luminosities, and an apparent upper limit to the luminosities of the later-type supergiants (>B5) near Mbol = -9.5 mag. The most luminous red supergiants have a maximum visual luminosity near Mv -8 mag, supporting the suggestion by Sandage and Tammann that they are good distance indicators. Excluding the superluminous star Cyg OB 2 No. 12 (Mv - 9.9 mag), the brightest blue stars are found at Mv -8.5 mag. The variation of the ratio of blue to red supergiants with luminosity is discussed. Tilere is also evidence for a gradient in this ratio with distance from the galactic center, although the results are limited by the incompleteness of the data. Subject headings: galaxies: Milky Way - galaxies: stellar content - stars: early-type - stars: late-type - stars: luminosities - stars: supergiants 
 
+2009ARA&A..47...63S
+2009/09
+cited: 1028 [03.06.24]
+Progenitors of Core-Collapse Supernovae
+
+    Smartt, Stephen J. 
+
+Abstract
+Knowledge of the progenitors of core-collapse supernovae is a fundamental component in understanding the explosions. The recent progress in finding such stars is reviewed. The minimum initial mass that can produce a supernova (SN) has converged to 8 ± 1 M from direct detections of red supergiant progenitors of II-P SNe and the most massive white dwarf progenitors, although this value is model dependent. It appears that most type Ibc SNe arise from moderate mass interacting binaries. The highly energetic, broad-lined Ic SNe are likely produced by massive, Wolf-Rayet progenitors. There is some evidence to suggest that the majority of massive stars above 20 M may collapse quietly to black holes and that the explosions remain undetected. The recent discovery of a class of ultrabright type II SNe and the direct detection of some progenitor stars bearing luminous blue variable characteristics suggest some very massive stars do produce highly energetic explosions. The physical mechanism is under debate, and these SNe pose a challenge to stellar evolutionary theory.
+
 2010aste.book.....A
 T12M,T12D,
 cited: 780  [31.05.24]
@@ -192,6 +202,16 @@ Presupernova Evolution of Massive Single and Binary Stars
 
 Abstract
 Understanding massive stars is essential for a variety of branches of astronomy including galaxy and star cluster evolution, nucleosynthesis and supernovae, pulsars, and black holes. It has become evident that massive star evolution is very diverse, being sensitive to metallicity, binarity, rotation, and possibly magnetic fields. Although the problem to obtain a good statistical observational database is alleviated by current large spectroscopic surveys, it remains a challenge to model these diverse paths of massive stars toward their violent end stage. I show that the main sequence stage offers the best opportunity to gauge the relevance of the various possible evolutionary scenarios. This also allows sketching the post-main-sequence evolution of massive stars, for which observations of Wolf-Rayet stars give essential clues. Recent supernova discoveries owing to the current boost in transient searches allow tentative mappings of progenitor models with supernova types, including pair-instability supernovae and gamma-ray bursts.
+
+2017PASA...34...58E
+2017/11
+cited: 704 [03.06.24]
+Binary Population and Spectral Synthesis Version 2.1: Construction, Observational Verification, and New Results
+
+    Eldridge, J. J.; Stanway, E. R.; Xiao, L. and 5 more 
+
+Abstract
+The Binary Population and Spectral Synthesis suite of binary stellar evolution models and synthetic stellar populations provides a framework for the physically motivated analysis of both the integrated light from distant stellar populations and the detailed properties of those nearby. We present a new version 2.1 data release of these models, detailing the methodology by which Binary Population and Spectral Synthesis incorporates binary mass transfer and its effect on stellar evolution pathways, as well as the construction of simple stellar populations. We demonstrate key tests of the latest Binary Population and Spectral Synthesis model suite demonstrating its ability to reproduce the colours and derived properties of resolved stellar populations, including well-constrained eclipsing binaries. We consider observational constraints on the ratio of massive star types and the distribution of stellar remnant masses. We describe the identification of supernova progenitors in our models, and demonstrate a good agreement to the properties of observed progenitors. We also test our models against photometric and spectroscopic observations of unresolved stellar populations, both in the local and distant Universe, finding that binary models provide a self-consistent explanation for observed galaxy properties across a broad redshift range. Finally, we carefully describe the limitations of our models, and areas where we expect to see significant improvement in future versions
 
 1992ApJ...391..246P
 1992/05
@@ -235,6 +255,16 @@ O-star mass-loss and wind momentum rates in the Galaxy and the Magellanic Clouds
 
 Abstract
 A new, very fast approximate method is presented to determine mass-loss rates of O-stars from Halpha_ line profiles. The method uses H and HeII departure coefficients from unified model atmospheres parametrized in a simple way as function of wind velocity together with photospheric NLTE line profiles as the inner boundary condition for a numerically exact radiative transfer solution to derive a wind contaminated Halpha_-profile. The method is also applied to Hgamma_ to determine stellar gravities corrected for wind emission. A detailed analytical discussion of Halpha_ line formation in O-star winds is given and it is demonstrated that former very simple approaches considering only optically thin wind emission lead to significant systematic errors. Scaling relations and generalized curves of growth are presented that connect mass-loss rate, terminal velocity, stellar parameters and Halpha_ equivalent width. The method is applied to samples of O-stars in the Galaxy, LMC and SMC and mass-loss rates are derived from Halpha_ in combination with terminal velocities measured from IUE and HST spectra. The results reveal that a tight empirical relation exists between the radius modified stellar wind momentum rate ˙(M)vinfinity_R_*_^0.5^ and the stellar luminosity. The variations of this relationship between the Galaxy, LMC and SMC are explained in terms of different abundances. Furthermore, for almost all objects with dense winds (mostly supergiants), the commonly used velocity field exponent β could be derived, indicating a typical value of β=~1. A comparison with the improved theory of radiation driven winds (as presented recently by Pauldrach et al. 1994) shows that the observed wind momentum-luminosity relationship can be understood qualitatively in terms of the theory. However, there exist significant systematic discrepancies as a function of effective temperature, luminosity class and wind performance number η=˙(M)vinfinity_c/L. We stress that these discrepancies would not have been detected with previous simplified Halpha_ -approaches. The deficiencies of the theory are discussed and suggestions for future improvements are made. 
+
+2011MNRAS.412.1522S
+2011/04
+cited: 437 [03.06.24]
+Observed fractions of core-collapse supernova types and initial masses of their single and binary progenitor stars
+
+    Smith, Nathan; Li, Weidong; Filippenko, Alexei V. and 1 more 
+
+Abstract
+We analyse the observed fractions of core-collapse supernova (SN) types from the Lick Observatory Supernova Search (LOSS), and we discuss the corresponding implications for massive star evolution. For a standard initial mass function, observed fractions of SN types cannot be reconciled with the expectations of single-star evolution. The mass range of Wolf-Rayet (WR) stars that shed their hydrogen envelopes via their own mass-loss accounts for less than half of the observed fraction of Type Ibc supernovae (SNe Ibc). The true progenitors of SNe Ibc must extend to a much lower range of initial masses than classical WR stars, and we argue that most SN Ibc and SN IIb progenitors must arise from binary Roche lobe overflow. In this scenario, SNe Ic would still trace higher initial mass and metallicity, because line-driven winds in the WR stage remove the helium layer and propel the transition from SN Ib to Ic. Less massive progenitors of SNe Ib and IIb may not be classical WR stars; they may be underluminous with weak winds, possibly hidden by overluminous mass-gainer companions that could appear as B[e] supergiants or related objects having aspherical circumstellar material. The remaining SN types (II-P, II-L and IIn) need to be redistributed across the full range of initial masses, so that even some very massive single stars retain H envelopes until explosion. We consider the possibility of direct collapse to black holes without visible SNe, but find this hypothesis difficult to accommodate in most scenarios. Major areas of remaining uncertainty are (1) the detailed influence of binary separation, rotation and metallicity; (2) mass differences in progenitors of SNe IIn compared to SNe II-L and II-P; and (3) the fraction of SNe Ic arising from single stars with the help of eruptive mass-loss, how this depends on metallicity and how it relates to diversity within the SN Ic subclass. Continued studies of progenitor stars and their environments in nearby galaxies, accounting for SN types, may eventually test these ideas.
 
 2013ApJ...764..166D
 2013/02
@@ -348,6 +378,16 @@ Wave Generation by Turbulent Convection
 Abstract
 Wave generation by turbulent convection in a plane parallel, stratified atmosphere lying in a gravitational field is studied. The turbulent spectrum is related to the convective energy flux via the Kolmogorov scaling and the mixing length hypothesis. Efficiencies for the conversion of the convective energy flux into both trapped and propagating waves are estimated.
 
+2019ARA&A..57...35A
+2019/08
+cited: 205 [03.06.24]
+Angular Momentum Transport in Stellar Interiors
+
+    Aerts, Conny; Mathis, Stéphane; Rogers, Tamara M. 
+
+Abstract
+Stars lose a significant amount of angular momentum between birth and death, implying that efficient processes transporting it from the core to the surface are active. Space asteroseismology delivered the interior rotation rates of more than a thousand low- and intermediate-mass stars, revealing the following: Single stars rotate nearly uniformly during the core-hydrogen and core-helium burning phases. Stellar cores spin up to a factor of 10 faster than the envelope during the red giant phase. The angular momentum of the helium-burning core of stars is in agreement with the angular momentum of white dwarfs.Observations reveal a strong decrease of core angular momentum when stars have a convective core. Current theory of angular momentum transport fails to explain this. We propose improving the theory with a data-driven approach, whereby angular momentum prescriptions derived frommultidimensional (magneto)hydrodynamical simulations and theoretical considerations are continuously tested against modern observations. The TESS and PLATO space missions have the potential to derive the interior rotation of large samples of stars, including high-mass and metal-poor stars in binaries and clusters. This will provide the powerful observational constraints needed to improve theory and simulations.  
+
 2013ApJ...772...21R
 2013/07
 cited: 200  [31.05.24]
@@ -393,6 +433,16 @@ The wind momentum-luminosity relationship of galactic A- and B-supergiants
 Abstract
 The Balmer lines of four A Ia-supergiants (spectral type A0 to A3) and fourteen B Ia and Ib-supergiants (spectral type B0 to B3) in the solar neighbourhood are analyzed by means of NLTE unified model atmospheres to determine the properties of their stellar winds, in particular their wind momenta. As in previous work for O-stars (Puls et al. \cite{pul96}) a tight relationship between stellar wind momentum and luminosity (``WLR'') is found. However, the WLR varies as function of spectral type. Wind momenta are strongest for O-supergiants, then decrease from early B (B0 and B1) to mid B (B1.5 to B3) spectral types and become stronger again for A-supergiants. The slope of the WLR appears to be steeper for A- and mid B-supergiants than for O-supergiants. The spectral type dependence is interpreted as an effect of ionization changing the effective number and the line strength distribution function of spectral lines absorbing photon momentum around the stellar flux maximum. This interpretation needs to be confirmed by theoretical calculations for radiation driven winds. The ``Pistol-Star'' in the Galactic Centre, an extreme mid B-hypergiant recently identified as one of the most luminous stars (Figer et al. \cite{fig99}) is found to coincide with the extrapolation of the mid B-supergiant WLR towards higher luminosities. However, the wind momentum of the Luminous Blue Variable P Cygni, a mid B-supergiant with extremely strong mass-loss, is 1.2 dex higher than the WLR of the ``normal'' supergiants. This significant difference is explained in terms of the well-known stellar wind bi-stability of supergiants very close to the Eddinton-limit in this particular range of effective temperatures. A-supergiants in M31 observed with HIRES at the Keck telescope have wind momenta compatible with their galactic counterparts. The potential of the WLR as a new, independent extragalactic distance indicator is discussed. It is concluded that with ten to twenty objects, photometry with HST and medium resolution spectroscopy with 8m-telescopes from the ground distance moduli can be obtained with an accuracy of about 0fm1 out to the Virgo and Fornax clusters of galaxies.
 
+2010ApJ...717L..62Y
+2010/07
+cited: 190 [03.06.24]
+Evolution of Massive Stars with Pulsation-driven Superwinds During the Red Supergiant Phase
+
+    Yoon, Sung-Chul; Cantiello, Matteo 
+
+Abstract
+Pulsations driven by partial ionization of hydrogen in the envelope are often considered important for driving winds from red supergiants (RSGs). In particular, it has been suggested by some authors that the pulsation growth rate in an RSG can be high enough to trigger an unusually strong wind (or a superwind), when the luminosity-to-mass ratio becomes sufficiently large. Using both hydrostatic and hydrodynamic stellar evolution models with initial masses ranging from 15 to 40 M sun, we investigate (1) how the pulsation growth rate depends on the global parameters of supergiant stars and (2) what would be the consequences of a pulsation-driven superwind, if it occurred, for the late stages of massive star evolution. We suggest that such a superwind history would be marked by a runaway increase, followed by a sudden decrease, of the wind's mass-loss rate. The impact on the late evolution of massive stars would be substantial, with stars losing a huge fraction of their H-envelope even with a significantly lower initial mass than previously predicted. This might explain the observed lack of Type II-P supernova (SN) progenitors having initial mass higher than about 17 M sun. We also discuss possible implications for a subset of Type IIn SNe. 
+
 2016A&A...593A.120V
 2016/10
 cited: 182  [31.05.24]
@@ -407,6 +457,26 @@ Methods: We combined the asymptotic period spacing with the traditional approxim
 Results: For the majority of stars with an observed period spacing pattern we successfully determined the rotation rates and the asymptotic period spacing values, although the uncertainty margins on the latter were typically large. This also resulted directly in the identification of the modes that correspond to the detected pulsation frequencies, which for most stars were prograde dipole gravity and gravito-inertial modes. The majority of the observed retrograde modes were found to be Rossby modes. We also discuss the limitations of the method that are due to the neglect of the centrifugal force and the incomplete treatment of the Coriolis force.
 Conclusions: Despite its current limitations, the proposed method was successful to derive the rotation rates and to identify the modes from the observed period spacing patterns. It forms the first step towards detailed seismic modelling based on observed period spacing patterns of moderately to rapidly rotating γDor stars. 
 
+2015MNRAS.447..598S
+2015/02
+cited: 152 [03.06.24]
+Luminous blue variables are antisocial: their isolation implies that they are kicked mass gainers in binary evolution
+
+    Smith, Nathan; Tombleson, Ryan 
+
+Abstract
+Based on their relatively isolated environments, we argue that luminous blue variables (LBVs) must be primarily the product of binary evolution, challenging the traditional single-star view wherein LBVs mark a brief transition between massive O-type stars and Wolf-Rayet (WR) stars. If the latter were true, then LBVs should be concentrated in young massive clusters like early O-type stars. This is decidedly not the case. Examining locations of LBVs in our Galaxy and the Magellanic Clouds reveals that, with only a few exceptions, LBVs systematically avoid clusters of O-type stars. In the Large Magellanic Cloud, LBVs are statistically much more isolated than O-type stars, and (perhaps most surprisingly) even more isolated than WR stars. This makes it impossible for LBVs to be single `massive stars in transition' to WR stars. Instead, we propose that massive stars and supernova (SN) subtypes are dominated by bifurcated evolutionary paths in interacting binaries, wherein most WR stars and Type Ibc supernovae (SNe Ibc) correspond to the mass donors, while LBVs (and their lower mass analogues like B[e] supergiants, which are even more isolated) are the mass gainers. In this view, LBVs are evolved massive blue stragglers. Through binary mass transfer, rejuvinated mass gainers get enriched, spun up, and sometimes kicked far from their clustered birth sites by their companion's SN. This scenario agrees better with LBVs exploding as SNe IIn in isolation, and it predicts that many massive runaway stars may be rapid rotators. Mergers or blue Thorne-Zytkow-like objects might also give rise to LBVs, but these scenarios may have a harder time explaining why LBVs avoid clusters.
+
+2010Natur.464..259D
+2010/03
+cited: 143 [03.06.24]
+Deviations from a uniform period spacing of gravity modes in a massive star
+
+    Degroote, Pieter; Aerts, Conny; Baglin, Annie and 13 more 
+
+Abstract
+The life of a star is dominantly determined by the physical processes in the stellar interior. Unfortunately, we still have a poor understanding of how the stellar gas mixes near the stellar core, preventing precise predictions of stellar evolution. The unknown nature of the mixing processes as well as the extent of the central mixed region is particularly problematic for massive stars. Oscillations in stars with masses a few times that of the Sun offer a unique opportunity to disentangle the nature of various mixing processes, through the distinct signature they leave on period spacings in the gravity mode spectrum. Here we report the detection of numerous gravity modes in a young star with a mass of about seven solar masses. The mean period spacing allows us to estimate the extent of the convective core, and the clear periodic deviation from the mean constrains the location of the chemical transition zone to be at about 10 per cent of the radius and rules out a clear-cut profile.
+
 2018MNRAS.475..879T
 2018/03
 cited: 139 [31.05.24]
@@ -416,6 +486,29 @@ Angular momentum transport by heat-driven g-modes in slowly pulsating B stars
 
 Abstract
 Motivated by recent interest in the phenomenon of waves transport in massive stars, we examine whether the heat-driven gravity (g) modes excited in slowly pulsating B (SPB) stars can significantly modify the stars' internal rotation. We develop a formalism for the differential torque exerted by g modes, and implement this formalism using the GYRE oscillation code and the MESASTAR stellar evolution code. Focusing first on a 4.21M⊙ model, we simulate 1 000 yr of stellar evolution under the combined effects of the torque due to a single unstable prograde g mode (with an amplitude chosen on the basis of observational constraints), and diffusive angular momentum transport due to convection, overshooting, and rotational instabilities. We find that the g mode rapidly extracts angular momentum from the surface layers, depositing it deeper in the stellar interior. The angular momentum transport is so efficient that by the end of the simulation, the initially non-rotating surface layers are spun in the retrograde direction to ≈ 30 per cent of the critical rate. However, the additional inclusion of magnetic stresses in our simulations almost completely inhibits this spin-up. Expanding our simulations to cover the whole instability strip, we show that the same general behaviour is seen in all SPB stars. After providing some caveats to contextualize our results, we hypothesize that the observed slower surface rotation of SPB stars (as compared to other B-type stars) may be the direct consequence of the angular momentum transport that our simulations demonstrate.
+
+2015A&A...575A..60M
+2015/03
+cited: 130 [03.06.24]
+Impact of mass-loss on the evolution and pre-supernova properties of red supergiants
+
+    Meynet, G.; Chomienne, V.; Ekström, S. and 7 more 
+
+Abstract
+Context. The post-main-sequence evolution of massive stars is very sensitive to many parameters of the stellar models. Key parameters are the mixing processes, the metallicity, the mass-loss rate, and the effect of a close companion.
+Aims: We study the change in the red supergiant (RSG) lifetimes, the tracks in the Hertzsprung-Russel diagram (HRD), the positions in this diagram of the pre-supernova progenitor and the structure of the stars at that time for various mass-loss rates during the RSG phase and for two different initial rotation velocities.
+Methods: Stellar models were computed with the Geneva code for initial masses between 9 and 25 M⊙ at solar metallicity (Z = 0.014) with 10 times and 25 times the standard mass-loss rates during the RSG phase, with and without rotation.
+Results: The surface abundances of RSGs are much more sensitive to rotation than to the mass-loss rates during that phase. A change of the RSG mass-loss rate has a strong impact on the RSG lifetimes and in turn on the luminosity function of RSGs. An observed RSG is associated with a model of higher initial mass when models with an enhanced RSG mass-loss rate are used to deduce that mass. At solar metallicity, models with an enhanced mass-loss rate produce significant changes in the populations of blue, yellow, and RSGs. When extended blue loops or blueward excursions are produced by enhanced mass-loss, the models predict that a majority of blue (yellow) supergiants are post-RSG objects. These post-RSG stars are predicted to show much lower surface rotational velocities than similar blue supergiants on their first crossing of the HR gap. Enhanced mass-loss rates during the RSG phase have little impact on the Wolf-Rayet populations. The position in the HRD of the end point of the evolution depends on the mass of the hydrogen envelope. More precisely, whenever at the pre-supernova stage the H-rich envelope contains more than about 5% of the initial mass, the star is a RSG, and whenever the H-rich envelope contains less than 1% of the total mass, the star is a blue supergiant. For intermediate situations, intermediate colors and effective temperatures are obtained. Yellow progenitors for core-collapse supernovae can be explained by models with an enhanced mass-loss rate, while the red progenitors are better fitted by models with the standard mass-loss rate. 
+
+2013A&A...550L...7G
+2013/02
+cited: 129 [03.06.24]
+Massive star evolution: luminous blue variables as unexpected supernova progenitors
+
+    Groh, J. H.; Meynet, G.; Ekström, S. 
+
+Abstract
+Stars more massive than about 8 M⊙ end their lives as a supernova (SN), an event of fundamental importance Universe-wide. Theoretically, these stars have been expected to be either at the red supergiant, blue supergiant, or Wolf-Rayet stage before the explosion. We performed coupled stellar evolution and atmospheric modeling of stars with initial masses between 20 M⊙ and 120 M⊙. We found that the 20 M⊙ and 25 M⊙ rotating models, before exploding as SN, have spectra that do not resemble any of the aforementioned classes of massive stars. Rather, they have remarkable similarities with rare, unstable massive stars known as luminous blue variables (LBV). While observations show that some SNe seem to have had LBVs as progenitors, no theoretical model had yet predicted that a star could explode at this stage. Our models provide theoretical support for relatively low-luminosity LBVs exploding as SN in the framework of single stellar evolution. This is a significant shift in paradigm, meaning that a fraction of LBVs could be the end stage of massive star evolution, rather than a transitory evolutionary phase. We suggest that type IIb SN could have LBV as progenitors, and a prime example could be SN 2008ax.
 
 2007A&A...463.1093L
 2007/03
@@ -430,6 +523,16 @@ Methods: We have used the NLTE atmosphere code FASTWIND to derive the atmospheri
 Results: From the location of the stars in the (log T_eff, log g) diagram, we suggest that variability of our sample supergiants is indeed due to the gravity modes resulting from the opacity mechanism. We find nine of the comparison stars to be periodically variable as well, and suggest them to be new α Cyg variables. We find marginal evidence of a correlation between the amplitude of the photometric variability and the wind density. We investigate the wind momentum-luminosity relation for the whole range of B spectral type supergiants, and find that the later types (>B5) perfectly follow the relation for A supergiants. Additionally, we provide a new spectral type - T_eff calibration for B supergiants.
 Conclusions: .Our results imply the possibility of probing internal structure models of massive stars of spectral type B through seismic tuning of gravity modes. 
 
+2014A&A...564A..30G
+2014/04
+cited: 124 [03.06.24]
+The evolution of massive stars and their spectra. I. A non-rotating 60 M⊙ star from the zero-age main sequence to the pre-supernova stage
+
+    Groh, Jose H.; Meynet, Georges; Ekström, Sylvia and 1 more 
+
+Abstract
+For the first time, the interior and spectroscopic evolution of a massive star is analyzed from the zero-age main sequence (ZAMS) to the pre-supernova (SN) stage. For this purpose, we combined stellar evolution models using the Geneva code and stellar atmospheric/wind models using CMFGEN. With our approach, we were able to produce observables, such as a synthetic high-resolution spectrum and photometry, thereby aiding the comparison between evolution models and observed data. Here we analyze the evolution of a non-rotating 60 M⊙ star and its spectrum throughout its lifetime. Interestingly, the star has a supergiant appearance (luminosity class I) even at the ZAMS. We find the following evolutionary sequence of spectral types: O3 I (at the ZAMS), O4 I (middle of the H-core burning phase), B supergiant (BSG), B hypergiant (BHG), hot luminous blue variable (LBV; end of H-core burning), cool LBV (H-shell burning through the beginning of the He-core burning phase), rapid evolution through late WN and early WN, early WC (middle of He-core burning), and WO (end of He-core burning until core collapse). We find the following spectroscopic phase lifetimes: 3.22 × 106 yr for the O-type, 0.34 × 105 yr (BSG), 0.79 × 105 yr (BHG), 2.35 × 105 yr (LBV), 1.05 × 105 yr (WN), 2.57 × 105 yr (WC), and 3.80 × 104 yr (WO). Compared to previous studies, we find a much longer (shorter) duration for the early WN (late WN) phase, as well as a long-lived LBV phase. We show that LBVs arise naturally in single-star evolution models at the end of the MS when the mass-loss rate increases as a consequence of crossing the bistability limit. We discuss the evolution of the spectra, magnitudes, colors, and ionizing flux across the star's lifetime, and the way they are related to the evolution of the interior. We find that the absolute magnitude of the star typically changes by ~6 mag in optical filters across the evolution, with the star becoming significantly fainter in optical filters at the end of the evolution, when it becomes a WO just a few 104 years before the SN explosion. We also discuss the origin of the different spectroscopic phases (i.e., O-type, LBV, WR) and how they are related to evolutionary phases (H-core burning, H-shell burning, He-core burning). 
+
 2009A&A...508..409A
 2009/12
 cited: 123 [31.05.24]
@@ -442,6 +545,19 @@ Aims. We aimed at finding a physical explanation for the occurrence of macroturb
 Methods: We computed time series of line profiles for evolved massive stars broadened by rotation and by hundreds of low-amplitude nonradial gravity-mode pulsations which are predicted to be excited for evolved massive stars.
 Results: In general, line profiles based on macrotubulent broadening can mimic those subject to pulsational broadening. In several cases, though, good fits require macroturbulent velocities that pass the speed of sound for realistic pulsation amplitudes. Moreover, we find that the rotation velocity can be seriously underestimated by using a simple parameter description for macroturbulence rather than an appropriate pulsational model description to fit the line profiles.
 Conclusions: We conclude that macroturbulence is a likely signature of the collective effect of pulsations. We provide line diagnostics and their typical values to decide whether or not pulsational broadening is present in observed line profiles, as well as a procedure to avoid an inaccurate estimation of the rotation velocity.
+
+2017A&A...598A..74P
+2017/02
+cited: 121 [04.06.24]
+Signatures of internal rotation discovered in the Kepler data of five slowly pulsating B stars
+
+    Pápics, P. I.; Tkachenko, A.; Van Reeth, T. and 9 more 
+
+Abstract
+Context. Massive stars are important building blocks of the Universe, and their stellar structure and evolution models are fundamental cornerstones of various fields in modern astrophysics. The precision of these models is strongly limited by our lack of understanding of various internal mixing processes that significantly influence the lifetime of these objects, such as core overshoot, chemical mixing, or the internal differential rotation.
+Aims: Our goal is to calibrate models by extending the sample of available seismic studies of slowly pulsating B (SPB) stars, providing input for theoretical modelling efforts that will deliver precise constraints on the parameters describing the internal mixing processes in these objects.
+Methods: We used spectral synthesis and disentangling techniques to derive fundamental parameters and to determine precise orbital parameters from high-resolution spectra. We employed custom masks to construct light curves from the virtually uninterrupted four year long Kepler pixel data and used standard time-series analysis tools to construct a set of significant frequencies for each target. These sets were first filtered from combination frequencies, and then screened for period spacing patterns.
+Results: We detect gravity mode period series of modes, of the same degree ℓ with consecutive radial order n, in four new and one revisited SPB star. These series (covering typically 10 to 40 radial orders) are clearly influenced by moderate to fast rotation and carry signatures of chemical mixing processes. Furthermore, they are predominantly prograde dipole series. Our spectroscopic analysis, in addition to placing each object inside the SPB instability strip and identifying KIC 4930889 as an SB2 binary, reveals that KIC 11971405 is a fast rotator that shows very weak Be signatures. Together with the observed photometric outbursts this illustrates that this Be star is a fast rotating SPB star. We hypothesise that the outbursts might be connected to its very densely compressed oscillation spectrum. 
 
 2006ApJ...650.1111S
 2006/10
@@ -533,6 +649,20 @@ Theory and evidence of global Rossby waves in upper main-sequence stars: r-mode 
 Abstract
 Asteroseismic inference from pressure modes (p modes) and buoyancy, or gravity, modes (g modes) is ubiquitous for stars across the Hertzsprung-Russell diagram. Until now, however, discussion of r modes (global Rossby waves) has been rare. Here we derive the expected frequency ranges of r modes in the observational frame by considering the visibility of these modes. We find that the frequencies of r modes of azimuthal order m appear as groups at slightly lower frequency than m times the rotation frequency. Comparing the visibility curves for r modes with Fourier amplitude spectra of Kepler light curves of upper main-sequence B, A, and F stars, we find that r modes are present in many γ Dor stars (as first discovered by Van Reeth et al.), spotted stars, and so-called heartbeat stars, which are highly eccentric binary stars. We also find a signature of r modes in a frequently bursting Be star observed by Kepler. In the amplitude spectra of moderately to rapidly rotating γ Dor stars, r-mode frequency groups appear at lower frequency than prograde g-mode frequency groups, while in the amplitude spectra of spotted early A to B stars, groups of symmetric (with respect to the equator) r-mode frequencies appear just below the frequency of a structured peak that we suggest represents an approximate stellar rotation rate. In many heartbeat stars, a group of frequencies can be fitted with symmetric m = 1 r modes, which can be used to obtain rotation frequencies of these stars. 
 
+2009A&A...506..111D
+2009/10
+cited: 104 [04.06.24]
+Evidence for nonlinear resonant mode coupling in the β Cephei star HD 180642 (V1449 Aquilae) from CoRoT photometry
+
+    Degroote, P.; Briquet, M.; Catala, C. and 8 more 
+
+Abstract
+Context: We present the CoRoT light curve of the β Cep star HD 180642, assembled during the first long run of the space mission, as well as archival single-band photometry.
+Aims: Our goal is to analyse the detailed behaviour present in the light curve and interpret it in terms of excited-mode frequencies.
+Methods: After describing the noise properties in detail, we use various time series analyses and fitting techniques to model the CoRoT light curve, for various physical assumptions. We apply statistical goodness-of-fit criteria that allow us to select the most appropriate physical model fit to the data.
+Results: We conclude that the light-curve model based on nonlinear resonant frequency and phase locking provides the best representation of the data. Interpretation of the residuals is dependent on the chosen physical model used to prewhiten the data.
+Conclusions: Our observational results constitute a fruitful starting point for detailed seismic stellar modelling of this large-amplitude and evolved β Cep star. 
+
 2014A&A...570L..13C
 2014/10
 cited: 103  [31.05.24]
@@ -542,6 +672,16 @@ The spectroscopic Hertzsprung-Russell diagram of Galactic massive stars
 
 Abstract
 The distribution of stars in the Hertzsprung-Russell diagram narrates their evolutionary history and directly assesses their properties. Placing stars in this diagram however requires the knowledge of their distances and interstellar extinctions, which are often poorly known for Galactic stars. The spectroscopic Hertzsprung-Russell diagram (sHRD) tells similar evolutionary tales, but is independent of distance and extinction measurements. Based on spectroscopically derived effective temperatures and gravities of almost 600 stars, we derive for the first time the observational distribution of Galactic massive stars in the sHRD. While biases and statistical limitations in the data prevent detailed quantitative conclusions at this time, we see several clear qualitative trends. By comparing the observational sHRD with different state-of-the-art stellar evolutionary predictions, we conclude that convective core overshooting may be mass-dependent and, at high mass (≳15 M⊙), stronger than previously thought. Furthermore, we find evidence for an empirical upper limit in the sHRD for stars with Teff between 10 000 and 32 000 K and, a strikingly large number of objects below this line. This over-density may be due to inflation expanding envelopes in massive main-sequence stars near the Eddington limit. 
+
+2020MNRAS.491.3586L
+2020/01
+cited: 99 [04.06.24]
+Gravity-mode period spacings and near-core rotation rates of 611 γ Doradus stars with Kepler
+
+    Li, Gang; Van Reeth, Timothy; Bedding, Timothy R. and 4 more 
+
+Abstract
+We report our survey of γ Dor stars from the 4-yr Kepler mission. These stars pulsate mainly in g modes and r modes, showing period-spacing patterns in the amplitude spectra. The period-spacing patterns are sensitive to the chemical composition gradients and the near-core rotation, hence they are essential for understanding the stellar interior. We identified period-spacing patterns in 611 γ Dor stars. Almost every star pulsates in dipole g modes, while about 30 per cent of stars also show clear patterns for quadrupole g modes and 16 per cent of stars present r-mode patterns. We measure periods, period spacings, and the gradient of the period spacings. These three observables guide the mode identifications and can be used to estimate the near-core rotation rate. We find many stars are hotter and show longer period-spacing patterns than theory. Using the traditional approximation of rotation (TAR), we inferred the asymptotic spacings, the near-core rotation rates, and the radial orders of the g and r modes. Most stars have a near-core rotation rate around 1 d-1 and an asymptotic spacing around 4000 s. We also find that many stars rotate more slowly than predicted by theory for unclear reasons. 11 stars show rotational splittings with fast rotation rates. We compared the observed slope-rotation relation with the theory and find a large spread. We detected rotational modulations in 58 stars and used them to derive the core-to-surface rotation ratios. The interiors rotate faster than the cores in most stars, but by no more than 5 per cent. 
 
 2020A&A...637A...6L
 2020/05
@@ -566,6 +706,16 @@ Aims: In a previous paper, we presented 3D Monte-Carlo calculations for the form
 Methods: In the first step, the analyses started with simulating the observed spectra with Potsdam Wolf-Rayet (PoWR) non-LTE model atmospheres. The mass-loss rates are adjusted to fit to the observed Hα emission lines best. For the unsaturated UV resonance lines (i.e., P v) we then applied our 3D Monte-Carlo code, which can account for wind clumps of any optical depths ("macroclumping"), a non-void interclump medium, and a velocity dispersion inside the clumps. The ionization stratifications and underlying photospheric spectra were adopted from the PoWR models. The properties of the wind clumps were constrained by fitting the observed resonance line profiles.
 Results: Our results show that with the mass-loss rates that fit Hα (and other Balmer and He ii lines), the UV resonance lines (especially the unsaturated doublet of P v) can also be reproduced with no problem when macroclumping is taken into account. There is no need to artificially reduce the mass-loss rates or to assume a subsolar phosphorus abundance or an extremely high clumping factor, unlike what was claimed by other authors. These consistent mass-loss rates are lower by a factor of 1.3 to 2.6, compared to the mass-loss rate recipe from Vink et al.
 Conclusions: Macroclumping resolves the previously reported discrepancy between Hα and P v mass-loss diagnostics. 
+
+2005ApJ...635L..77W
+2005/12
+cited: 91 [04.06.23]
+MOST Detects g-Modes in the Be Star HD 163868
+
+    Walker, G. A. H.; Kuschnig, R.; Matthews, J. M. and 10 more 
+
+Abstract
+We have extracted a 37 day light curve with a precision of 0.0012 mag per point for the Microvariability and Oscillations of Stars (MOST) guide star, HD 163868 (B5 Ve). Its rich frequency spectrum resembles that of a slowly pulsating B (SPB) star but, being a rapid rotator, we designate it SPBe. The 60 most significant periods lie in three distinct groups centered on 8 days and 14 and 7 hr. We demonstrate that the 14 and 7 hr periods can be modeled by two swarms of high-order, prograde sectorial g-modes (m=-1, -2), which are destabilized by the iron opacity bump. Our model also predicts a group of r-modes with periods near 2.3 days, which correspond to frequencies observed in the tail of the 8 day group. The remaining periodicities, between 7 and 11 days, cannot be explained by unstable modes in our model.
 
 2011A&A...533A...4B
 2011/09
@@ -632,6 +782,20 @@ Aims: We re-investigate the properties of HR 6819 to search for a possibly simpl
 Methods: Based on an orbital analysis, the disentangling of the spectra of the two visible components and the atmosphere analysis of the disentangled spectra, we investigate the configuration of the system and the nature of its components.
 Results: Disentangling implies that the Be component is not a static tertiary, but rather a component of the binary in the 40 d orbit. The inferred radial velocity amplitudes of K1 = 60.4 ± 1.0 km s-1 for the B-type primary and K2 = 4.0 ± 0.8 km s-1 for the Be-type secondary imply an extreme mass ratio of M2/M1 = 15 ± 3. We find that the B-type primary, which we estimate to contribute about 45% to the optical flux, has an effective temperature of Teff = 16 ± 1 kK and a surface gravity of log g = 2.8 ± 0.2 [cgs], while the Be secondary, which contributes about 55% to the optical flux, has Teff = 20 ± 2 kK and log g = 4.0 ± 0.3 [cgs]. We infer spectroscopic masses of 0.4-0.1+0.3and 6-3+5 for the primary and secondary which agree well with the dynamical masses for an inclination of i = 32°. This indicates that the primary might be a stripped star rather than a B-type giant. Evolutionary modelling suggests that a possible progenitor system would be a tight (Pi ≈ 2 d) B+B binary system that experienced conservative mass transfer. While the observed nitrogen enrichment of the primary conforms with the predictions of the evolutionary models, we find no indications for the predicted He enrichment.
 Conclusions: We suggest that HR 6819 is a binary system consisting of a stripped B-type primary and a rapidly-rotating Be star that formed from a previous mass-transfer event. In the framework of this interpretation, HR 6819 does not contain a BH. Interferometry can distinguish between these two scenarios by providing an independent measurement of the separation between the visible components. 
+
+2020A&A...637A..60T
+2020/05
+cited: 77 [04.06.24]
+The mass discrepancy in intermediate- and high-mass eclipsing binaries: The need for higher convective core masses
+
+    Tkachenko, A.; Pavlovski, K.; Johnston, C. and 6 more 
+
+Abstract
+Context. Eclipsing, spectroscopic double-lined binary star systems are excellent laboratories for calibrating theories of stellar interior structure and evolution. Their precise and accurate masses and radii measured from binary dynamics offer model-independent constraints and challenge current theories of stellar evolution.
+Aims: We aim to investigate the mass discrepancy in binary stars. This is the significant difference between stellar components' masses measured from binary dynamics and those inferred from models of stellar evolution via positions of the components in the Teff - log g Kiel diagram. We study the effect of near-core mixing on the mass of the convective core of the stars and interpret the results in the context of the mass discrepancy.
+Methods: We fitted stellar isochrones computed from a grid of MESA stellar evolution models to a homogeneous sample of eleven high-mass binary systems. Two scenarios are considered where individual stellar components of a binary system are treated independent of each other and where they are forced to have the same age and initial chemical composition. We also study the effect of the microturbulent velocity and turbulent pressure on the atmosphere model structure and stellar spectral lines, and its link with the mass discrepancy.
+Results: We find that the mass discrepancy is present in our sample and that it is anti-correlated with the surface gravity of the star. No correlations are found with other fundamental and atmospheric parameters, including the stellar mass. The mass discrepancy can be partially accounted for by increasing the amount of near-core mixing in stellar evolution models. We also find that ignoring the microturbulent velocity and turbulent pressure in stellar atmosphere models of hot evolved stars results in the overestimation of their effective temperature by up to 8%. Together with enhanced near-core mixing, this can almost entirely account for the ∼30% mass discrepancy found for the evolved primary component of V380 Cyg.
+Conclusions: We find a strong link between the mass discrepancy and the convective core mass. The mass discrepancy can be solved by considering the combined effect of extra near-core boundary mixing and the consistent treatment in the spectrum analysis of hot evolved stars. Our binary modelling results in convective core masses between 17 and 35% of the stellar mass, which is in excellent agreement with the results from gravity-mode asteroseismology of single stars. This implies larger helium core masses near the end of the main sequence than have been anticipated so far.
 
 2020A&A...639A..81B
 2020/07
@@ -732,6 +896,16 @@ Nonradial nonadiabatic stellar pulsations: A numerical method and its applicatio
 Abstract
 A new general method for the computation of nonradial nonadiabatic oscillations of a given stellar model is presented for a linear approximation. A simple and useful modelling of the atmosphere is included, allowing to obtain credible values for the eigenfunctions in the atmosphere. Some of the results obtained for a 10 Msun model are shown as an illustration. Our study opens the way to different applications. Better theoretical line-profile variations could be obtained from our method, allowing a more detailed comparison with observations. More generally, our study is relevant for asteroseismology, giving a way for a better knowledge of stellar interiors.
 
+2017ApJ...848L...1R
+2017/10
+cited: 68 [03.06.24]
+On the Chemical Mixing Induced by Internal Gravity Waves
+
+    Rogers, T. M.; McElwaine, J. N. 
+
+Abstract
+Detailed modeling of stellar evolution requires a better understanding of the (magneto)hydrodynamic processes that mix chemical elements and transport angular momentum. Understanding these processes is crucial if we are to accurately interpret observations of chemical abundance anomalies, surface rotation measurements, and asteroseismic data. Here, we use two-dimensional hydrodynamic simulations of the generation and propagation of internal gravity waves in an intermediate-mass star to measure the chemical mixing induced by these waves. We show that such mixing can generally be treated as a diffusive process. We then show that the local diffusion coefficient does not depend on the local fluid velocity, but rather on the wave amplitude. We then use these findings to provide a simple parameterization for this diffusion, which can be incorporated into stellar evolution codes and tested against observations.
+
 2018MNRAS.473.5532R
 2018/02
 cited: 66
@@ -741,6 +915,16 @@ BRITE-Constellation high-precision time-dependent photometry of the early O-type
 
 Abstract
 From 5.5 months of dual-band optical photometric monitoring at the 1 mmag level, BRITE-Constellation has revealed two simultaneous types of variability in the O4I(n)fp star ζ Puppis: one single periodic non-sinusoidal component superimposed on a stochastic component. The monoperiodic component is the 1.78-d signal previously detected by Coriolis/Solar Mass Ejection Imager, but this time along with a prominent first harmonic. The shape of this signal changes over time, a behaviour that is incompatible with stellar oscillations but consistent with rotational modulation arising from evolving bright surface inhomogeneities. By means of a constrained non-linear light-curve inversion algorithm, we mapped the locations of the bright surface spots and traced their evolution. Our simultaneous ground-based multisite spectroscopic monitoring of the star unveiled cyclical modulation of its He II λ4686 wind emission line with the 1.78-d rotation period, showing signatures of corotating interaction regions that turn out to be driven by the bright photospheric spots observed by BRITE. Traces of wind clumps are also observed in the He II λ4686 line and are correlated with the amplitudes of the stochastic component of the light variations probed by BRITE at the photosphere, suggesting that the BRITE observations additionally unveiled the photospheric drivers of wind clumps in ζ Pup and that the clumping phenomenon starts at the very base of the wind. The origins of both the bright surface inhomogeneities and the stochastic light variations remain unknown, but a subsurface convective zone might play an important role in the generation of these two types of photospheric variability.
+
+2015MNRAS.451.1445B
+2015/08
+cited: 65 [04.06.24]
+Analysis of Kepler B stars: rotational modulation and Maia variables
+
+    Balona, L. A.; Baran, A. S.; Daszyńska-Daszkiewicz, J. and 1 more 
+
+Abstract
+We examine 4 yr almost continuous Kepler photometry of 115 B stars. We find that the light curves of 39 per cent of these stars can be described by a low-frequency sinusoid and its harmonic, usually with variable amplitude, which we interpret as rotational modulation. A large fraction (32 stars or 28 per cent) might be classified as ellipsoidal variables, but a statistical argument suggests that these are probably rotational variables as well. Ten stars (8 per cent of the total) have a peculiar periodogram feature which is common among A stars. The physical cause of this feature is unknown but very likely related to rotation. The large number of rotating variables suggests that star-spots are common in B stars and indicates that magnetic fields can be generated in radiative stellar envelopes. We find five stars (4 per cent) to be β Cep (BECP) variables, all of which have low frequencies with relatively large amplitudes. The presence of low frequencies in BECP stars is an unsolved problem. There are 21 stars (18 per cent) with multiple low frequencies which could be described as slowly pulsating B (SPB) variables. Other pulsating stars do not fit into the general definition of BECP or SPB variables in that they are cool but pulsate with high frequencies. We assume that these are further examples of the anomalous pulsating stars which in the past have been called `Maia' variables. There are 11 stars (10 per cent) of this type. We also examined 300 B stars observed in the K2 Campaign 0 field. We find 12 BECP/Maia candidates and 15 SPB variables.
 
 2013MNRAS.430.1736S
 2013/04
@@ -782,18 +966,25 @@ Weighing stars from birth to death: mass determination methods across the HRD
 Abstract
 The mass of a star is the most fundamental parameter for its structure, evolution, and final fate. It is particularly important for any kind of stellar archaeology and characterization of exoplanets. There exist a variety of methods in astronomy to estimate or determine it. In this review we present a significant number of such methods, beginning with the most direct and model-independent approach using detached eclipsing binaries. We then move to more indirect and model-dependent methods, such as the quite commonly used isochrone or stellar track fitting. The arrival of quantitative asteroseismology has opened a completely new approach to determine stellar masses and to complement and improve the accuracy of other methods. We include methods for different evolutionary stages, from the pre-main sequence to evolved (super)giants and final remnants. For all methods uncertainties and restrictions will be discussed. We provide lists of altogether more than 200 benchmark stars with relative mass accuracies between [0.3 ,2 ]% for the covered mass range of M ∈[0.1 ,16 ] M⊙ , 75 % of which are stars burning hydrogen in their core and the other 25 % covering all other evolved stages. We close with a recommendation how to combine various methods to arrive at a "mass-ladder" for stars.
 
-2010A&A...513L..11A
-2010/04
-cited: 47  [31.05.24]
-Periodic mass-loss episodes due to an oscillation mode with variable amplitude in the hot supergiant HD 50064
+2006ApJ...642..470A
+2006/05
+cited: 53 [04.06.24]
+δ Ceti Is Not Monoperiodic: Seismic Modeling of a β Cephei Star from MOST Space-based Photometry
 
-    Aerts, C.; Lefever, K.; Baglin, A. and 15 more 
+    Aerts, C.; Marchenko, S. V.; Matthews, J. M. and 7 more 
 
 Abstract
+The β Cephei star δ Ceti was considered one of the few monoperiodic variables in its class. Despite (or perhaps because of) its apparently simple oscillation spectrum, it has been challenging and controversial to identify this star's pulsation mode and constrain its physical parameters seismically. Broadband time-resolved photometry of δ Ceti spanning 18.7 days with a duty cycle of about 65% obtained by the Microvariability and Oscillations of Stars (MOST) satellite-the first scientific observations ever obtained by MOST-reveals that the star is actually multiperiodic. Besides the well-known dominant frequency of f1=6.205886 day-1, we have discovered in the MOST data its first harmonic 2f1 and three other frequencies (f2=3.737, f3=3.673, and f4=0.318 day-1), all detected with a signal-to-noise ratio (S/N)>4. In retrospect, f2 was also present in archival spectral line-profile data but at lower S/N. We present seismic models whose modes match exactly the frequencies f1 and f2. Only one model falls within the common part of the error boxes of the star's observed surface gravity and effective temperature from photometry and spectroscopy. In this model, f1 is the radial (l=0) first overtone, and f2 is the g2 (l=2, m=0) mode. This model has a mass of 10.2+/-0.2 Msolar and an age of 17.9+/-0.3 Myr, making δ Ceti an evolved β Cephei star. If f2 and f3 are rotationally split components of the same g2 mode, then the star's equatorial rotation velocity is either 27.6 km s-1 or half this value. Given its vsini of about 1 km s-1, this implies that we are seeing δ Ceti nearly pole-on. 
 
-Aims: We aim to interpret the photometric and spectroscopic variability of the luminous blue variable supergiant HD 50064 (V = 8.21).
-Methods: CoRoT space photometry and follow-up high-resolution spectroscopy with a time base of 137 d and 169 d, respectively, was gathered, analysed, and interpreted using standard time series analysis and light curve modelling methods, as well as spectral line diagnostics.
-Results: The space photometry reveals one period of 37 d, which undergoes a sudden amplitude change with a factor 1.6. The pulsation period is confirmed in the spectroscopy, which additionally reveals metal line radial velocity values differing by 30 km s-1 depending on the spectral line and on the epoch. We estimate Teff 13 500 K, log g 1.5 from the equivalent width of Si lines. The Balmer lines reveal that the star undergoes episodes of changing mass loss on a time scale similar to the changes in the photometric and spectroscopic variability, with an average value of log dot{M} ≃ -5 (in M_⊙ yr-1). We tentatively interpret the 37 d period as the result of a strange mode oscillation. 
+2019MNRAS.487..782L
+2019/07
+cited: 51 [03.06.24]
+Period spacings of γ Doradus pulsators in the Kepler field: Rossby and gravity modes in 82 stars
+
+    Li, Gang; Van Reeth, Timothy; Bedding, Timothy R. and 2 more 
+
+Abstract
+Rossby modes are the oscillations in a rotating fluid, whose restoring force is the Coriolis force. They provide an additional diagnostic to understand the rotation of stars, which complicates asteroseismic modelling. We report 82 γ Doradus stars for which clear period spacing patterns of both gravity and Rossby modes have been detected. The period spacings of both show a quasi-linear relation with the pulsation period, but the slope is negative for the gravity modes and positive for the Rossby modes. Most Rossby modes have k = -2, m = -1. For only one star, a series of k = -1, m = -1 modes is seen. For each pattern, the mean pulsation period, the mean period spacing, and the slope are measured. We find that the slope correlates with the mean period for Rossby mode patterns. The traditional approximation of rotation is used to measure the near-core rotation rate, assuming the star rotates rigidly. We report the near-core rotation rates, the asymptotic period spacings, and the radial orders of excited modes of these 82 main-sequence stars. The near-core rotation rates lie between 0.6 and 2.3 d^{-1}. Six stars show surface rotation modulations, among which only KIC 3341457 shows differential rotation, whilst the other five stars have uniform rotations. The radial orders of excited modes show different distributions for the dipole and quadrupole gravity modes versus the Rossby modes. 
 
 2009A&A...507.1141L
 2009/11
@@ -807,6 +998,19 @@ Context: Variability is a key factor for understanding the nature of the most ma
 Aims: In terms of statistics, the data from the HIPPARCOS satellite are unique because of time coverage and uniformity. They are ideal to study variability in this large, uniform sample of OB stars.
 Methods: We used statistical techniques to determine an independant threshold of variability corresponding to our sample of OB stars, and then applied an automatic algorithm to search for periods in the data of stars that are located above this threshold. We separated the sample stars into 4 main categories of variability: 3 intrinsic and 1 extrinsic. The intrinsic categories are: OB main sequence stars (~2/3 of the sample), OBe stars (~10%) and OB Supergiant stars (~1/4).The extrinsic category refers to eclipsing binaries.
 Results: We classified about 30% of the whole sample as variable, although the fraction depends on magnitude level due to instrumental limitations. OBe stars tend to be much more variable (≈80%) than the average sample star, while OBMS stars are below average and OBSG stars are average. Types of variables include α Cyg, β Cep, slowly pulsating stars and other types from the general catalog of variable stars. As for eclipsing binaries, there are relatively more contact than detached systems among the OBMS and OBe stars, and about equal numbers among OBSG stars. 
+
+2010A&A...513L..11A
+2010/04
+cited: 47  [31.05.24]
+Periodic mass-loss episodes due to an oscillation mode with variable amplitude in the hot supergiant HD 50064
+
+    Aerts, C.; Lefever, K.; Baglin, A. and 15 more 
+
+Abstract
+
+Aims: We aim to interpret the photometric and spectroscopic variability of the luminous blue variable supergiant HD 50064 (V = 8.21).
+Methods: CoRoT space photometry and follow-up high-resolution spectroscopy with a time base of 137 d and 169 d, respectively, was gathered, analysed, and interpreted using standard time series analysis and light curve modelling methods, as well as spectral line diagnostics.
+Results: The space photometry reveals one period of 37 d, which undergoes a sudden amplitude change with a factor 1.6. The pulsation period is confirmed in the spectroscopy, which additionally reveals metal line radial velocity values differing by 30 km s-1 depending on the spectral line and on the epoch. We estimate Teff 13 500 K, log g 1.5 from the equivalent width of Si lines. The Balmer lines reveal that the star undergoes episodes of changing mass loss on a time scale similar to the changes in the photometric and spectroscopic variability, with an average value of log dot{M} ≃ -5 (in M_⊙ yr-1). We tentatively interpret the 37 d period as the result of a strange mode oscillation. 
 
 2020MNRAS.497L..19S
 2020/09
@@ -832,6 +1036,16 @@ Aims: To investigate a possible interplay between pulsations and mass-loss, we c
 Methods: We modeled the H, He i, Si ii, and Si iii lines using the nonlocal thermal equilibrium atmosphere code FASTWIND and derived the photospheric and wind parameters. In addition, we searched for variability in the intensity and radial velocity of photospheric lines and performed a moment analysis of the line profiles to derive frequencies and amplitudes of the variations.
 Results: The Hα line varies with time in both intensity and shape, displaying various types of profiles: P Cygni, pure emission, almost complete absence, and double or multiple peaked. The star undergoes episodes of variable mass-loss rates that change by a factor of 1.7-2 on different timescales. We also observe changes in the ionization rate of Si ii and determine a multiperiodic oscillation in the He i absorption lines, with periods ranging from a few hours to 22.5 days.
 Conclusions: We interpret the photospheric line variations in terms of oscillations in p-, g-, and strange modes. We suggest that these pulsations can lead to phases of enhanced mass loss. Furthermore, they can mislead the determination of the stellar rotation. We classify the star as a post-red supergiant, belonging to the group of α Cyg variables. 
+
+2009ApJ...698L..56H
+2009/06
+cited: 45 [03.06.24]
+Asteroseismology of Hybrid Pulsators Made Possible: Simultaneous MOST Space Photometry and Ground-Based Spectroscopy of γ Peg
+
+    Handler, G.; Matthews, J. M.; Eaton, J. A. and 26 more 
+
+Abstract
+We have acquired simultaneous high-precision space photometry and radial velocities of the bright hybrid β Cep/Slowly Pulsating B pulsator γ Peg. Frequency analyses reveal the presence of six gravity (g) modes of high radial order together with eight low-order β Cep oscillations in both data sets. Mode identification shows that all pulsations have spherical degrees ell = 0-2. An 8.5 M sun model reproduces the observed pulsation frequencies; all theoretically predicted modes in the β Cep domain are detected. We suggest, contrary to previous authors, that γ Peg is a single star; the claimed orbital variations are due to g-mode pulsation. γ Peg is the first hybrid pulsator for which a sufficiently large number of high-order g modes and low-order pressure (p) and mixed modes have been detected and identified to be usable for in-depth seismic modeling. 
 
 2006A&A...447..325K
 2006/02
@@ -958,6 +1172,7 @@ Methods: The synthetic line profiles are computed with the non-local thermodynam
 Results: The mass-loss rate of three stars has been obtained for the first time. The global properties of stellar winds of mid/late B supergiants are well represented by a β-law with β > 2. All stars follow the known empirical wind momentum-luminosity relationships, and the late BSGs show the trend of the mid BSGs. HD 75149 and HD 99953 display significant changes in the shape and intensity of the Hα line (from a pure absorption to a P Cygni profile, and vice versa). These stars have mass-loss variations of almost a factor of 2.8. A comparison among mass-loss rates from the literature reveals discrepancies of a factor of 1 to 7. This large variation is a consequence of the uncertainties in the determination of the stellar radius. Therefore, for a reliable comparison of these values we used the invariant parameter Qr. Based on this parameter, we find an empirical relationship that associates the amplitude of mass-loss variations with photometric/spectroscopic variability on timescales of tens of days. We find that stars located on the cool side of the bi-stability jump show a decrease in the ratio V∞/Vesc, while their corresponding mass-loss rates are similar to or lower than the values found for stars on the hot side. Particularly, for those variable stars a decrease in V∞/Vesc is accompanied by a decrease in Ṁ.
 Conclusions: Our results also suggest that radial pulsation modes with periods longer than 6 days might be responsible for the wind variability in the mid/late-type. These radial modes might be identified with strange modes, which are known to facilitate (enhanced) mass loss. On the other hand, we propose that the wind behaviour of stars on the cool side of the bi-stability jump could fit with predictions of the δ-slow hydrodynamics solution for radiation-driven winds with highly variable ionization. 
 
+
 2020MNRAS.493.5871B
 2020/04
 cited: 35 [31.05.24]
@@ -981,6 +1196,19 @@ Aims: We aim to investigate the effect of the obliquity of a mixed (poloidal and
 Methods: We used the traditional approximation of rotation to compute non-magnetic modes, and a perturbative treatment of the magnetic field to compute the corresponding frequency shifts. We applied the new formalism to HD 43317, a magnetic, rapidly rotating, slowly pulsating B-type star, whose field has an obliquity angle of about 80°.
 Results: We find that frequency shifts induced by the magnetic field on high-radial-order gravity modes are larger with increasing obliquity angle, when the magnetic axis is closer to the equatorial region, where these modes are trapped. The maximum value is reached for an obliquity angle of 90°. This trend is observed for all mode geometries.
 Conclusions: Our results predict that the signature of an internal oblique dipolar magnetic field is detectable using asteroseismology of gravity modes.
+
+2012A&A...542A..88D
+2012/06
+cited: 35 [04.06.24]
+The CoRoT B-type binary HD 50230: a prototypical hybrid pulsator with g-mode period and p-mode frequency spacings⋆
+
+    Degroote, P.; Aerts, C.; Michel, E. and 14 more 
+
+Abstract
+Context. B-type stars are promising targets for asteroseismic modelling, since their frequency spectrum is relatively simple.
+Aims: We deduce and summarise observational constraints for the hybrid pulsator, HD 50230, earlier reported to have deviations from a uniform period spacing of its gravity modes. The combination of spectra and a high-quality light curve measured by the CoRoT satellite allow a combined approach to fix the position of HD 50230 in the HR diagram.
+Methods: To describe the observed pulsations, classical Fourier analysis was combined with short-time Fourier transformations and frequency spacing analysis techniques. Visual spectra were used to constrain the projected rotation rate of the star and the fundamental parameters of the target. In a first approximation, the combined information was used to interpret multiplets and spacings to infer the true surface rotation rate and a rough estimate of the inclination angle.
+Results: We identify HD 50230 as a spectroscopic binary and characterise the two components. We detect the simultaneous presence of high-order g modes and low-order p and g-modes in the CoRoT light curve, but were unable to link them to line profile variations in the spectroscopic time series. We extract the relevant information from the frequency spectrum, which can be used for seismic modelling, and explore possible interpretations of the pressure mode spectrum. 
 
 2011MNRAS.412.1814S
 2011/04
@@ -1080,6 +1308,16 @@ Aims: We investigated with analyt ical and numerical tools how the onset of clum
 Methods: We derived a scaling relation for the linear growth rate of the LDI for a single optically thick line and applied it in the OSG and BSG regime. We ran 1D time-dependent line-driven instability simulations to study the non-linear evolution of the LDI in clumpy OSG and BSG winds.
 Results: Linear perturbation analysis for a single line shows that the LDI linear growth rate Ω scales strongly with stellar effective temperature and terminal wind speed: Ω∝v∞2Teff4. This implies significantly lower growth rates for (the cooler and slower) BSG winds than for OSG winds. This is confirmed by the non-linear simulations, which show significant differences in OSG and BSG wind structure formation, with the latter characterized by significantly weaker clumping factors and lower velocity dispersions. This suggests that lower correction factors due to clumping should be employed when deriving empirical mass-loss rates for BSGs on the cool side of the bi-stability jump. Moreover, the non-linear simulations provide a theoretical background towards explaining the general lack of observed intrinsic X-ray emission in single B-star winds.
 
+2012ApJ...747..108M
+2012/03
+cited: 26 [04.06.24]
+Asteroseismology of the nearby SN-II Progenitor: Rigel. I. The MOST High-precision Photometry and Radial Velocity Monitoring
+
+    Moravveji, Ehsan; Guinan, Edward F.; Shultz, Matt and 2 more 
+
+Abstract
+Rigel (β Ori, B8 Ia) is a nearby blue supergiant displaying α Cyg type variability, and is one of the nearest Type II supernova progenitors. As such it is an excellent test bed to study the internal structure of pre-core-collapse stars. In this study, for the first time, we present 28 days of high-precision MOST photometry and over six years of spectroscopic monitoring. We report 19 significant pulsation modes of signal-to-noise ratio, S/N >~ 4.6 from radial velocities, with variability timescales ranging from 1.21 to 74.7 days, which are associated with high-order low-degree gravity modes. While the radial velocity variations show a degree of correlation with the flux changes, there is no clear interplay between the equivalent widths of different metallic and Hα lines.
+
 2013MNRAS.432.3153D
 2013/07
 cited: 25  [31.05.24]
@@ -1109,6 +1347,16 @@ Light variations due to the line-driven wind instability and wind blanketing in 
 
 Abstract
 A small fraction of the radiative flux emitted by hot stars is absorbed by their winds and redistributed towards longer wavelengths. This effect, which leads also to the heating of the stellar photosphere, is termed wind blanketing. For stars with variable winds, the effect of wind blanketing may lead to the photometric variability. We have studied the consequences of line driven wind instability and wind blanketing for the light variability of O stars. We combined the results of wind hydrodynamic simulations and of global wind models to predict the light variability of hot stars due to the wind blanketing and instability. The wind instability causes stochastic light variability with amplitude of the order of tens of millimagnitudes and a typical timescale of the order of hours for spatially coherent wind structure. The amplitude is of the order of millimagnitudes when assuming that the wind consists of large number of independent concentric cones. The variability with such amplitude is observable using present space borne photometers. We show that the simulated light curve is similar to the light curves of O stars obtained using BRITE and CoRoT satellites.  
+
+2016MNRAS.458.1964T
+2016/05
+cited: 21 [04.06.24]
+Stellar modelling of Spica, a high-mass spectroscopic binary with a β Cep variable primary component
+
+    Tkachenko, A.; Matthews, J. M.; Aerts, C. and 16 more 
+
+Abstract
+Binary stars provide a valuable test of stellar structure and evolution, because the masses of the individual stellar components can be derived with high accuracy and in a model-independent way. In this work, we study Spica, an eccentric double-lined spectroscopic binary system with a β Cep type variable primary component. We use state-of-the-art modelling tools to determine accurate orbital elements of the binary system and atmospheric parameters of both stellar components. We interpret the short-period variability intrinsic to the primary component, detected on top of the orbital motion both in the photometric and spectroscopic data. The non-local thermodynamic equilibrium based spectrum analysis reveals two stars of similar atmospheric chemical composition consistent with the present-day cosmic abundance standard. The masses and radii of the stars are found to be 11.43 ± 1.15 M⊙ and 7.21 ± 0.75 M⊙, and 7.47 ± 0.54 R⊙ and 3.74 ± 0.53 R⊙ for the primary and secondary, respectively. We find the primary component to pulsate in three independent modes, of which one is identified as a radial mode, while the two others are found to be non-radial, low degree l modes. The frequency of one of these modes is an exact multiple of the orbital frequency, and the l = m = 2 mode identification suggests a tidal nature for this particular mode. We find a very good agreement between the derived dynamical and evolutionary masses for the Spica system to within the observational errors of the measured masses. The age of the system is estimated to be 12.5 ± 1 Myr. 
 
 2017A&A...597A..23G
 2017/01
