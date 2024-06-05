@@ -31,14 +31,15 @@ PLOT_PARAMS =	{
          	'ytick.labelsize': SIZE_YLABEL_SUB+5},
 'sed'		:
 		{'legend.fontsize': 8,
-	 	'font.size':  10,
+	 	'font.size':  8,
          	'axes.labelsize': 14,
          	'axes.titlesize': 13,
          	'xtick.labelsize': 18,
          	'ytick.labelsize': 11},
 'cr'		:
 		{'legend.fontsize': 11,
-	 	'font.size':  13,
+		#'text.usetex' : True,
+	 	'font.size':  11,
          	'axes.labelsize': 16,
          	'axes.titlesize': 13,
          	'xtick.labelsize': 15,
@@ -111,7 +112,7 @@ HIST_COLORS = ['dodgerblue','limegreen','r','c','k','b','m']
 
 BIN_PROP =	{
 		'LOW' : 0.05, 
-		'UP' : 1.50, 
+		'UP' : 1.61, 
 		'RES' : 0.05
 		}
 

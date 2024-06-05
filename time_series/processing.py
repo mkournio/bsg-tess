@@ -10,7 +10,7 @@ from itertools import chain
 
 class Processing(GridTemplate):
 	
-	def __init__(self, data, level, load_rn_pickle = False, load_mt_pickle = False, **kwargs):
+	def __init__(self, data, level, load_rn_pickle = False, load_mt_pickle = False, save_pickle = True, **kwargs):
 
 		self.data = data
 		self._validate()
@@ -18,14 +18,14 @@ class Processing(GridTemplate):
 		if load_rn_pickle and level == 'ls' :
 
 			self.rn_tab = pickle.load(open(PICKLE_PATH+'rn.pkl','rb'))
-			print 'Loaded pickle: red noise properties - no plot is generated'
+			print 'Loaded pickle: red noise properties - no further action is taken'
 
 			return
 
 		elif load_mt_pickle and level == 'lc' :
 
 			self.mt_tab = pickle.load(open(PICKLE_PATH+'mt.pkl','rb'))
-			print 'Loaded pickle: light curve metrics - no plot is generated'
+			print 'Loaded pickle: light curve metrics - no further action is taken'
 
 			return
 
@@ -44,11 +44,11 @@ class Processing(GridTemplate):
 					       fig_ylabel=PLOT_YLABEL[self.level],**kwargs)
 			self._process()
 			self.GridClose()
-			if level == 'ls' and kwargs['output_format'] == None: 
+			if level == 'ls' and save_pickle: 
 				pickle.dump(self.rn_tab,open(PICKLE_PATH+'rn.pkl','wb'))
 				print 'Saved pickle: red noise properties'	
 
-			if level == 'lc' and kwargs['output_format'] == None: 
+			if level == 'lc' and save_pickle:
 				pickle.dump(self.mt_tab,open(PICKLE_PATH+'mt.pkl','wb'))
 				print 'Saved pickle: light curve metrics'
 

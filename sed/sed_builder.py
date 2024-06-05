@@ -8,12 +8,12 @@ from numpy.ma import MaskedArray
 import os 
 import pickle
 
-def model_dict(filter_dict, load_pickle = False):
+def model_dict(filter_dict, load_pickle = False, save_pickle = True):
 
 	if load_pickle :
 
 		model = pickle.load(open(PICKLE_PATH+'model.pkl','rb'))
-		print 'Loaded pickle: synth model dict'
+		print 'Loaded pickle: synth model dict - no further action is taken'
 
 		return 	model	
 	else:
@@ -23,7 +23,9 @@ def model_dict(filter_dict, load_pickle = False):
 		PoWRTab = synthetic_fluxes(synth_l,model_type = 'powr')
 		model = {'powr' : PoWRTab, 'kurucz' : KuruczTab}
 
-		pickle.dump(model,open(PICKLE_PATH+'model.pkl','wb'))
+		if save_pickle : 
+			pickle.dump(model,open(PICKLE_PATH+'model.pkl','wb'))
+			print 'Saved pickle: synthetic model dictionary'
 
 		return model	
 
@@ -76,10 +78,10 @@ def sed_read(temp,logg,models,wave):
 
 class SEDBuilder(GridTemplate):
 
-	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, load_pickle = False, **kwargs):
+	def __init__(self, photo_tab, filt_dict, fit_sed = False, fit_model_dict = {}, save_pickle = True, load_pickle = False, **kwargs):
 		if load_pickle :
 			self.sed_tab = pickle.load(open(PICKLE_PATH+'sed.pkl','rb'))
-			print 'Loaded pickle: sed fit properties - no plot is generated'
+			print 'Loaded pickle: sed fit properties - no further action is taken'
 
 			return
 		else:
@@ -122,7 +124,7 @@ class SEDBuilder(GridTemplate):
 				      'S_TEFF': self.photo_tab['TEFF'], 'S_DIST': self.s_dist, 'LOGC': self.logc, 'IRX' : self.irx
 				     })
 
-		if kwargs['output_format'] == None: 
+		if save_pickle: 
 		 	pickle.dump(self.sed_tab,open(PICKLE_PATH+'sed.pkl','wb'))
 			print 'Saved pickle: sed fit properties' 
 
@@ -182,9 +184,9 @@ class SEDBuilder(GridTemplate):
 			fit_prop = self._fit(t_ind)
 			self._plot_fit(ax,fit_prop,t_ind)
 
-		ax.set_ylim(8e-18,4e-8); ax.set_yscale('log')#; ax.set_yticks([1e-14,1e-11,1e-8]) 
-		ax.set_xlim(7e+2,4e+5); ax.set_xscale('log')
 		ax.text(0.05,0.05,self.photo_tab['STAR'][t_ind],size = 14, transform=ax.transAxes)
+		ax.set_ylim(8e-18,9e-8); ax.set_yscale('log')
+		ax.set_xlim(7e+2,4e+5); ax.set_xscale('log')
 
 		return
 
@@ -198,7 +200,7 @@ class SEDBuilder(GridTemplate):
 
 			return None
 
- 		if not self.photo_tab['DIST'][t_ind] is np.ma.masked: 	
+ 		if (not self.photo_tab['DIST'][t_ind] is np.ma.masked) and (self.photo_tab['STAR'][t_ind] not in ['HD57061']): 	
 			self.dist = self.photo_tab['DIST'][t_ind]			 
 		elif 'HDIST' in self.photo_tab.columns :
 			self.dist = self.photo_tab['HDIST'][t_ind]
@@ -206,6 +208,7 @@ class SEDBuilder(GridTemplate):
 			self.dist = FIXED_DIST
 			print "%s: distance missing - set to fixed value %s" % (self.photo_tab['STAR'][t_ind],FIXED_DIST)
 
+		self.teff = 10 ** self.teff
 		self.logg = int(10 * self.logg)
 		if self.teff > 15000. :
 			self.models_key = 'powr'
@@ -323,7 +326,7 @@ class SEDBuilder(GridTemplate):
 
 	      if fit_prop != None :
 
-		rad = float(fit_prop.params['rad'].value) 
+		rad = int(fit_prop.params['rad'].value) 
 		ext = float(fit_prop.params['ext'].value)
 		dist = float(fit_prop.params['dist'].value)
 		teff = float(fit_prop.params['teff'].value)
@@ -385,21 +388,19 @@ class SEDBuilder(GridTemplate):
 
 		axis.plot(w,scaled_sed,'k')
 
-		vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),False) + \
+		vtext = 'log(T$_\mathrm{eff}$ [K]) = ' + self._pr(round(np.log10(teff),2),False) + \
 			'logg [dex] = ' + self._pr(1e-1*logg_gr,False) + \
-			'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
-
-			#'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
+			'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)# + \
+		#	'D [pc] = ' + self._pr(int(dist),True) + \
+		#	'R [$R_{\odot}$] = ' + self._pr(round(rad),False) + \
+		#	'log(L/$L_{\odot}$) = ' + self._pr(round(logL,2),False)
 
 		#vtext = 'T$_\mathrm{eff}$ [K] = ' + self._pr(int(teff),True) + \
 		#	'logg [dex] = ' + self._pr(1e-1*logg_gr,False,note='(sp %s)' % (1e-1*self.logg)) + \
-		#	'R [$R_{\odot}$] = ' + self._pr(int(round(rad)),False) + \
-		#	'D [pc] = ' + self._pr(int(dist),True) + \
-		#	'log(L/$L_{\odot}$) = ' + self._pr(round(logL,2),False) + \
 		#	'A$_{V}$ [mag] = ' + self._pr(round(ext,2),False)
 	
-		axis.text(0.62,0.55,vtext,transform=axis.transAxes)
-		axis.text(0.7,0.1,hdtext+wdtext,transform=axis.transAxes)
+		axis.text(0.65,0.55,vtext,transform=axis.transAxes)
+		#axis.text(0.7,0.1,hdtext+wdtext,transform=axis.transAxes)
 		
 	      return
 

@@ -15,13 +15,12 @@ class PhotoCollector(object):
 	# Data should be a Table containing columns named RA and DEC (in degrees)
 	# Attributes returned; photometric table (in mag) and filter dictionary.
 
-	def __init__(self, input_tab, load_pickle = False):
+	def __init__(self, input_tab, load_pickle = False, save_pickle = True):
 
 		if load_pickle :
 
 			loaded_tab = pickle.load(open(PICKLE_PATH+'photo.pkl','rb'))
-			self.__dict__ = loaded_tab.__dict__
-			
+			self.__dict__ = loaded_tab.__dict__			
 			print 'Loaded pickle: photometry table'
 
 			return
@@ -31,7 +30,9 @@ class PhotoCollector(object):
 			self.photo_cats = {k:v for k, v in PHOTO_CATS.items() if v['act'] > 0}
 			self._collect_phot()
 
-			pickle.dump(self,open(PICKLE_PATH+'photo.pkl','wb'))
+			if save_pickle : 
+				pickle.dump(self,open(PICKLE_PATH+'photo.pkl','wb'))
+				print 'Saved pickle: photometry' 
 
 			return
 

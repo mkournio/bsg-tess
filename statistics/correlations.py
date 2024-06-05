@@ -95,7 +95,7 @@ class corr_scatter(GridTemplate):
 		mask_bright = tab['TMAG'] <= 3
 		mask_contam = tab['RDMAG'] <= 2
 
-		mask_acyg = tab['VART'] == 'ACYG'
+		mask_acyg = (tab['VART'] == 'ACYG') | (tab['VART'] == 'EB+ACYG')| (tab['VART'] == 'ACYG/GCAS')
 		mask_sdor = tab['VART'] == 'SDOR/L'
 
 		axis.scatter(tab[k2][mask_rot],tab[k1][mask_rot],color='r',s=12*(7**tab['IRX'][mask_rot]))
@@ -107,30 +107,22 @@ class corr_scatter(GridTemplate):
 		axis.plot(tab[k2][mask_acyg],tab[k1][mask_acyg],'bo', ms = 15, mfc='none')
 		axis.plot(tab[k2][mask_sdor],tab[k1][mask_sdor],'gs', ms = 15, mfc='none')
 
-
 		try:
 		 axis.errorbar(tab[k2][mask_rot],tab[k1][mask_rot],xerr=tab['e_'+k2][mask_rot],ecolor='r',**e_kwargs)
 		 axis.errorbar(tab[k2][~mask_rot],tab[k1][~mask_rot],xerr=tab['e_'+k2][~mask_rot],ecolor='k',**e_kwargs)	
 		except:
 		 pass	
 
-		'''try:
-		 flag_fraser = tab['f_'+k1] == 2
-		 axis.plot(tab[k2][flag_fraser],tab[k1][flag_fraser],'g^')
-		 axis.errorbar(tab[k2][flag_fraser],tab[k1][flag_fraser],xerr=tab['e_'+k2][flag_fraser],ecolor='g',**e_kwargs)
-	
-		 flag_haucke = tab['f_'+k1] == 1
-		 axis.plot(tab[k2][flag_haucke],tab[k1][flag_haucke],'bs')
-		 axis.errorbar(tab[k2][flag_haucke],tab[k1][flag_haucke],xerr=tab['e_'+k2][flag_haucke],ecolor='r',**e_kwargs)	
-		except:
-		  pass'''
-	
-		mx = mask_outliers(tab[k1], m = 3)
-		my = mask_outliers(tab[k2], m = 3)
+		sig_thr = 100
+		mx = mask_outliers(tab[k2], m = sig_thr)
+		my = mask_outliers(tab[k1], m = sig_thr)
+		if not (mx.mask.all() or my.mask.all()): spear_val = spearmanr(x=mx,y=my)[0]
 
-		if not (mx.mask.all() or my.mask.all()):
-			spear_val = spearmanr(x=mx,y=my)[0]
-			axis.text(0.70,0.90,'%.2f' % spear_val,color='b',weight='bold',transform=axis.transAxes)
+		mx = mask_outliers(tab[k2][~mask_acyg], m = sig_thr)
+		my = mask_outliers(tab[k1][~mask_acyg], m = sig_thr)
+		if not (mx.mask.all() or my.mask.all()): spear_val_early = spearmanr(x=mx,y=my)[0]
+
+		axis.text(0.96,0.08,r"$%.2f$" % (spear_val) + "\n" + r"$\bf{%.2f}$" % (spear_val_early),color='g',ha='right', transform=axis.transAxes)
 			
 		return
 
@@ -159,6 +151,7 @@ class freq_hist(GridTemplate):
 		self.snrs = []
 
 		self.gperc = np.linspace(0,100,ngroups+1)[1:-1]
+		print self.gperc
 
 		self.outl_tab = Table()
 		for c in self.x :
@@ -191,7 +184,7 @@ class freq_hist(GridTemplate):
 			stb_thres = [np.nanpercentile(nanprop, x) for x in self.gperc]
 			self.thres_group[row] = stb_thres
 
-			tb = [0.9*np.nanmin(nanprop)] + sorted(stb_thres) + [1.1*np.nanmax(nanprop)]
+			tb = [0.999*np.nanmin(nanprop)] + sorted(stb_thres) + [1.001*np.nanmax(nanprop)]
 
 			for col in self.y :
 
@@ -204,8 +197,7 @@ class freq_hist(GridTemplate):
 					grouped_acyg_freqs = []
 					grouped_binary_freqs = []
 					bin_mask = (tb[i] < self.data[row]) & (self.data[row] <= tb[i+1])					
-
-					for freqs, snrs, status in zip(self.data[col][bin_mask],self.data['SNR_FF'][bin_mask], self.data['VART'][bin_mask]) :
+					for freqs, snrs, status, star in zip(self.data[col][bin_mask],self.data['SNR_FF'][bin_mask], self.data['VART'][bin_mask], self.data['STAR_1'][bin_mask]) :
 						
 				    		flat_freqs = np.array(list(chain(*freqs)))
 				    		flat_snrs = np.array(list(chain(*snrs)))
@@ -213,12 +205,15 @@ class freq_hist(GridTemplate):
 						mask = flat_snrs > self.snr_thres
 						bin_ave_freq = convert_to_bin_averaged(flat_freqs[mask],self.bins)
 
-						if status == 'ACYG' : 
+						grouped_freqs.append(bin_ave_freq)
+						if (status == 'ACYG') or (status == 'EB+ACYG') or (status == 'ACYG/GCAS'): 
 							grouped_acyg_freqs.append(bin_ave_freq)
-						elif ('EB' in status) or ('SB' in status) : 
+							#print 'ACYG: %s' % star, bin_ave_freq
+						if ('EB' in status) or ('SB' in status) : 
 							grouped_binary_freqs.append(bin_ave_freq)
-						else:
-							grouped_freqs.append(bin_ave_freq)
+							#print 'BINARY: %s' % star, bin_ave_freq
+						#else:
+
 
 					h_kwargs = {'histtype' : 'step', 'lw' : 1.5, 'color' : HIST_COLORS[i], 
 				       'label' : self._hist_legend(tb[i],tb[i+1],FMT_PR[row]) }	
@@ -227,12 +222,13 @@ class freq_hist(GridTemplate):
 					model_args = self._hist_single(ax, grouped_freqs, self.bins, model = 'gamma', **h_kwargs)			
 					grouped_binary_freqs = list(chain(*grouped_binary_freqs))
 					if len(grouped_binary_freqs) > 0:
-					 h_kwargs.update({'hatch' : '.', 'label' : None})
+					 h_kwargs.update({'hatch' : 'O.', 'lw' : 0, 'label' : None})
 					 self._hist_single(ax, grouped_binary_freqs, self.bins, **h_kwargs)
 
 					grouped_acyg_freqs = list(chain(*grouped_acyg_freqs))
 					if len(grouped_acyg_freqs) > 0:
-					 h_kwargs.update({'hatch' : '//', 'alpha': 0.99, 'label' : None})
+				#	 h_kwargs.update({'hatch' : '//', 'alpha': 0.99, 'label' : None})
+					 h_kwargs.update({ 'hatch' : None, 'lw' : 4, 'ls' : (0,(5,4)), 'label' : None})
 					 self._hist_single(ax, grouped_acyg_freqs, self.bins, **h_kwargs)
 
 					q3 = gamma(*model_args).ppf(0.75)
@@ -248,7 +244,10 @@ class freq_hist(GridTemplate):
 						self.outl_tab['OT'+row][self.outl_tab['STAR'] == star] = any(bin_ave_freq > q3 + 1.5 * iqr)
 					i += 1
 
-				ax.legend(title=STY_LB[row], loc="upper right")	
+				lg = ax.legend(loc="upper right", fontsize=18)
+				lg.set_title(STY_LB[row], prop={'size':19})	
+
+				ax.set_yticks([5,10,15])
 		return
 
 	def _hist_single(self, ax, vals, bins, model = None, **h_kwargs):
@@ -267,7 +266,7 @@ class freq_hist(GridTemplate):
 			h_kwargs['label'] += r'$\alpha$ = %.1f, $\beta$ = %.1f' % (gparam[0],1./gparam[2])
 
 		bd,_,_ = ax.hist(vals, bins, **h_kwargs)
-		ax.set_xlim(BIN_PROP['LOW']-0.03,BIN_PROP['UP']-0.03)
+		ax.set_xlim(BIN_PROP['LOW']-0.03,BIN_PROP['UP'])
 
 		return gparam
 		
