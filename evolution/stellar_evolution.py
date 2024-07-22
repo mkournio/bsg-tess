@@ -217,7 +217,7 @@ class HRdiagram(PanelTemplate):
 		self.ax.plot(self.indata[self.tkey][~mask_ot], self.indata[self.lkey][~mask_ot], 'bo', ms = HR_MS-3)
 		p_acyg, = self.ax.plot(self.indata[self.tkey][mask_acyg], self.indata[self.lkey][mask_acyg], 'bo', mew = 1.5, ms = HR_MS+5, mfc = 'none')
 		p_sdor, = self.ax.plot(self.indata[self.tkey][mask_sdor], self.indata[self.lkey][mask_sdor], 'gs', mew = 1.5, ms = HR_MS+5, mfc = 'none')
-		self.ax.legend([p_sdor,p_acyg,p_ot],[r's Dor variable', r'$\alpha$ Cygni variables', r'$f_{j}$ > Q3 + 1.5 $\times$ IQR'],labelspacing=.9)	
+		self.ax.legend([p_sdor,p_acyg,p_ot],[r's Dor variable', r'$\alpha$ Cygni variables', r'$f_{i}$ > Q3 + 1.5 $\times$ IQR'],labelspacing=.9)	
 
 		return
 

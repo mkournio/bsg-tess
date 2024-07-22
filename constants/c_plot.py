@@ -30,7 +30,7 @@ PLOT_PARAMS =	{
          	'xtick.labelsize': SIZE_XLABEL_SUB+5,
          	'ytick.labelsize': SIZE_YLABEL_SUB+5},
 'sed'		:
-		{'legend.fontsize': 8,
+		{'legend.fontsize': 10,
 	 	'font.size':  8,
          	'axes.labelsize': 14,
          	'axes.titlesize': 13,
@@ -87,11 +87,11 @@ STY_LB = 	{
 		'NABUN' : r'N/H', 'LOGD' : r'log$D$', 'S_MASS' : r'$M_{Rg}$',
 		'LOGW' : r'log($W$ [mag])', 'LOGR0' : r'log($R_{0}$ [mag])', 'TAU' : r'$\tau$ [d]', 'GAMMA' : r'$\gamma$' ,
 		'TEFF' :  r'log(T$_{\rm eff}$ [K])', 'TESS_time' : r'Time $-$ 2457000 [BTJD d]',
-		'TESS_freq' : r'Frequency [d$^{-1}$]','S_LOGL' : r'log($L$/L$_{\odot})_{Gaia}$',
+		'TESS_freq' : r'Frequency [d$^{-1}$]','S_LOGL' : r'log($L$/L$_{\odot})$',
 		'MAD' : r'MAD', 'SVAR': r'$\sigma$ [mag]', 'ZCROSS' : r'$D_{0}$', 'PSI': r'$\psi^2$',
 		'ETA' : r'log($\eta$)', 'SKEW': r'skw', 'A_V' : r'$A_{V}$', 'EDD' : r'$\Gamma_{e}$',
 		'GABS' : r'$M_{G}$ [mag]', 'VCHAR' : r'log($\nu_{char}$ [d$^{-1}$])',
-		'FF' : r'$f$ [d$^{-1}$]', 'A_FF' : r'$A_{f}$ [mag]', 'HF' : r'$jf$', 'FFR' : r'$f_{1}/f_{2}$', 
+		'FF' : r'$f_{i}$ [d$^{-1}$]', 'A_FF' : r'$A_{i}$ [mag]', 'HF' : r'$jf$', 'FFR' : r'$f_{1}/f_{2}$', 
 		'A_FFR' : r'$A_{f_{1}}/A_{f_{2}}$', 'BETA' : r'$\beta$', 'VINF' : r'$v_{inf}$ [km s$^{-1}$]',
 		'INDFF' : r'#$f_{i}$','INDFFS' : r'#$f_{i,sec}$'}
 
@@ -112,7 +112,7 @@ HIST_COLORS = ['dodgerblue','limegreen','r','c','k','b','m']
 
 BIN_PROP =	{
 		'LOW' : 0.05, 
-		'UP' : 1.61, 
+		'UP' : 1.31, 
 		'RES' : 0.05
 		}
 
@@ -126,6 +126,9 @@ HR_XLIM = [4.78,3.51]
 SHR_MS = 14
 SHR_YLIM = [4.55,0.8]
 SHR_XLIM = [4.77,3.97]
+
+SED_YLIM = [8e-18,9e-8]
+SED_XLIM = [7e+2,4e+5]
 
 HD_LMT = 	{ 
 		'TEFF' : [3.4,3.8,4.62],

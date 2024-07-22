@@ -9,8 +9,7 @@ class GridTemplate(object):
 
 	# Class for the creation and management of plotting grid
 
-	def __init__(self, rows_page = 3, cols_page = 1, output_format = 'pdf', params = PLOT_PARAMS['lc'], inter = False,
-			figsize = SIZE_GRID, **kwargs):
+	def __init__(self, rows_page = 3, cols_page = 1, output_format = 'pdf', params = PLOT_PARAMS['lc'], inter = False, figsize = SIZE_GRID, **kwargs):
 
 		plt.rcParams.update(params)
 
@@ -67,6 +66,8 @@ class GridTemplate(object):
 			if 'row_labels' in self.__dict__:
 				ax.set_ylabel(STY_LB[self.row_labels[plot_row]])			
 
+		if 'xlim' in self.__dict__:ax.set_xlim(self.xlim)
+		if 'ylim' in self.__dict__:ax.set_ylim(self.ylim)
 
 		self.ind += 1
 

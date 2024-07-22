@@ -2,7 +2,8 @@
 LAMBDA_FIT_THRES = 3e+4
 LAMBDA_IRX_UP = 1.9e+5
 NIR_SCALAR = 1e-26      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
-FIR_SCALAR = 1e-22      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
+MIR_SCALAR = 1e-22      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
+FIR_SCALAR = 1e-18      # Constant applied to SED fit of dust bodies to facilitate the LS minimization
 FIXED_DIST =  999.999999999 # Distance fixed when unavailable - to avoid crash
 
 #Photometric catalogs
@@ -107,6 +108,8 @@ PHOTO_CATS =	{
 
 #Effective wavelengths (A) of filters and zero point (ZPv) (Source: VOSA)
 FLZ_DIR =	{
+			'FUVG':{'l': 1548.85, 'z': 3631}, #GALEX in AB system
+			'NUVG': {'l': 2303.37, 'z': 3631}, #GALEX in AB system
 			'Umag': {'l': 3551.05, 'z': 1438.73},
 			'Bmag': {'l': 4369.53, 'z': 4323.91},
 			'Vmag': {'l': 5467.57, 'z': 3617.50},
@@ -176,12 +179,20 @@ SED_BODIES =	{
 				'teff':{'name':'teff','value':15000,'vary':False},
 				'dist':{'name':'dist','value':15000,'vary':False}
 				},
+		'bn'	:	{
+				'brad':{'name':'brad','value':80,'min':1,'max':1000,'vary':True},
+				'bteff':{'name':'bteff','value':4000,'min':3500,'max':5000,'vary':False}
+				},
 		'hd'	:	{
 				 'hds':{'name':'hds','value':0.,'vary':True,'min':0.},
-				 'hdt':{'name':'hdt','value':1000,'min':600,'max':1500,'vary':True}
+				 'hdt':{'name':'hdt','value':1000,'min':900,'max':1300,'vary':True}
 				},
 		'wd'	:	{
 				 'wds':{'name':'wds','value':0.,'vary':True,'min':0.},
-				 'wdt':{'name':'wdt','value':50,'min':10,'max':100,'vary':True}
+				 'wdt':{'name':'wdt','value':750,'min':300,'max':899,'vary':True}
+				},
+		'cd'	:	{
+				 'cds':{'name':'cds','value':0.,'vary':True,'min':0.},
+				 'cdt':{'name':'cdt','value':40,'min':1,'max':299,'vary':True}
 				}
 		}	

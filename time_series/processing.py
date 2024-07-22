@@ -242,8 +242,9 @@ class Processing(GridTemplate):
 
 		for j in range(len(self.data)) :
 			flat_ff = np.array(list(chain(*self.data['FF'][j])))	
-			status = any(	((RCONST * self.data['VSINI'][j] / self.data['S_RAD'][j]) < flat_ff) & 
+			status = np.ma.any(	((RCONST * self.data['VSINI'][j] / self.data['S_RAD'][j]) < flat_ff) & 
 					((flat_ff < RCONST * self.data['VCRIT'][j] / self.data['S_RAD'][j])) )
+			print self.data['VSINI'][j] , self.data['S_RAD'][j], self.data['VCRIT'][j], status
 			rot_stat.append(status)
 
 		return rot_stat

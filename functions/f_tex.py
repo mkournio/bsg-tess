@@ -57,21 +57,22 @@ class TexTab(object):
 
 		return
 
-	def TabCalcProp(self,data):
+	def TabCalcProp(self,intab):
 
-		columns = ['STAR','A_V','LOGC','S_LOGL','LOGW','LOGR0','TAU','GAMMA', 'SVAR','ETA','PSI','SKEW']
-		names = ['Star','$A_{V}$', 'log$C$', 'log($L/L_{\odot})_{G}$', 'log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$', r'$\sigma$',r'log($\eta$)',r'$\psi^2$',r'skw']
-		sed_tex = Table(data[columns],names=names)
-
-		sed_tex['Note'] = np.zeros(len(data))
+		columns = ['STAR','A_V','LOGC','LOGW','LOGR0','TAU','GAMMA', 'SVAR','PSI','SKEW','F_ROT','OTTEFF','OTS_LOGL']
+		names = ['Star','$A_{V}$', 'log$C$', 'log$W$','log$R_{0}$',r'$\tau$',r'$\gamma$', r'$\sigma$',r'$\psi^2$',r'skw','R','OS','OL']
+		sed_tex = Table(intab[columns],names=names)
 
 		for n in names[1:]:
-			sed_tex[n].format = '.2f'
+			sed_tex[n].format = '.2f'	
+		sed_tex['$\sigma$'].format = '.3f'
+		for n in ['R','OS','OL']:
+			sed_tex[n].format = '%d'
 
-		TEX_SAMPLE_TAB['preamble'] = r'\scriptsize'
-		TEX_SAMPLE_TAB['caption'] = r'\label{tab_cprop} Calculated parameters.'
+		TEX_SAMPLE_TAB['preamble'] = r'\small\centering' 
+		TEX_SAMPLE_TAB['caption'] = r'\label{tab:cprop} Calculated parameters.'
 		TEX_SAMPLE_TAB['tabletype'] = 'table*'
-		TEX_SAMPLE_TAB['col_align'] = 'lccc|cccc|cccc|c'
+		TEX_SAMPLE_TAB['col_align'] = 'lcc|cccc|ccc|ccc'
 
 		ascii.write(sed_tex, 'tab_cprop.tex', format="latex", latexdict=TEX_SAMPLE_TAB)
 
