@@ -187,7 +187,7 @@ class SEDBuilder(GridTemplate):
 		ax.text(0.05,0.05,self.photo_tab['STAR'][t_ind],size = 14, transform=ax.transAxes)
 		ax.set_yscale('log')
 		ax.set_xscale('log')
-		ax.legend(loc=1)
+		#ax.legend(loc=1)
 
 		return
 
@@ -360,7 +360,7 @@ class SEDBuilder(GridTemplate):
 		logL = np.log10( (rad**2) * ((teff/5778.)**4) )
 
 		#print fit_prop.params
-		w = np.append(np.arange(1000,200000,1),[200000,400000])
+		w = np.append(np.arange(1000,100000,1),[200000,400000])
 		t_low, t_up, q, logg_gr = self._get_tvals(teff,self.logg)
 		sed_low = sed_read(t_low,logg_gr,self.models_key,w)
 		sed_up = sed_read(t_up,logg_gr,self.models_key,w)

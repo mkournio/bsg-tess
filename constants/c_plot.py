@@ -64,7 +64,7 @@ PLOT_XLABEL =   {
 PLOT_YLABEL =   { 
 		'lc' : r'$\Delta$m (mag)',
 		'ls' : r'Amplitude (mag)',
-		'sed': r'$F_{\lambda}$ (erg/s/cm$^2$/A)'
+		'sed': r'$f_{\lambda}$ (erg/s/cm$^2$/A)'
 		}
 
 

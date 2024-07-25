@@ -55,10 +55,8 @@ class PanelTemplate(object):
 
 	def _save_output(self):
 
-		if self.output_format == 'pdf':
-			self.pdf.savefig(self.fig)
-		elif self.output_format == 'eps':
-			self.fig.savefig('%s.%s' % (self._get_filename(),self.output_format), format = 'eps', bbox_inches='tight')	
+		filename = '%s.%s' % (self._get_filename(),self.output_format)
+		self.fig.savefig(filename, format = self.output_format, bbox_inches='tight')	
 
 		return					
 

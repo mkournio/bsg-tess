@@ -114,10 +114,9 @@ class GridTemplate(object):
 		self.glob_ax.set_xlabel(self.fig_xlabel, fontsize = SIZE_XLABEL_FIG, labelpad=30)
 		self.glob_ax.set_ylabel(self.fig_ylabel, fontsize = SIZE_YLABEL_FIG, labelpad=55)
 
-		if self.output_format == 'pdf':
-			self.pdf.savefig(self.fig,bbox_inches='tight')
-		elif self.output_format == 'eps':
-			self.fig.savefig('%s.%s' % (self._get_filename(),self.output_format), format = 'eps',bbox_inches='tight')
+		if self.output_format != None:
+			filename = '%s.%s' % (self._get_filename(),self.output_format)
+			self.fig.savefig('%s.%s' % (self._get_filename(),self.output_format), format = self.output_format,bbox_inches='tight')
 
 		return					
 
